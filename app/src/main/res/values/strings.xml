@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">Gallery Explorer</string>
+    <string name="all_files_access_title">All files access</string>
+    <string name="all_files_access_description">To show you all your photos and videos from all locations (Internal Storage, SD Card, etc.), Gallery Explorer needs permission to view all files and media.</string>
+    <string name="all_files_access_description_2">We will not modify, delete, or move any of your files. We only need to look at them.</string>
+    <string name="grant_access">Grant access</string>
+    <string name="storage">Storage</string>
+    <string name="back">Back</string>
 </resources>
