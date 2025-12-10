@@ -60,7 +60,7 @@ fun VolumeFileTile(modifier: Modifier = Modifier, file: VolumeFile, onClick: () 
                 if (file is VolumeFile.Image) {
                     AsyncImage(
                         modifier = Modifier.size(maxWidth),
-                    model = file.file.path.toUri(),
+                    model = file.file.toUri(),
 //                        model = "https://static.wikia.nocookie.net/fateanother/images/b/b8/RiderAstolfoStage2.jpg/revision/latest?cb=20190708225924",
                         contentDescription = null,
                         contentScale = ContentScale.Fit,

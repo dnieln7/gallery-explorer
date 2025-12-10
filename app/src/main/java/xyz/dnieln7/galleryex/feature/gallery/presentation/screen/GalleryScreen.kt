@@ -19,7 +19,6 @@ import androidx.compose.material3.MediumTopAppBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
@@ -41,6 +40,7 @@ import xyz.dnieln7.galleryex.R
 import xyz.dnieln7.galleryex.core.domain.model.VolumeFile
 import xyz.dnieln7.galleryex.core.presentation.theme.GalleryExplorerTheme
 import xyz.dnieln7.galleryex.feature.gallery.presentation.component.VolumeFileTile
+import xyz.dnieln7.galleryex.feature.pager.presentation.screen.PagerImageScreenDestination
 import java.io.File
 
 class GalleryScreenDestination(
@@ -54,11 +54,23 @@ class GalleryScreenDestination(
         GalleryScreen(
             titles = titles,
             directory = directory,
+            navigateBack = { navigator.pop() },
             navigateToGallery = {
                 navigator.push(
                     GalleryScreenDestination(
                         titles = titles + it.name,
                         directory = it,
+                    )
+                )
+            },
+            navigateToPager = { files, image ->
+                val images = files.filterIsInstance<VolumeFile.Image>()
+                val selectedIndex = images.indexOf(image)
+
+                navigator.push(
+                    PagerImageScreenDestination(
+                        images = images,
+                        selectedIndex = selectedIndex,
                     )
                 )
             }
@@ -70,7 +82,9 @@ class GalleryScreenDestination(
 private fun GalleryScreen(
     titles: List<String>,
     directory: VolumeFile.Directory,
+    navigateBack: () -> Unit,
     navigateToGallery: (VolumeFile.Directory) -> Unit,
+    navigateToPager: (List<VolumeFile>, VolumeFile.Image) -> Unit,
 ) {
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
 
@@ -95,7 +109,7 @@ private fun GalleryScreen(
                 },
                 navigationIcon = {
                     IconButton(
-                        onClick = {},
+                        onClick = navigateBack,
                         content = {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
@@ -127,10 +141,7 @@ private fun GalleryScreen(
                                 onClick = {
                                     when (it) {
                                         is VolumeFile.Directory -> navigateToGallery(it)
-                                        is VolumeFile.Image -> {
-                                            Timber.i("Image clicked: ${it.file.toUri()}")
-                                        }
-
+                                        is VolumeFile.Image -> navigateToPager(files, it)
                                         else -> Unit
                                     }
                                 },
@@ -158,7 +169,9 @@ private fun GalleryPreview() {
                 directory = VolumeFile.Directory(
                     file = File("/storage/emulated/0/Pictures"),
                 ),
+                navigateBack = { },
                 navigateToGallery = { },
+                navigateToPager = { _, _ -> },
             )
         }
     }
