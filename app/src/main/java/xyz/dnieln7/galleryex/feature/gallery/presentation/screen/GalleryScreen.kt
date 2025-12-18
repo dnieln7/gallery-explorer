@@ -117,7 +117,7 @@ private fun GalleryScreen(
                             )
                         }
                     )
-                }
+                },
             )
         },
         content = { paddingValues ->
@@ -136,7 +136,7 @@ private fun GalleryScreen(
                     ) {
                         items(files) {
                             VolumeFileTile(
-                                modifier = Modifier.padding(4.dp),
+                                modifier = Modifier,
                                 file = it,
                                 onClick = {
                                     when (it) {
