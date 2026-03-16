@@ -17,7 +17,7 @@ to the folder view.
 | **UI (App)**             | Compose (Material 3)                               | No XML layouts.                            |
 | **Asynchrony**           | Coroutines & Flow                                  | Avoid RxJava or callbacks.                 |
 | **DI**                   | Hilt                                               | Standard Hilt implementation.              |
-| **Navigation**           | adrielcafe's Voyager                               | Use 1.1.0-beta03                           |
+| **Navigation**           | adrielcafe's Voyager with Hilt integration         | Use `1.1.0-beta03`                         |
 | **Build System**         | Gradle KTS + Version Catalogs (libs.versions.toml) | Use located in `gradle/libs.versions.toml` |
 | **Architecture Pattern** | MVI                                                | Action, State, Event                       |
 
@@ -98,3 +98,49 @@ Contains the code of the application, the sources are in `app/src/main/java/xyz/
 
 * **Format**: Use KDoc (/** ... */) for all public classes and functions.
 * **Tags**: Use `@property`, `@return`, `@deprecated`, etc to maintain high readability.
+
+### UI & Architecture (MVI + Voyager)
+
+**The Destination Contract**
+
+The [Feature]ScreenDestination : Screen is the Orchestrator. It is strictly responsible for:
+
+* **Dependency Injection**: Obtaining the ViewModel via `getViewModel<T>()`.
+* **State Collection**: Transforming `uiState` into a Compose State via
+  `collectAsStateWithLifecycle()`.
+* **Event Handling**: Observing the `events` Flow and executing side-effects (Toasts, Dialogs).
+* **Lifecycle Mapping**: Using `LifecycleEventEffect` to bridge platform events (e.g., `ON_RESUME`)
+  to `onAction` calls.
+* **Navigation Logic**: Defining the lambdas that call `navigator.push/replace`. UI Composables must
+  never see the Navigator.
+
+**The View Contract**
+
+The `[Feature]Screen` (Stateless) is the Renderer. It is strictly responsible for:
+
+* **Layout**: Using `Scaffold`, `Column`, `LazyColumn`, etc.
+* **Interactions**: Passing user clicks back to the Orchestrator via `onAction`.
+* **Visual States**: Mapping the `[Feature]State` to specific UI branches.
+
+**MVI Pattern Definitions**
+
+* `[Feature]State`: Immutable Data class representing the entire screen.
+* `[Feature]Action`: Sealed interface for user intents (e.g., `OnRefresh`, `OnRequestAccess`).
+* `[Feature]Event`: Sealed interface for one-time commands (e.g., `ShowSnackbar`, `Logout`).
+
+**ViewModel Contract**
+
+* **Entry Point**: A single entry point `fun onAction(action: [Feature]Action)`.
+* **State Output**: `private val _uiState = MutableStateFlow([Feature]State())` expose as a
+  `StateFlow` via `asStateFlow()`. Update via `_uiState.update { ... }`.
+* **Event Output**: `private val _events = Channel<[Feature]Event>()` expose as a `Flow` via
+  `receiveAsFlow()`. Update via `_events.send(...)`.
+
+### Compose Standards
+
+* **Modifiers**: First parameter of any public/internal Composable must be modifier:
+  `Modifier = Modifier`.
+* **Theming**: Use `MaterialTheme.colorScheme` and `stringResource`. No hardcoded values.
+* **Components**: Use project-specific atoms (e.g., `GalleryButtonPrimary`, `VerticalSpacer`).
+* **Previews**: Mandatory for all stateless `[Feature]Screen` composables using
+  `GalleryExplorerTheme`.
