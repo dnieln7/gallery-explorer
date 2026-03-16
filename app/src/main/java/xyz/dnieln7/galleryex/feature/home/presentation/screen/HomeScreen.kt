@@ -2,6 +2,10 @@
 
 package xyz.dnieln7.galleryex.feature.home.presentation.screen
 
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,12 +25,15 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -34,6 +41,7 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.hilt.getViewModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import timber.log.Timber
 import xyz.dnieln7.galleryex.core.presentation.modifier.edgeToEdgePadding
 import xyz.dnieln7.galleryex.R
 import xyz.dnieln7.galleryex.core.domain.model.Volume
@@ -47,9 +55,34 @@ import xyz.dnieln7.galleryex.feature.home.domain.model.HomeAction
 import xyz.dnieln7.galleryex.feature.home.domain.model.HomeState
 import xyz.dnieln7.galleryex.feature.home.presentation.component.VolumeTile
 
+@Composable
+fun ReceiveBroadcast(forAction: String, block: (Intent?) -> Unit) {
+    val context = LocalContext.current
+
+    DisposableEffect(key1 = context) {
+        val broadcastReceiver = object : BroadcastReceiver() {
+            override fun onReceive(intentContext: Context?, intent: Intent?) {
+                block(intent)
+            }
+        }
+
+        ContextCompat.registerReceiver(
+            context,
+            broadcastReceiver,
+            IntentFilter(forAction),
+            ContextCompat.RECEIVER_EXPORTED,
+        )
+
+        onDispose {
+            context.unregisterReceiver(broadcastReceiver)
+        }
+    }
+}
+
 class HomeScreenDestination : Screen {
     @Composable
     override fun Content() {
+        val context = LocalContext.current
         val navigator = LocalNavigator.currentOrThrow
 
         val viewModel = getViewModel<HomeViewModel>()
@@ -58,6 +91,22 @@ class HomeScreenDestination : Screen {
         LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
             viewModel.onAction(HomeAction.OnResume)
         }
+
+//        ReceiveBroadcast(forAction = Intent.ACTION_MEDIA_MOUNTED) {
+//            Timber.i("ACTION_MEDIA_MOUNTED: ${it?.data}")
+//        }
+//
+//        ReceiveBroadcast(forAction = Intent.ACTION_MEDIA_UNMOUNTED) {
+//            Timber.i("ACTION_MEDIA_UNMOUNTED: ${it?.data}")
+//        }
+//
+//        ReceiveBroadcast(forAction = Intent.ACTION_MEDIA_EJECT) {
+//            Timber.i("ACTION_MEDIA_EJECT: ${it?.data}")
+//        }
+//
+//        ReceiveBroadcast(forAction = Intent.ACTION_MEDIA_REMOVED) {
+//            Timber.i("ACTION_MEDIA_REMOVED: ${it?.data}")
+//        }
 
         HomeScreen(
             state = state,
