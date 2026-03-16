@@ -1,4 +1,4 @@
-package xyz.dnieln7.galleryex.feature.gallery.presentation.component
+package xyz.dnieln7.galleryex.feature.explorer.presentation.component
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.BoxWithConstraints

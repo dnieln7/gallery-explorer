@@ -3,15 +3,10 @@
 package xyz.dnieln7.galleryex.feature.home.presentation.screen
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -34,14 +29,13 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.hilt.getViewModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import xyz.dnieln7.galleryex.core.presentation.modifier.edgeToEdgePadding
 import xyz.dnieln7.galleryex.R
 import xyz.dnieln7.galleryex.core.domain.model.Volume
 import xyz.dnieln7.galleryex.core.presentation.component.GalleryButtonPrimary
 import xyz.dnieln7.galleryex.core.presentation.component.PullToRefresh
 import xyz.dnieln7.galleryex.core.presentation.component.VerticalSpacer
 import xyz.dnieln7.galleryex.core.presentation.theme.GalleryExplorerTheme
-import xyz.dnieln7.galleryex.feature.gallery.presentation.screen.GalleryScreenDestination
+import xyz.dnieln7.galleryex.feature.explorer.presentation.screen.ExplorerScreenDestination
 import xyz.dnieln7.galleryex.feature.home.domain.enums.AccessStatus
 import xyz.dnieln7.galleryex.feature.home.domain.model.HomeAction
 import xyz.dnieln7.galleryex.feature.home.domain.model.HomeState
@@ -65,7 +59,7 @@ class HomeScreenDestination : Screen {
             navigateToGallery = {
                 val nextDirectory = it.root
 
-                navigator.push(GalleryScreenDestination(
+                navigator.push(ExplorerScreenDestination(
                     titles = listOf(it.name),
                     directory = nextDirectory,
                 ))

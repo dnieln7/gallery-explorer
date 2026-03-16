@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalMaterial3Api::class)
 
-package xyz.dnieln7.galleryex.feature.pager.presentation.screen
+package xyz.dnieln7.galleryex.feature.viewer.presentation.screen
 
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.rememberTransformableState
@@ -51,7 +51,7 @@ import xyz.dnieln7.galleryex.core.domain.model.VolumeFile
 import xyz.dnieln7.galleryex.core.presentation.theme.GalleryExplorerTheme
 import java.io.File
 
-class PagerImageScreenDestination(
+class ImageViewerScreenDestination(
     val images: List<VolumeFile.Image>,
     val selectedIndex: Int,
 ) : Screen {
@@ -59,7 +59,7 @@ class PagerImageScreenDestination(
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
 
-        PagerImageScreen(
+        ImageViewerScreen(
             images = images,
             selectedIndex = selectedIndex,
             navigateBack = { navigator.pop() },
@@ -68,7 +68,7 @@ class PagerImageScreenDestination(
 }
 
 @Composable
-private fun PagerImageScreen(
+private fun ImageViewerScreen(
     images: List<VolumeFile.Image>,
     selectedIndex: Int,
     navigateBack: () -> Unit,
@@ -183,10 +183,10 @@ private fun PagerImageScreen(
 
 @Preview
 @Composable
-private fun PagerImagePreview() {
+private fun ImageViewerPreview() {
     GalleryExplorerTheme {
         Surface {
-            PagerImageScreen(
+            ImageViewerScreen(
                 images = listOf(
                     VolumeFile.Image(
                         file = File("/Users/dniel/Downloads/20251202_122730.jpg"),

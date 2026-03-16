@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalMaterial3Api::class)
 
-package xyz.dnieln7.galleryex.feature.gallery.presentation.screen
+package xyz.dnieln7.galleryex.feature.explorer.presentation.screen
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -31,19 +31,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.net.toUri
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import timber.log.Timber
 import xyz.dnieln7.galleryex.R
 import xyz.dnieln7.galleryex.core.domain.model.VolumeFile
 import xyz.dnieln7.galleryex.core.presentation.theme.GalleryExplorerTheme
-import xyz.dnieln7.galleryex.feature.gallery.presentation.component.VolumeFileTile
-import xyz.dnieln7.galleryex.feature.pager.presentation.screen.PagerImageScreenDestination
+import xyz.dnieln7.galleryex.feature.explorer.presentation.component.VolumeFileTile
+import xyz.dnieln7.galleryex.feature.viewer.presentation.screen.ImageViewerScreenDestination
 import java.io.File
 
-class GalleryScreenDestination(
+class ExplorerScreenDestination(
     val titles: List<String>,
     val directory: VolumeFile.Directory,
 ) : Screen {
@@ -51,24 +49,24 @@ class GalleryScreenDestination(
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
 
-        GalleryScreen(
+        ExplorerScreen(
             titles = titles,
             directory = directory,
             navigateBack = { navigator.pop() },
-            navigateToGallery = {
+            navigateToExplorer = {
                 navigator.push(
-                    GalleryScreenDestination(
+                    ExplorerScreenDestination(
                         titles = titles + it.name,
                         directory = it,
                     )
                 )
             },
-            navigateToPager = { files, image ->
+            navigateToViewer = { files, image ->
                 val images = files.filterIsInstance<VolumeFile.Image>()
                 val selectedIndex = images.indexOf(image)
 
                 navigator.push(
-                    PagerImageScreenDestination(
+                    ImageViewerScreenDestination(
                         images = images,
                         selectedIndex = selectedIndex,
                     )
@@ -79,12 +77,12 @@ class GalleryScreenDestination(
 }
 
 @Composable
-private fun GalleryScreen(
+private fun ExplorerScreen(
     titles: List<String>,
     directory: VolumeFile.Directory,
     navigateBack: () -> Unit,
-    navigateToGallery: (VolumeFile.Directory) -> Unit,
-    navigateToPager: (List<VolumeFile>, VolumeFile.Image) -> Unit,
+    navigateToExplorer: (VolumeFile.Directory) -> Unit,
+    navigateToViewer: (List<VolumeFile>, VolumeFile.Image) -> Unit,
 ) {
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
 
@@ -140,8 +138,8 @@ private fun GalleryScreen(
                                 file = it,
                                 onClick = {
                                     when (it) {
-                                        is VolumeFile.Directory -> navigateToGallery(it)
-                                        is VolumeFile.Image -> navigateToPager(files, it)
+                                        is VolumeFile.Directory -> navigateToExplorer(it)
+                                        is VolumeFile.Image -> navigateToViewer(files, it)
                                         else -> Unit
                                     }
                                 },
@@ -158,10 +156,10 @@ private fun GalleryScreen(
 
 @Preview
 @Composable
-private fun GalleryPreview() {
+private fun ExplorerPreview() {
     GalleryExplorerTheme {
         Surface {
-            GalleryScreen(
+            ExplorerScreen(
                 titles = listOf(
                     "Internal Storage",
                     "Pictures",
@@ -170,8 +168,8 @@ private fun GalleryPreview() {
                     file = File("/storage/emulated/0/Pictures"),
                 ),
                 navigateBack = { },
-                navigateToGallery = { },
-                navigateToPager = { _, _ -> },
+                navigateToExplorer = { },
+                navigateToViewer = { _, _ -> },
             )
         }
     }
