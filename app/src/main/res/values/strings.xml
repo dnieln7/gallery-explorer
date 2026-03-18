@@ -6,4 +6,6 @@
     <string name="grant_access">Grant access</string>
     <string name="storage">Storage</string>
     <string name="back">Back</string>
+    <string name="empty_directory">This folder is empty.</string>
+    <string name="empty_directory_message">There are no images or videos here.</string>
 </resources>

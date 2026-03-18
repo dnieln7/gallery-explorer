@@ -2,6 +2,7 @@
 
 package xyz.dnieln7.galleryex.feature.explorer.presentation.screen
 
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -9,11 +10,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.rounded.FolderOff
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MediumTopAppBar
 import androidx.compose.material3.Scaffold
@@ -36,6 +40,7 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import xyz.dnieln7.galleryex.R
 import xyz.dnieln7.galleryex.core.domain.model.VolumeFile
+import xyz.dnieln7.galleryex.core.presentation.component.EmptyState
 import xyz.dnieln7.galleryex.core.presentation.theme.GalleryExplorerTheme
 import xyz.dnieln7.galleryex.feature.explorer.presentation.component.VolumeFileTile
 import xyz.dnieln7.galleryex.feature.viewer.presentation.screen.ImageViewerScreenDestination
@@ -86,22 +91,23 @@ private fun ExplorerScreen(
 ) {
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
 
-    val title = remember(titles) { titles.joinToString(separator = " > ") }
+    val title = remember(titles) { titles.joinToString(separator = " • ") }
     val files = remember(directory) { directory.children }
 
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
-            MediumTopAppBar(
+            LargeTopAppBar(
                 scrollBehavior = scrollBehavior,
                 title = {
                     Text(
-                        modifier = Modifier.padding(end = 16.dp),
+                        modifier = Modifier
+                            .padding(end = 16.dp)
+                            .horizontalScroll(rememberScrollState()),
                         text = title,
                         maxLines = 1,
-                        overflow = TextOverflow.StartEllipsis,
-                        style = MaterialTheme.typography.labelLarge.copy(
-                            fontWeight = FontWeight.Normal,
+                        style = MaterialTheme.typography.titleLarge.copy(
+                            fontWeight = FontWeight.SemiBold,
                         )
                     )
                 },
@@ -122,8 +128,7 @@ private fun ExplorerScreen(
             Column(
                 modifier = Modifier
                     .padding(paddingValues)
-                    .fillMaxSize()
-                    .padding(start = 16.dp, end = 16.dp),
+                    .fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
             ) {
@@ -131,6 +136,9 @@ private fun ExplorerScreen(
                     LazyVerticalGrid(
                         modifier = Modifier.fillMaxSize(),
                         columns = GridCells.Fixed(3),
+                        contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
                         items(files) {
                             VolumeFileTile(
@@ -147,7 +155,11 @@ private fun ExplorerScreen(
                         }
                     }
                 } else {
-                    Text(text = "No files", style = MaterialTheme.typography.bodyLarge)
+                    EmptyState(
+                        icon = Icons.Rounded.FolderOff,
+                        title = stringResource(R.string.empty_directory),
+                        message = stringResource(R.string.empty_directory_message),
+                    )
                 }
             }
         }

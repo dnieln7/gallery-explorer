@@ -1,13 +1,14 @@
 package xyz.dnieln7.galleryex.feature.explorer.presentation.component
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeContentPadding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material.icons.Icons
@@ -22,9 +23,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
@@ -33,6 +37,7 @@ import xyz.dnieln7.galleryex.R
 import xyz.dnieln7.galleryex.core.domain.model.VolumeFile
 import xyz.dnieln7.galleryex.core.presentation.component.VerticalSpacer
 import xyz.dnieln7.galleryex.core.presentation.theme.GalleryExplorerTheme
+import xyz.dnieln7.galleryex.core.presentation.theme.LargeTileShape
 import java.io.File
 
 @Composable
@@ -46,21 +51,28 @@ fun VolumeFileTile(modifier: Modifier = Modifier, file: VolumeFile, onClick: () 
     }
 
     Column(modifier = modifier.clickable { onClick() }) {
-        BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .aspectRatio(1f)
+                .clip(LargeTileShape)
+                .background(if (file is VolumeFile.Image) Color.Transparent else MaterialTheme.colorScheme.surfaceVariant),
+            contentAlignment = Alignment.Center,
+        ) {
             if (file is VolumeFile.Image) {
                 AsyncImage(
-                    modifier = Modifier.size(maxWidth),
+                    modifier = Modifier.fillMaxSize(),
                     model = file.file.toUri(),
                     contentDescription = null,
-                    contentScale = ContentScale.Fit,
+                    contentScale = ContentScale.Crop,
                     error = painterResource(R.drawable.ic_broken_image),
                 )
             } else {
                 Icon(
-                    modifier = Modifier.size(maxWidth),
+                    modifier = Modifier.fillMaxSize(0.5f),
                     imageVector = icon,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.secondary,
+                    tint = MaterialTheme.colorScheme.primary,
                 )
             }
         }
@@ -70,7 +82,8 @@ fun VolumeFileTile(modifier: Modifier = Modifier, file: VolumeFile, onClick: () 
             text = file.name,
             textAlign = TextAlign.Center,
             maxLines = 1,
-            style = MaterialTheme.typography.bodyMedium,
+            overflow = TextOverflow.Ellipsis,
+            style = MaterialTheme.typography.labelMedium,
         )
     }
 }
