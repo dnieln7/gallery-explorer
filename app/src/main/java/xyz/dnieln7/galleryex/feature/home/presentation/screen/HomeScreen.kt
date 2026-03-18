@@ -56,7 +56,7 @@ class HomeScreenDestination : Screen {
         HomeScreen(
             state = state,
             onAction = viewModel::onAction,
-            navigateToGallery = {
+            navigateToExplorer = {
                 val nextDirectory = it.root
 
                 navigator.push(ExplorerScreenDestination(
@@ -72,7 +72,7 @@ class HomeScreenDestination : Screen {
 private fun HomeScreen(
     state: HomeState,
     onAction: (HomeAction) -> Unit,
-    navigateToGallery: (Volume) -> Unit,
+    navigateToExplorer: (Volume) -> Unit,
 ) {
     Scaffold(
         topBar = {
@@ -103,7 +103,7 @@ private fun HomeScreen(
                                 VolumeTile(
                                     modifier = Modifier.padding(vertical = 4.dp),
                                     volume = it,
-                                    onClick = { navigateToGallery(it) },
+                                    onClick = { navigateToExplorer(it) },
                                 )
                             }
                         }
@@ -147,7 +147,7 @@ private fun HomePreview() {
                     volumes = listOf()
                 ),
                 onAction = {},
-                navigateToGallery = {},
+                navigateToExplorer = {},
             )
         }
     }
