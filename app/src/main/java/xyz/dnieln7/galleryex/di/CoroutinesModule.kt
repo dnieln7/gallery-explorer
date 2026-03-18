@@ -22,6 +22,10 @@ annotation class Main
 @Retention(AnnotationRetention.RUNTIME)
 annotation class IO
 
+@Qualifier
+@Retention(AnnotationRetention.RUNTIME)
+annotation class ApplicationScope
+
 @InstallIn(SingletonComponent::class)
 @Module
 object CoroutinesModule {
@@ -36,5 +40,14 @@ object CoroutinesModule {
     @Provides
     fun provideIODispatcher(): CoroutineDispatcher {
         return Dispatchers.IO
+    }
+
+    @ApplicationScope
+    @Singleton
+    @Provides
+    fun provideApplicationScope(
+        @IO dispatcher: CoroutineDispatcher
+    ): CoroutineScope {
+        return CoroutineScope(SupervisorJob() + dispatcher)
     }
 }

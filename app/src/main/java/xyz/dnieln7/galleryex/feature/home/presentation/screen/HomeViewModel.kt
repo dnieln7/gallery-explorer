@@ -23,6 +23,14 @@ class HomeViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(HomeState())
     val uiState get() = _uiState.asStateFlow()
 
+    init {
+        viewModelScope.launch(dispatcher) {
+            explorer.volumes.collect { volumes ->
+                _uiState.update { state -> state.copy(volumes = volumes) }
+            }
+        }
+    }
+
     fun onAction(action: HomeAction) {
         when (action) {
             HomeAction.OnResume -> viewModelScope.launch(dispatcher) {
@@ -32,10 +40,12 @@ class HomeViewModel @Inject constructor(
                     AccessStatus.ACCESS_DENIED
                 }
 
-                val volumes = explorer.getVolumes()
-
                 _uiState.update {
-                    it.copy(accessStatus = accessStatus, volumes = volumes)
+                    it.copy(accessStatus = accessStatus)
+                }
+
+                if (accessStatus == AccessStatus.ACCESS_GRANTED) {
+                    explorer.refreshVolumes()
                 }
             }
 
@@ -43,10 +53,8 @@ class HomeViewModel @Inject constructor(
                 explorer.requestManagerAccess()
             }
 
-            HomeAction.OnRefreshVolumes -> viewModelScope.launch(dispatcher){
-                val volumes = explorer.getVolumes()
-
-                _uiState.update { it.copy(volumes = volumes) }
+            HomeAction.OnRefreshVolumes -> viewModelScope.launch(dispatcher) {
+                explorer.refreshVolumes()
             }
         }
     }
