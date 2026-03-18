@@ -39,6 +39,7 @@ import xyz.dnieln7.galleryex.feature.explorer.presentation.screen.ExplorerScreen
 import xyz.dnieln7.galleryex.feature.home.domain.enums.AccessStatus
 import xyz.dnieln7.galleryex.feature.home.domain.model.HomeAction
 import xyz.dnieln7.galleryex.feature.home.domain.model.HomeState
+import xyz.dnieln7.galleryex.feature.home.presentation.component.GalleryEmptyState
 import xyz.dnieln7.galleryex.feature.home.presentation.component.VolumeTile
 
 class HomeScreenDestination : Screen {
@@ -111,24 +112,8 @@ private fun HomeScreen(
                 }
 
                 AccessStatus.ACCESS_DENIED -> {
-                    Text(
-                        text = stringResource(R.string.all_files_access_title),
-                        style = MaterialTheme.typography.titleLarge
-                    )
-                    VerticalSpacer(of = 12.dp)
-                    Text(
-                        text = stringResource(R.string.all_files_access_description),
-                        style = MaterialTheme.typography.bodyLarge,
-                    )
-                    VerticalSpacer(of = 8.dp)
-                    Text(
-                        text = stringResource(R.string.all_files_access_description_2),
-                        style = MaterialTheme.typography.bodyLarge,
-                    )
-                    VerticalSpacer(of = 16.dp)
-                    GalleryButtonPrimary(
-                        text = stringResource(R.string.grant_access),
-                        onClick = { onAction(HomeAction.OnRequestAccessClick) },
+                    GalleryEmptyState(
+                        onButtonClick = { onAction(HomeAction.OnRequestAccessClick) }
                     )
                 }
             }
