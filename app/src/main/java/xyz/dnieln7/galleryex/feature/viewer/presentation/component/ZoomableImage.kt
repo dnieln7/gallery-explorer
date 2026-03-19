@@ -90,7 +90,7 @@ fun ZoomableImage(
                         var lockedToPanZoom = false
                         var pan = Offset.Zero
                         var zoom = 1f
-                        
+
                         // Accumulates horizontal drag distance when attempting to pan past the image boundaries.
                         var overscrollX = 0f
 
@@ -163,7 +163,8 @@ fun ZoomableImage(
                                         // Only pass the drag event to the parent once the user has dragged continuously 
                                         // past the edge more than 2x the normal touch slop threshold.
                                         val exceedsThreshold = abs(overscrollX) > (touchSlop * 2)
-                                        val pushingPastEdgeThreshold = (pushingPastLeftEdge || pushingPastRightEdge) && exceedsThreshold
+                                        val pushingPastEdgeThreshold =
+                                            (pushingPastLeftEdge || pushingPastRightEdge) && exceedsThreshold
 
                                         // Intercept and consume the touch event if we are actively pinching/zooming, OR if we are 
                                         // zoomed in but haven't broken the pager-swipe overscroll threshold yet.

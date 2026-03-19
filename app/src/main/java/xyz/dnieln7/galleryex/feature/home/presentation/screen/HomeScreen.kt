@@ -10,7 +10,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -31,9 +30,7 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import xyz.dnieln7.galleryex.R
 import xyz.dnieln7.galleryex.core.domain.model.Volume
-import xyz.dnieln7.galleryex.core.presentation.component.GalleryButtonPrimary
 import xyz.dnieln7.galleryex.core.presentation.component.PullToRefresh
-import xyz.dnieln7.galleryex.core.presentation.component.VerticalSpacer
 import xyz.dnieln7.galleryex.core.presentation.theme.GalleryExplorerTheme
 import xyz.dnieln7.galleryex.feature.explorer.presentation.screen.ExplorerScreenDestination
 import xyz.dnieln7.galleryex.feature.home.domain.enums.AccessStatus
@@ -60,10 +57,12 @@ class HomeScreenDestination : Screen {
             navigateToExplorer = {
                 val nextDirectory = it.root
 
-                navigator.push(ExplorerScreenDestination(
-                    titles = listOf(it.name),
-                    directory = nextDirectory,
-                ))
+                navigator.push(
+                    ExplorerScreenDestination(
+                        titles = listOf(it.name),
+                        directory = nextDirectory,
+                    )
+                )
             }
         )
     }

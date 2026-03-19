@@ -5,7 +5,7 @@ import dagger.hilt.android.HiltAndroidApp
 import timber.log.Timber
 
 @HiltAndroidApp
-class GalleryExplorerApplication: Application() {
+class GalleryExplorerApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()

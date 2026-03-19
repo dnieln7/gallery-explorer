@@ -17,10 +17,10 @@ sealed interface VolumeFile {
                 ?: emptyList()
         }
 
-        val images: List<VolumeFile.Image> by lazy {
+        val images: List<Image> by lazy {
             file.listFiles()
                 ?.map { fromFile(it) }
-                ?.filterIsInstance<VolumeFile.Image>()
+                ?.filterIsInstance<Image>()
                 ?: emptyList()
         }
     }
