@@ -98,6 +98,10 @@ Contains the code of the application, the sources are in `app/src/main/java/xyz/
 
 * **Format**: Use KDoc (/** ... */) for all public classes and functions.
 * **Tags**: Use `@property`, `@return`, `@deprecated`, etc to maintain high readability.
+* 
+### Formatting & Linting
+
+* **Indentation**: Follow the `.editorconfig` file strictly.
 
 ### UI & Architecture (MVI + Voyager)
 
