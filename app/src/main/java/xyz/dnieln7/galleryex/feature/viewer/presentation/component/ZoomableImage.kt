@@ -56,6 +56,8 @@ fun ZoomableImage(
                 .pointerInput(Unit) {
                     detectTapGestures(
                         onDoubleTap = { tapOffset ->
+                            // Toggle zoom smoothly between 1x and 2x on double tap.
+                            // When zooming to 2x, calculate the pan offset to center the zoom around the tapped point.
                             if (scale > 1f) {
                                 scale = 1f
                                 offset = Offset.Zero
@@ -88,6 +90,9 @@ fun ZoomableImage(
                         var lockedToPanZoom = false
                         var pan = Offset.Zero
                         var zoom = 1f
+                        
+                        // Accumulates horizontal drag distance when attempting to pan past the image boundaries.
+                        var overscrollX = 0f
 
                         do {
                             val event: PointerEvent = awaitPointerEvent()
@@ -97,6 +102,8 @@ fun ZoomableImage(
                                 val zoomChange = event.calculateZoom()
                                 val panChange = event.calculatePan()
 
+                                // Enforce a touch slop threshold to prevent accidental panning or zooming 
+                                // from tiny, unintentional finger movements.
                                 if (!pastTouchSlop) {
                                     zoom *= zoomChange
                                     pan += panChange
@@ -114,14 +121,20 @@ fun ZoomableImage(
                                 }
 
                                 if (pastTouchSlop) {
+                                    // Once the user exceeds the touch slop threshold, we lock into pan/zoom mode.
+                                    // If not yet locked, effectivePan and effectiveZoom stay neutral to discard the 
+                                    // initial jitter or unintentional micro-movements during a tap.
                                     val effectivePan =
                                         if (lockedToPanZoom) panChange else Offset.Zero
                                     val effectiveZoom = if (lockedToPanZoom) zoomChange else 1f
 
                                     if (effectiveZoom != 1f || effectivePan != Offset.Zero) {
+                                        // Bound the zoom scaling between 1x (fit perfectly) and 4x (max zoom)
                                         val targetScale = (scale * effectiveZoom).coerceIn(1f, 4f)
                                         val isZooming = effectiveZoom != 1f
 
+                                        // Dynamically calculate the maximum allowed panning distance based on the current zoom level.
+                                        // If scale is 1f, maxX and maxY are 0 because the image fits the screen completely.
                                         val maxX = (state.width * (targetScale - 1)) / 2f
                                         val maxY = (state.height * (targetScale - 1)) / 2f
 
@@ -135,11 +148,26 @@ fun ZoomableImage(
                                         val movingFingerRight = effectivePan.x > 0
                                         val movingFingerLeft = effectivePan.x < 0
 
+                                        // Evaluates to true if we are already at the visual boundary AND the ongoing drag is pulling further out.
                                         val pushingPastLeftEdge = atLeftEdge && movingFingerRight
                                         val pushingPastRightEdge = atRightEdge && movingFingerLeft
 
-                                        val consume =
-                                            isZooming || (scale > 1f && !(pushingPastLeftEdge || pushingPastRightEdge))
+                                        // Accumulate horizontal drag if the user is pulling against the edge.
+                                        // This creates a "resistance pool" before handing drag events back to the parent pager.
+                                        if (pushingPastLeftEdge || pushingPastRightEdge) {
+                                            overscrollX += effectivePan.x
+                                        } else {
+                                            overscrollX = 0f
+                                        }
+
+                                        // Only pass the drag event to the parent once the user has dragged continuously 
+                                        // past the edge more than 2x the normal touch slop threshold.
+                                        val exceedsThreshold = abs(overscrollX) > (touchSlop * 2)
+                                        val pushingPastEdgeThreshold = (pushingPastLeftEdge || pushingPastRightEdge) && exceedsThreshold
+
+                                        // Intercept and consume the touch event if we are actively pinching/zooming, OR if we are 
+                                        // zoomed in but haven't broken the pager-swipe overscroll threshold yet.
+                                        val consume = isZooming || (scale > 1f && !pushingPastEdgeThreshold)
 
                                         if (consume) {
                                             event.changes.forEach {
