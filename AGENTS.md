@@ -79,7 +79,7 @@ Contains the code of the application, the sources are in `app/src/main/java/xyz/
   and models.
     * **Rule**: Every presentation package must split into:
         * `.../presentation/screen/`: Screens and ViewModels.
-        * `.../presentation/composables/`: Reusable UI components.
+        * `.../presentation/component/`: Reusable UI components.
     * Features can have it's own `.../domain/` and `.../framework/` packages that are not used by
       other features.
 * `main/`: Entry point components; MainActivity.
@@ -144,3 +144,10 @@ The `[Feature]Screen` (Stateless) is the Renderer. It is strictly responsible fo
 * **Components**: Use project-specific atoms (e.g., `GalleryButtonPrimary`, `VerticalSpacer`).
 * **Previews**: Mandatory for all stateless `[Feature]Screen` composables using
   `GalleryExplorerTheme`.
+
+## Project Rules
+
+1. Never deviate from the Material 3 guidelines.
+2. Composables that represent an specific functionality or state must be separated into their own files like @GalleryButtonPrimary.kt
+3. Shapes must be created in @Shape.kt
+4. Composables that are only needed in an specific feature must be in [feature]/presentation/component otherwise they must be in @core/presentation/component
