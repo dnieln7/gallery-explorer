@@ -12,9 +12,9 @@ import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.InsertDriveFile
 import androidx.compose.material.icons.rounded.Folder
 import androidx.compose.material.icons.rounded.Image
+import androidx.compose.material.icons.rounded.QuestionMark
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -46,17 +46,27 @@ fun VolumeFileTile(modifier: Modifier = Modifier, file: VolumeFile, onClick: () 
         when (file) {
             is VolumeFile.Directory -> Icons.Rounded.Folder
             is VolumeFile.Image -> Icons.Rounded.Image
-            is VolumeFile.Other -> Icons.AutoMirrored.Rounded.InsertDriveFile
+            is VolumeFile.Other -> Icons.Rounded.QuestionMark
         }
     }
 
-    Column(modifier = modifier.clickable { onClick() }) {
+    Column(
+        modifier = modifier.then(
+            if (file is VolumeFile.Other) Modifier else Modifier.clickable { onClick() }
+        )
+    ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .aspectRatio(1f)
                 .clip(LargeTileShape)
-                .background(if (file is VolumeFile.Image) Color.Transparent else MaterialTheme.colorScheme.surfaceVariant),
+                .background(
+                    when (file) {
+                        is VolumeFile.Image -> Color.Transparent
+                        is VolumeFile.Other -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                        else -> MaterialTheme.colorScheme.surfaceVariant
+                    }
+                ),
             contentAlignment = Alignment.Center,
         ) {
             if (file is VolumeFile.Image) {
@@ -72,7 +82,7 @@ fun VolumeFileTile(modifier: Modifier = Modifier, file: VolumeFile, onClick: () 
                     modifier = Modifier.fillMaxSize(0.5f),
                     imageVector = icon,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
+                    tint = if (file is VolumeFile.Other) MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f) else MaterialTheme.colorScheme.primary,
                 )
             }
         }
@@ -84,6 +94,7 @@ fun VolumeFileTile(modifier: Modifier = Modifier, file: VolumeFile, onClick: () 
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             style = MaterialTheme.typography.labelMedium,
+            color = if (file is VolumeFile.Other) MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f) else Color.Unspecified,
         )
     }
 }

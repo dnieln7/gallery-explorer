@@ -13,7 +13,6 @@ sealed interface VolumeFile {
         val children: List<VolumeFile> by lazy {
             file.listFiles()
                 ?.map { fromFile(it) }
-                ?.filter { it is Directory || it is Image }
                 ?: emptyList()
         }
 
