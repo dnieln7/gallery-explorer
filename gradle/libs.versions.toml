@@ -38,6 +38,7 @@ androidx-compose-material3 = { module = "androidx.compose.material3:material3" }
 androidx-compose-material-icons-extended = { module = "androidx.compose.material:material-icons-extended" }
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activity-compose" }
 io-coil-kt-coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
+io-coil-kt-coil-video = { module = "io.coil-kt:coil-video", version.ref = "coil" }
 com-jakewharton-timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 com-google-dagger-hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hilt" }
 com-google-dagger-hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }

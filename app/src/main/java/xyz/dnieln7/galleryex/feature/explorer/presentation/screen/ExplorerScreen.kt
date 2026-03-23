@@ -146,6 +146,7 @@ private fun ExplorerScreen(
                                     when (it) {
                                         is VolumeFile.Directory -> navigateToExplorer(it)
                                         is VolumeFile.Image -> navigateToViewer(files, it)
+                                        is VolumeFile.Video -> Unit
                                         else -> Unit
                                     }
                                 },

@@ -2,6 +2,7 @@ package xyz.dnieln7.galleryex.core.domain.model
 
 import android.webkit.MimeTypeMap
 import java.io.File
+import java.net.URLConnection
 
 sealed interface VolumeFile {
     val name: String
@@ -29,6 +30,11 @@ sealed interface VolumeFile {
             get() = file.nameWithoutExtension
     }
 
+    data class Video(val file: File) : VolumeFile {
+        override val name: String
+            get() = file.nameWithoutExtension
+    }
+
     data class Other(val file: File) : VolumeFile {
         override val name: String
             get() = file.nameWithoutExtension
@@ -40,18 +46,27 @@ sealed interface VolumeFile {
                 return Directory(file = file)
             }
 
-            val extension = file.extension.lowercase()
-            val isImage = MimeTypeMap
-                .getSingleton()
-                .getMimeTypeFromExtension(extension)
-                ?.startsWith("image/")
-                ?: false
+            val mimeType = resolveMimeType(file)
+            val isImage = mimeType?.startsWith("image/") == true
+            val isVideo = mimeType?.startsWith("video/") == true
 
             return if (isImage) {
                 Image(file = file)
+            } else if (isVideo) {
+                Video(file = file)
             } else {
                 Other(file = file)
             }
+        }
+
+        private fun resolveMimeType(file: File): String? {
+            val extension = file.extension.lowercase()
+
+            return URLConnection.guessContentTypeFromName(file.name)
+                ?: runCatching {
+                    MimeTypeMap.getSingleton()
+                        .getMimeTypeFromExtension(extension)
+                }.getOrNull()
         }
     }
 }
