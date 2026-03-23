@@ -91,8 +91,8 @@ fun ZoomableImage(
                         var pan = Offset.Zero
                         var zoom = 1f
 
-                        // Accumulates horizontal drag distance when attempting to pan past the image boundaries.
-                        var overscrollX = 0f
+                        // Accumulates vertical drag distance when attempting to pan past the image boundaries.
+                        var overscrollY = 0f
 
                         do {
                             val event: PointerEvent = awaitPointerEvent()
@@ -142,29 +142,29 @@ fun ZoomableImage(
                                         val targetOffsetX = offset.x + newPanChange.x
                                         val targetOffsetY = offset.y + newPanChange.y
 
-                                        val atLeftEdge = offset.x >= maxX
-                                        val atRightEdge = offset.x <= -maxX
+                                        val atTopEdge = offset.y >= maxY
+                                        val atBottomEdge = offset.y <= -maxY
 
-                                        val movingFingerRight = effectivePan.x > 0
-                                        val movingFingerLeft = effectivePan.x < 0
+                                        val movingFingerDown = effectivePan.y > 0
+                                        val movingFingerUp = effectivePan.y < 0
 
                                         // Evaluates to true if we are already at the visual boundary AND the ongoing drag is pulling further out.
-                                        val pushingPastLeftEdge = atLeftEdge && movingFingerRight
-                                        val pushingPastRightEdge = atRightEdge && movingFingerLeft
+                                        val pushingPastTopEdge = atTopEdge && movingFingerDown
+                                        val pushingPastBottomEdge = atBottomEdge && movingFingerUp
 
-                                        // Accumulate horizontal drag if the user is pulling against the edge.
+                                        // Accumulate vertical drag if the user is pulling against the edge.
                                         // This creates a "resistance pool" before handing drag events back to the parent pager.
-                                        if (pushingPastLeftEdge || pushingPastRightEdge) {
-                                            overscrollX += effectivePan.x
+                                        if (pushingPastTopEdge || pushingPastBottomEdge) {
+                                            overscrollY += effectivePan.y
                                         } else {
-                                            overscrollX = 0f
+                                            overscrollY = 0f
                                         }
 
                                         // Only pass the drag event to the parent once the user has dragged continuously 
                                         // past the edge more than 2x the normal touch slop threshold.
-                                        val exceedsThreshold = abs(overscrollX) > (touchSlop * 2)
+                                        val exceedsThreshold = abs(overscrollY) > (touchSlop * 2)
                                         val pushingPastEdgeThreshold =
-                                            (pushingPastLeftEdge || pushingPastRightEdge) && exceedsThreshold
+                                            (pushingPastTopEdge || pushingPastBottomEdge) && exceedsThreshold
 
                                         // Intercept and consume the touch event if we are actively pinching/zooming, OR if we are 
                                         // zoomed in but haven't broken the pager-swipe overscroll threshold yet.

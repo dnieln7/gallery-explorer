@@ -6,7 +6,7 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.pager.PagerDefaults
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
@@ -100,7 +100,7 @@ private fun ImageViewerScreen(
                 .fillMaxSize(),
             contentAlignment = Alignment.Center,
         ) {
-            HorizontalPager(
+            VerticalPager(
                 modifier = Modifier.fillMaxSize(),
                 state = pagerState,
                 flingBehavior = PagerDefaults.flingBehavior(pagerState),
