@@ -4,8 +4,8 @@
 
 **Gallery Explorer**: Media-only Android file explorer (Images/Video).
 **Exclusions**: No audio-only files.
-**Key UX**: Viewers must support horizontal swiping between files of the same type without exiting
-to the folder view.
+**Key UX**: Viewers must support vertical swiping between files of the same type without exiting to the folder view, to
+create a tiktok like experience.
 
 ## Project tech stack
 
@@ -152,6 +152,8 @@ The `[Feature]Screen` (Stateless) is the Renderer. It is strictly responsible fo
 ## Project Rules
 
 1. Never deviate from the Material 3 guidelines.
-2. Composables that represent an specific functionality or state must be separated into their own files like @GalleryButtonPrimary.kt
+2. Composables that represent an specific functionality or state must be separated into their own files like
+   @GalleryButtonPrimary.kt
 3. Shapes must be created in @Shape.kt
-4. Composables that are only needed in an specific feature must be in [feature]/presentation/component otherwise they must be in @core/presentation/component
+4. Composables that are only needed in an specific feature must be in [feature]/presentation/component otherwise they
+   must be in @core/presentation/component
