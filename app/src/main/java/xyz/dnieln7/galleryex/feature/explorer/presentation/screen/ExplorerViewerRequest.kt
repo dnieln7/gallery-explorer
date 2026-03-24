@@ -3,12 +3,12 @@ package xyz.dnieln7.galleryex.feature.explorer.presentation.screen
 import xyz.dnieln7.galleryex.core.domain.model.VolumeFile
 
 internal data class ImageViewerRequest(
-    val images: List<VolumeFile.Image>,
+    val imagePaths: List<String>,
     val selectedIndex: Int,
 )
 
 internal data class VideoViewerRequest(
-    val videos: List<VolumeFile.Video>,
+    val videoPaths: List<String>,
     val selectedIndex: Int,
 )
 
@@ -19,7 +19,7 @@ internal fun createImageViewerRequest(
     val images = files.filterIsInstance<VolumeFile.Image>()
 
     return ImageViewerRequest(
-        images = images,
+        imagePaths = images.map { it.file.absolutePath },
         selectedIndex = images.indexOf(selectedImage),
     )
 }
@@ -31,7 +31,7 @@ internal fun createVideoViewerRequest(
     val videos = files.filterIsInstance<VolumeFile.Video>()
 
     return VideoViewerRequest(
-        videos = videos,
+        videoPaths = videos.map { it.file.absolutePath },
         selectedIndex = videos.indexOf(selectedVideo),
     )
 }

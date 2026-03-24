@@ -45,13 +45,20 @@ import xyz.dnieln7.galleryex.feature.viewer.presentation.screen.ImageViewerScree
 import xyz.dnieln7.galleryex.feature.viewer.presentation.screen.VideoViewerScreenDestination
 import java.io.File
 
+/**
+ * Voyager destination that shows the contents of a directory identified by its absolute path.
+ *
+ * @property titles Breadcrumb labels shown in the top app bar.
+ * @property directoryPath Absolute path of the directory to render.
+ */
 class ExplorerScreenDestination(
     val titles: List<String>,
-    val directory: VolumeFile.Directory,
+    val directoryPath: String,
 ) : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
+        val directory = remember(directoryPath) { directoryFromPath(directoryPath) }
 
         ExplorerScreen(
             titles = titles,
@@ -61,7 +68,7 @@ class ExplorerScreenDestination(
                 navigator.push(
                     ExplorerScreenDestination(
                         titles = titles + it.name,
-                        directory = it,
+                        directoryPath = it.file.absolutePath,
                     )
                 )
             },
@@ -70,7 +77,7 @@ class ExplorerScreenDestination(
 
                 navigator.push(
                     ImageViewerScreenDestination(
-                        images = request.images,
+                        imagePaths = request.imagePaths,
                         selectedIndex = request.selectedIndex,
                     )
                 )
@@ -80,7 +87,7 @@ class ExplorerScreenDestination(
 
                 navigator.push(
                     VideoViewerScreenDestination(
-                        videos = request.videos,
+                        videoPaths = request.videoPaths,
                         selectedIndex = request.selectedIndex,
                     )
                 )
@@ -196,4 +203,8 @@ private fun ExplorerPreview() {
             )
         }
     }
+}
+
+internal fun directoryFromPath(directoryPath: String): VolumeFile.Directory {
+    return VolumeFile.Directory(file = File(directoryPath))
 }

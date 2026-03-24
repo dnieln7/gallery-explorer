@@ -39,13 +39,20 @@ import xyz.dnieln7.galleryex.core.presentation.theme.GalleryExplorerTheme
 import xyz.dnieln7.galleryex.feature.viewer.presentation.component.ZoomableImage
 import java.io.File
 
+/**
+ * Voyager destination that shows a vertically swipeable image viewer for a folder-scoped list of images.
+ *
+ * @property imagePaths Absolute paths of the images available in the current folder, preserved in folder order.
+ * @property selectedIndex Index of the tapped image that should be focused first.
+ */
 class ImageViewerScreenDestination(
-    val images: List<VolumeFile.Image>,
+    val imagePaths: List<String>,
     val selectedIndex: Int,
 ) : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
+        val images = remember(imagePaths) { imagesFromPaths(imagePaths) }
 
         ImageViewerScreen(
             images = images,
@@ -136,5 +143,11 @@ private fun ImageViewerPreview() {
                 navigateBack = { },
             )
         }
+    }
+}
+
+internal fun imagesFromPaths(imagePaths: List<String>): List<VolumeFile.Image> {
+    return imagePaths.map { path ->
+        VolumeFile.Image(file = File(path))
     }
 }

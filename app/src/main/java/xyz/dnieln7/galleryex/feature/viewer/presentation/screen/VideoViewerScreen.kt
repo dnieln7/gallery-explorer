@@ -44,16 +44,17 @@ import androidx.media3.exoplayer.ExoPlayer
 /**
  * Voyager destination that shows a vertically swipeable video viewer for a folder-scoped list of videos.
  *
- * @property videos Videos available in the current folder, preserved in folder order.
+ * @property videoPaths Absolute paths of the videos available in the current folder, preserved in folder order.
  * @property selectedIndex Index of the tapped video that should start playback.
  */
 class VideoViewerScreenDestination(
-    val videos: List<VolumeFile.Video>,
+    val videoPaths: List<String>,
     val selectedIndex: Int,
 ) : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
+        val videos = remember(videoPaths) { videosFromPaths(videoPaths) }
 
         VideoViewerScreen(
             videos = videos,
@@ -266,5 +267,11 @@ private fun VideoViewerScreenPreview() {
                 navigateBack = {},
             )
         }
+    }
+}
+
+internal fun videosFromPaths(videoPaths: List<String>): List<VolumeFile.Video> {
+    return videoPaths.map { path ->
+        VolumeFile.Video(file = File(path))
     }
 }

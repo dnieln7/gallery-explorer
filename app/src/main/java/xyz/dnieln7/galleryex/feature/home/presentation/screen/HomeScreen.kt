@@ -60,7 +60,7 @@ class HomeScreenDestination : Screen {
                 navigator.push(
                     ExplorerScreenDestination(
                         titles = listOf(it.name),
-                        directory = nextDirectory,
+                        directoryPath = nextDirectory.file.absolutePath,
                     )
                 )
             }
