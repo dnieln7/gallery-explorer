@@ -60,7 +60,7 @@ fun VolumeFileTile(modifier: Modifier = Modifier, file: VolumeFile, onClick: () 
             is VolumeFile.Other -> Icons.Rounded.QuestionMark
         }
     }
-    val isInteractive = file is VolumeFile.Directory || file is VolumeFile.Image
+    val isInteractive = file is VolumeFile.Directory || file is VolumeFile.Image || file is VolumeFile.Video
     val isMedia = file is VolumeFile.Image || file is VolumeFile.Video
 
     Column(

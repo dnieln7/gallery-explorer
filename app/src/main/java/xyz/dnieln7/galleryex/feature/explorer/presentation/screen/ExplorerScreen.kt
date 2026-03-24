@@ -42,6 +42,7 @@ import xyz.dnieln7.galleryex.core.presentation.component.EmptyState
 import xyz.dnieln7.galleryex.core.presentation.theme.GalleryExplorerTheme
 import xyz.dnieln7.galleryex.feature.explorer.presentation.component.VolumeFileTile
 import xyz.dnieln7.galleryex.feature.viewer.presentation.screen.ImageViewerScreenDestination
+import xyz.dnieln7.galleryex.feature.viewer.presentation.screen.VideoViewerScreenDestination
 import java.io.File
 
 class ExplorerScreenDestination(
@@ -64,14 +65,23 @@ class ExplorerScreenDestination(
                     )
                 )
             },
-            navigateToViewer = { files, image ->
-                val images = files.filterIsInstance<VolumeFile.Image>()
-                val selectedIndex = images.indexOf(image)
+            navigateToImageViewer = { files, image ->
+                val request = createImageViewerRequest(files = files, selectedImage = image)
 
                 navigator.push(
                     ImageViewerScreenDestination(
-                        images = images,
-                        selectedIndex = selectedIndex,
+                        images = request.images,
+                        selectedIndex = request.selectedIndex,
+                    )
+                )
+            },
+            navigateToVideoViewer = { files, video ->
+                val request = createVideoViewerRequest(files = files, selectedVideo = video)
+
+                navigator.push(
+                    VideoViewerScreenDestination(
+                        videos = request.videos,
+                        selectedIndex = request.selectedIndex,
                     )
                 )
             }
@@ -85,7 +95,8 @@ private fun ExplorerScreen(
     directory: VolumeFile.Directory,
     navigateBack: () -> Unit,
     navigateToExplorer: (VolumeFile.Directory) -> Unit,
-    navigateToViewer: (List<VolumeFile>, VolumeFile.Image) -> Unit,
+    navigateToImageViewer: (List<VolumeFile>, VolumeFile.Image) -> Unit,
+    navigateToVideoViewer: (List<VolumeFile>, VolumeFile.Video) -> Unit,
 ) {
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
 
@@ -145,8 +156,8 @@ private fun ExplorerScreen(
                                 onClick = {
                                     when (it) {
                                         is VolumeFile.Directory -> navigateToExplorer(it)
-                                        is VolumeFile.Image -> navigateToViewer(files, it)
-                                        is VolumeFile.Video -> Unit
+                                        is VolumeFile.Image -> navigateToImageViewer(files, it)
+                                        is VolumeFile.Video -> navigateToVideoViewer(files, it)
                                         else -> Unit
                                     }
                                 },
@@ -180,7 +191,8 @@ private fun ExplorerPreview() {
                 ),
                 navigateBack = { },
                 navigateToExplorer = { },
-                navigateToViewer = { _, _ -> },
+                navigateToImageViewer = { _, _ -> },
+                navigateToVideoViewer = { _, _ -> },
             )
         }
     }
