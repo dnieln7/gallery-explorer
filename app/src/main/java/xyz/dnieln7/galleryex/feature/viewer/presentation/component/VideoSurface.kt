@@ -16,8 +16,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.net.toUri
+import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
-import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.AspectRatioFrameLayout
 import androidx.media3.ui.PlayerView
 import coil.compose.AsyncImage
@@ -32,7 +32,7 @@ import java.io.File
 internal fun VideoSurface(
     modifier: Modifier = Modifier,
     video: VolumeFile.Video,
-    player: ExoPlayer,
+    player: Player?,
     isActive: Boolean,
     onTap: () -> Unit,
 ) {
@@ -41,7 +41,7 @@ internal fun VideoSurface(
             .fillMaxSize()
             .background(color = MaterialTheme.colorScheme.scrim),
     ) {
-        if (isActive) {
+        if (isActive && player != null) {
             AndroidView(
                 modifier = Modifier.fillMaxSize(),
                 factory = { context ->

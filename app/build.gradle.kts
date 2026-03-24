@@ -62,6 +62,7 @@ dependencies {
     implementation(libs.io.coil.kt.coil.compose)
     implementation(libs.io.coil.kt.coil.video)
     implementation(libs.androidx.media3.exoplayer)
+    implementation(libs.androidx.media3.session)
     implementation(libs.androidx.media3.ui)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)

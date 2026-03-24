@@ -46,6 +46,7 @@ com-google-dagger-hilt-android = { module = "com.google.dagger:hilt-android", ve
 cafe-adriel-voyager-navigator = { module = "cafe.adriel.voyager:voyager-navigator", version.ref = "voyager" }
 cafe-adriel-voyager-hilt = { module = "cafe.adriel.voyager:voyager-hilt", version.ref = "voyager" }
 androidx-media3-exoplayer = { module = "androidx.media3:media3-exoplayer", version.ref = "media3" }
+androidx-media3-session = { module = "androidx.media3:media3-session", version.ref = "media3" }
 androidx-media3-ui = { module = "androidx.media3:media3-ui", version.ref = "media3" }
 
 junit = { module = "junit:junit", version.ref = "junit" }
