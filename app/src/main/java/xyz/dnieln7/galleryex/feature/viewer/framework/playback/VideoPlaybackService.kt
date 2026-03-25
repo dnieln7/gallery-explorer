@@ -74,19 +74,19 @@ class VideoPlaybackService : MediaSessionService() {
         super.onCreate()
 
         player = ExoPlayer.Builder(this)
-            .setSeekBackIncrementMs(10_000L)
-            .setSeekForwardIncrementMs(10_000L)
+            .setSeekBackIncrementMs(PLAYER_SEEK_INCREMENT_MS)
+            .setSeekForwardIncrementMs(PLAYER_SEEK_INCREMENT_MS)
             .build().apply {
-            repeatMode = Player.REPEAT_MODE_ONE
-            setAudioAttributes(
-                AudioAttributes.Builder()
-                    .setUsage(C.USAGE_MEDIA)
-                    .setContentType(C.AUDIO_CONTENT_TYPE_MOVIE)
-                    .build(),
-                true,
-            )
-            addListener(playerListener)
-        }
+                repeatMode = Player.REPEAT_MODE_ONE
+                setAudioAttributes(
+                    AudioAttributes.Builder()
+                        .setUsage(C.USAGE_MEDIA)
+                        .setContentType(C.AUDIO_CONTENT_TYPE_MOVIE)
+                        .build(),
+                    true,
+                )
+                addListener(playerListener)
+            }
         mediaSession = MediaSession.Builder(this, player)
             .setSessionActivity(VideoPlaybackRestoreIntent.createPendingIntent(this))
             .setMediaButtonPreferences(createMediaButtonPreferences())
@@ -147,3 +147,5 @@ class VideoPlaybackService : MediaSessionService() {
         )
     }
 }
+
+private const val PLAYER_SEEK_INCREMENT_MS = 10_000L

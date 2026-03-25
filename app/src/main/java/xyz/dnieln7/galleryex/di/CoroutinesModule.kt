@@ -29,7 +29,6 @@ annotation class ApplicationScope
 @InstallIn(SingletonComponent::class)
 @Module
 object CoroutinesModule {
-
     @Main
     @Provides
     fun provideMainDispatcher(): CoroutineDispatcher {
@@ -45,9 +44,7 @@ object CoroutinesModule {
     @ApplicationScope
     @Singleton
     @Provides
-    fun provideApplicationScope(
-        @IO dispatcher: CoroutineDispatcher
-    ): CoroutineScope {
+    fun provideApplicationScope(@IO dispatcher: CoroutineDispatcher): CoroutineScope {
         return CoroutineScope(SupervisorJob() + dispatcher)
     }
 }

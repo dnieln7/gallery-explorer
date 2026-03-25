@@ -11,5 +11,3 @@ fun Modifier.edgeToEdgePadding(): Modifier {
         .statusBarsPadding()
         .navigationBarsPadding()
 }
-
-

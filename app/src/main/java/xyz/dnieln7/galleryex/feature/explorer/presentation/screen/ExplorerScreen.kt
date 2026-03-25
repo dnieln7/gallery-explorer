@@ -69,7 +69,7 @@ class ExplorerScreenDestination(
                     ExplorerScreenDestination(
                         titles = titles + it.name,
                         directoryPath = it.file.absolutePath,
-                    )
+                    ),
                 )
             },
             navigateToImageViewer = { files, image ->
@@ -79,7 +79,7 @@ class ExplorerScreenDestination(
                     ImageViewerScreenDestination(
                         imagePaths = request.imagePaths,
                         selectedIndex = request.selectedIndex,
-                    )
+                    ),
                 )
             },
             navigateToVideoViewer = { files, video ->
@@ -89,9 +89,9 @@ class ExplorerScreenDestination(
                     VideoViewerScreenDestination(
                         videoPaths = request.videoPaths,
                         selectedIndex = request.selectedIndex,
-                    )
+                    ),
                 )
-            }
+            },
         )
     }
 }
@@ -124,7 +124,7 @@ private fun ExplorerScreen(
                         maxLines = 1,
                         style = MaterialTheme.typography.titleLarge.copy(
                             fontWeight = FontWeight.SemiBold,
-                        )
+                        ),
                     )
                 },
                 navigationIcon = {
@@ -135,7 +135,7 @@ private fun ExplorerScreen(
                                 imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
                                 contentDescription = stringResource(R.string.back),
                             )
-                        }
+                        },
                     )
                 },
             )
@@ -151,7 +151,7 @@ private fun ExplorerScreen(
                 if (files.isNotEmpty()) {
                     LazyVerticalGrid(
                         modifier = Modifier.fillMaxSize(),
-                        columns = GridCells.Fixed(3),
+                        columns = GridCells.Fixed(EXPLORER_GRID_COLUMN_COUNT),
                         contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp),
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -179,7 +179,7 @@ private fun ExplorerScreen(
                     )
                 }
             }
-        }
+        },
     )
 }
 
@@ -208,3 +208,5 @@ private fun ExplorerPreview() {
 internal fun directoryFromPath(directoryPath: String): VolumeFile.Directory {
     return VolumeFile.Directory(file = File(directoryPath))
 }
+
+private const val EXPLORER_GRID_COLUMN_COUNT = 3

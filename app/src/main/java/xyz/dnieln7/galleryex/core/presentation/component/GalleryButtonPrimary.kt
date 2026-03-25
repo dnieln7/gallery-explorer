@@ -19,7 +19,7 @@ fun GalleryButtonPrimary(
         onClick = onClick,
         content = {
             Text(text)
-        }
+        },
     )
 }
 

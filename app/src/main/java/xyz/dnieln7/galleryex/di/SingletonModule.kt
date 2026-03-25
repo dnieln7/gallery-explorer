@@ -13,7 +13,6 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object SingletonModule {
-
     @Provides
     @Singleton
     fun provideExplorer(

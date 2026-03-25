@@ -9,7 +9,6 @@ import timber.log.Timber
 
 @HiltAndroidApp
 class GalleryExplorerApplication : Application(), ImageLoaderFactory {
-
     override fun newImageLoader(): ImageLoader {
         return ImageLoader.Builder(this)
             .components {

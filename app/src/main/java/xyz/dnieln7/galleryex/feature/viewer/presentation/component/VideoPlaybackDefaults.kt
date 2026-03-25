@@ -2,11 +2,8 @@ package xyz.dnieln7.galleryex.feature.viewer.presentation.component
 
 import kotlin.math.roundToLong
 
-internal const val SeekOffsetMs = 10_000L
-internal const val ControlsAutoHideDelayMs = 2_500L
-
 internal fun seekBackwardPosition(currentPositionMs: Long): Long {
-    return (currentPositionMs - SeekOffsetMs).coerceAtLeast(0L)
+    return (currentPositionMs - SEEK_OFFSET_MS).coerceAtLeast(0L)
 }
 
 internal fun seekForwardPosition(currentPositionMs: Long, durationMs: Long): Long {
@@ -14,7 +11,7 @@ internal fun seekForwardPosition(currentPositionMs: Long, durationMs: Long): Lon
         return currentPositionMs.coerceAtLeast(0L)
     }
 
-    return (currentPositionMs + SeekOffsetMs).coerceAtMost(durationMs)
+    return (currentPositionMs + SEEK_OFFSET_MS).coerceAtMost(durationMs)
 }
 
 internal fun sliderValueToPosition(sliderValue: Float, durationMs: Long): Long {
@@ -34,10 +31,10 @@ internal fun positionToSliderValue(positionMs: Long, durationMs: Long): Float {
 }
 
 internal fun formatPlaybackTime(positionMs: Long): String {
-    val totalSeconds = (positionMs.coerceAtLeast(0L) / 1_000L).toInt()
-    val hours = totalSeconds / 3_600
-    val minutes = (totalSeconds % 3_600) / 60
-    val seconds = totalSeconds % 60
+    val totalSeconds = (positionMs.coerceAtLeast(0L) / MILLISECONDS_PER_SECOND).toInt()
+    val hours = totalSeconds / SECONDS_PER_HOUR
+    val minutes = (totalSeconds % SECONDS_PER_HOUR) / SECONDS_PER_MINUTE
+    val seconds = totalSeconds % SECONDS_PER_MINUTE
 
     return if (hours > 0) {
         "%d:%02d:%02d".format(hours, minutes, seconds)
@@ -45,3 +42,9 @@ internal fun formatPlaybackTime(positionMs: Long): String {
         "%02d:%02d".format(minutes, seconds)
     }
 }
+
+private const val MILLISECONDS_PER_SECOND = 1_000L
+private const val SECONDS_PER_MINUTE = 60
+private const val SECONDS_PER_HOUR = 3_600
+private const val SEEK_OFFSET_MS = 10_000L
+internal const val CONTROLS_AUTO_HIDE_DELAY_MS: Long = 2_500L

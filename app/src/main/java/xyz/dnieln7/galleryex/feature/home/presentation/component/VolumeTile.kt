@@ -36,7 +36,7 @@ fun VolumeTile(modifier: Modifier = Modifier, volume: Volume, onClick: () -> Uni
         shape = LargeTileShape,
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-        )
+        ),
     ) {
         Row(
             modifier = Modifier

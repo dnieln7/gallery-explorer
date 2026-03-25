@@ -101,7 +101,21 @@ Contains the code of the application, the sources are in `app/src/main/java/xyz/
 
 ### Formatting & Linting
 
+* **Engine**: Detekt + KTLint.
+    * **Ruleset**: Configured in `config/detekt/config.yml`.
+    * **Baselines**: Each module has a `baseline.xml` located in `**/detekt/baseline.xml`.
+    * **Constraint**: NEVER modify a `baseline.xml` file or suppress a Detekt warning without explicit permission.
 * **Indentation**: Follow the `.editorconfig` file strictly.
+* **Syntax**
+    * Always use trailing comma.
+    * Functions always have a body block, avoid `fun doSomething() = ...`.
+    * Files must end with a newline (\n).
+    * Class body must not start with blank line.
+    * Constants must be located at the end of the file and use SCREAMING_SNAKE_CASE.
+    * Functions/Constants/Classes that are exclusively used in the file they are declared must be private otherwise
+      leave them as public (no visibility modifier).
+    * Avoid magic numbers, always create a const with an easy-to-understand name:
+      `const val CONTROLS_AUTO_HIDE_DELAY_MS: Long = 2_500L`.
 
 ### UI & Architecture (MVI + Voyager)
 
@@ -142,12 +156,14 @@ The `[Feature]Screen` (Stateless) is the Renderer. It is strictly responsible fo
 
 ### Compose Standards
 
-* **Modifiers**: First parameter of any public/internal Composable must be modifier:
-  `Modifier = Modifier`.
+* **Modifiers**: First parameter of any Composable must be a Modifier: `Modifier = Modifier`.
 * **Theming**: Use `MaterialTheme.colorScheme` and `stringResource`. No hardcoded values.
 * **Components**: Use project-specific atoms (e.g., `GalleryButtonPrimary`, `VerticalSpacer`).
-* **Previews**: Mandatory for all stateless `[Feature]Screen` composables using
-  `GalleryExplorerTheme`.
+* **Previews**:
+    * Mandatory for all stateless `[Feature]Screen` composables using `GalleryExplorerTheme`.
+    * Every component that has it's own file (e.g., `GalleryButtonPrimary`) must have a preview.
+* **Visibility**: Composables that are exclusively used in the file they are declared must be private otherwise leave
+  them as public (no visibility modifier).
 
 ## Project Rules
 

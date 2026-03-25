@@ -72,7 +72,7 @@ internal fun VideoSurface(
                 .fillMaxSize()
                 .pointerInput(onTap) {
                     detectTapGestures(onTap = { onTap() })
-                }
+                },
         )
     }
 }

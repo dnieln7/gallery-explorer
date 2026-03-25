@@ -22,6 +22,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.media3.common.Player
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
@@ -33,7 +34,7 @@ import xyz.dnieln7.galleryex.feature.viewer.domain.model.VideoPlaybackSessionSta
 import xyz.dnieln7.galleryex.feature.viewer.domain.model.currentVideoTitleOrFileName
 import xyz.dnieln7.galleryex.feature.viewer.framework.playback.LocalVideoPlaybackController
 import xyz.dnieln7.galleryex.feature.viewer.framework.playback.VideoPlaybackController
-import xyz.dnieln7.galleryex.feature.viewer.presentation.component.ControlsAutoHideDelayMs
+import xyz.dnieln7.galleryex.feature.viewer.presentation.component.CONTROLS_AUTO_HIDE_DELAY_MS
 import xyz.dnieln7.galleryex.feature.viewer.presentation.component.VideoPlaybackControls
 import xyz.dnieln7.galleryex.feature.viewer.presentation.component.VideoSurface
 import xyz.dnieln7.galleryex.feature.viewer.presentation.component.positionToSliderValue
@@ -41,7 +42,6 @@ import xyz.dnieln7.galleryex.feature.viewer.presentation.component.seekBackwardP
 import xyz.dnieln7.galleryex.feature.viewer.presentation.component.seekForwardPosition
 import xyz.dnieln7.galleryex.feature.viewer.presentation.component.sliderValueToPosition
 import java.io.File
-import androidx.media3.common.Player
 
 /**
  * Voyager destination that shows a vertically swipeable video viewer for a folder-scoped list of videos.
@@ -177,7 +177,7 @@ private fun VideoViewerScreen(
                 isPlaying = activePlayer.isPlaying
             }
 
-            delay(250L)
+            delay(PLAYBACK_POSITION_POLL_INTERVAL_MS)
         }
     }
 
@@ -186,7 +186,7 @@ private fun VideoViewerScreen(
     // restarts this effect with the new state.
     LaunchedEffect(showControls, isPlaying, isScrubbing, activePage) {
         if (showControls && isPlaying && !isScrubbing) {
-            delay(ControlsAutoHideDelayMs)
+            delay(CONTROLS_AUTO_HIDE_DELAY_MS)
             showControls = false
         }
     }
@@ -350,7 +350,7 @@ private class PreviewVideoPlaybackController : VideoPlaybackController {
             selectedIndex = 0,
             currentVideoPath = "/storage/emulated/0/Movies/clip-1.mp4",
             currentVideoTitle = "clip-1.mp4",
-        )
+        ),
     )
 
     override fun connect() = Unit
@@ -361,3 +361,5 @@ private class PreviewVideoPlaybackController : VideoPlaybackController {
 
     override fun stopPlayback() = Unit
 }
+
+private const val PLAYBACK_POSITION_POLL_INTERVAL_MS = 250L

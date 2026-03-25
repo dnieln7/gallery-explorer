@@ -69,7 +69,7 @@ private fun EmptyStatePreview() {
             EmptyState(
                 icon = Icons.Rounded.FolderOff,
                 title = "This folder is empty.",
-                message = "There are no images or videos here."
+                message = "There are no images or videos here.",
             )
         }
     }

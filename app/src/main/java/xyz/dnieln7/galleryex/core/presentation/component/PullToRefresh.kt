@@ -30,7 +30,7 @@ fun PullToRefresh(
             coroutineScope.launch {
                 isRefreshing = true
                 onRefresh()
-                delay(500)
+                delay(REFRESH_INDICATOR_DELAY_MS)
                 isRefreshing = false
             }
         },
@@ -38,3 +38,5 @@ fun PullToRefresh(
         content()
     }
 }
+
+private const val REFRESH_INDICATOR_DELAY_MS = 500L

@@ -16,7 +16,6 @@ import cafe.adriel.voyager.navigator.Navigator
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
-import javax.inject.Inject
 import xyz.dnieln7.galleryex.core.presentation.theme.GalleryExplorerTheme
 import xyz.dnieln7.galleryex.feature.home.presentation.screen.HomeScreenDestination
 import xyz.dnieln7.galleryex.feature.viewer.domain.model.VideoPlaybackRestoreRequest
@@ -25,6 +24,7 @@ import xyz.dnieln7.galleryex.feature.viewer.framework.playback.LocalVideoPlaybac
 import xyz.dnieln7.galleryex.feature.viewer.framework.playback.VideoPlaybackRestoreIntent
 import xyz.dnieln7.galleryex.feature.viewer.framework.playback.VideoPlaybackSessionStore
 import xyz.dnieln7.galleryex.feature.viewer.presentation.screen.VideoViewerScreenDestination
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {

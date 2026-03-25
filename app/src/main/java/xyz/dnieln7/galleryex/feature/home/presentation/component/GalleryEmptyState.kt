@@ -41,27 +41,27 @@ fun GalleryEmptyState(
             modifier = Modifier
                 .size(72.dp)
                 .padding(bottom = 16.dp),
-            tint = MaterialTheme.colorScheme.primary
+            tint = MaterialTheme.colorScheme.primary,
         )
         Text(
             text = stringResource(id = R.string.all_files_access_title),
             style = MaterialTheme.typography.headlineSmall,
             color = MaterialTheme.colorScheme.onSurface,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
         )
         VerticalSpacer(of = 8.dp)
         Text(
             text = stringResource(id = R.string.all_files_access_description),
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
         )
         VerticalSpacer(of = 8.dp)
         Text(
             text = stringResource(id = R.string.all_files_access_description_2),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
         )
         VerticalSpacer(of = 24.dp)
         GalleryButtonPrimary(
@@ -77,7 +77,7 @@ private fun GalleryEmptyStatePreview() {
     GalleryExplorerTheme {
         Surface {
             GalleryEmptyState(
-                onButtonClick = {}
+                onButtonClick = {},
             )
         }
     }

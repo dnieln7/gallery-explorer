@@ -65,8 +65,8 @@ fun VolumeFileTile(modifier: Modifier = Modifier, file: VolumeFile, onClick: () 
 
     Column(
         modifier = modifier.then(
-            if (isInteractive) Modifier.clickable { onClick() } else Modifier
-        )
+            if (isInteractive) Modifier.clickable { onClick() } else Modifier,
+        ),
     ) {
         Box(
             modifier = Modifier
@@ -76,11 +76,12 @@ fun VolumeFileTile(modifier: Modifier = Modifier, file: VolumeFile, onClick: () 
                 .background(
                     when (file) {
                         is VolumeFile.Image,
-                        is VolumeFile.Video -> Color.Transparent
+                        is VolumeFile.Video,
+                            -> Color.Transparent
 
                         is VolumeFile.Other -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
                         else -> MaterialTheme.colorScheme.surfaceVariant
-                    }
+                    },
                 ),
             contentAlignment = Alignment.Center,
         ) {
@@ -101,7 +102,7 @@ fun VolumeFileTile(modifier: Modifier = Modifier, file: VolumeFile, onClick: () 
 
                 else -> {
                     Icon(
-                        modifier = Modifier.fillMaxSize(0.5f),
+                        modifier = Modifier.fillMaxSize(FILE_TILE_ICON_FILL_FRACTION),
                         imageVector = icon,
                         contentDescription = null,
                         tint = if (file is VolumeFile.Other) {
@@ -168,7 +169,9 @@ private fun VideoThumbnail(modifier: Modifier = Modifier, file: VolumeFile.Video
 @Composable
 private fun BoxScope.VideoPlayBadge() {
     val iconTint = MaterialTheme.colorScheme.primary
-    val borderTint = remember(iconTint) { lerp(iconTint, Color.Black, 0.50F) }
+    val borderTint = remember(iconTint) {
+        lerp(iconTint, Color.Black, VIDEO_PLAY_BADGE_BORDER_BLEND_FRACTION)
+    }
 
     Box(
         modifier = Modifier
@@ -223,7 +226,7 @@ private fun VolumeFileTilePreview() {
                     .fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                LazyVerticalGrid(columns = GridCells.Fixed(3)) {
+                LazyVerticalGrid(columns = GridCells.Fixed(PREVIEW_GRID_COLUMN_COUNT)) {
                     item {
                         VolumeFileTile(
                             modifier = Modifier.padding(4.dp),
@@ -265,3 +268,7 @@ private fun VolumeFileTilePreview() {
         }
     }
 }
+
+private const val FILE_TILE_ICON_FILL_FRACTION = 0.5f
+private const val VIDEO_PLAY_BADGE_BORDER_BLEND_FRACTION = 0.5f
+private const val PREVIEW_GRID_COLUMN_COUNT = 3

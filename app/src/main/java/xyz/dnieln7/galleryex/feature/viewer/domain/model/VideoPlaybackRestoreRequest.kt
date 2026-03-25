@@ -74,7 +74,7 @@ internal fun VideoPlaybackRestoreRequest.toMediaItems(): List<MediaItem> {
             .setMediaMetadata(
                 MediaMetadata.Builder()
                     .setTitle(File(videoPath).name)
-                    .build()
+                    .build(),
             )
             .build()
     }

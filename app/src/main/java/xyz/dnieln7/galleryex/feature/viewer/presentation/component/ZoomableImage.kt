@@ -75,10 +75,10 @@ fun ZoomableImage(
 
                                 offset = Offset(
                                     x = newOffsetX.coerceIn(-maxX, maxX),
-                                    y = newOffsetY.coerceIn(-maxY, maxY)
+                                    y = newOffsetY.coerceIn(-maxY, maxY),
                                 )
                             }
-                        }
+                        },
                     )
                 }
                 .pointerInput(Unit) {
@@ -130,7 +130,8 @@ fun ZoomableImage(
 
                                     if (effectiveZoom != 1f || effectivePan != Offset.Zero) {
                                         // Bound the zoom scaling between 1x (fit perfectly) and 4x (max zoom)
-                                        val targetScale = (scale * effectiveZoom).coerceIn(1f, 4f)
+                                        val targetScale = (scale * effectiveZoom)
+                                            .coerceIn(1f, MAX_ZOOM_SCALE)
                                         val isZooming = effectiveZoom != 1f
 
                                         // Dynamically calculate the maximum allowed panning distance based on the current zoom level.
@@ -162,7 +163,8 @@ fun ZoomableImage(
 
                                         // Only pass the drag event to the parent once the user has dragged continuously 
                                         // past the edge more than 2x the normal touch slop threshold.
-                                        val exceedsThreshold = abs(overscrollY) > (touchSlop * 2)
+                                        val exceedsThreshold = abs(overscrollY) >
+                                            (touchSlop * PAGER_HANDOFF_TOUCH_SLOP_MULTIPLIER)
                                         val pushingPastEdgeThreshold =
                                             (pushingPastTopEdge || pushingPastBottomEdge) && exceedsThreshold
 
@@ -179,7 +181,7 @@ fun ZoomableImage(
                                         scale = targetScale
                                         offset = Offset(
                                             x = targetOffsetX.coerceIn(-maxX, maxX),
-                                            y = targetOffsetY.coerceIn(-maxY, maxY)
+                                            y = targetOffsetY.coerceIn(-maxY, maxY),
                                         )
                                     }
                                 }
@@ -191,7 +193,7 @@ fun ZoomableImage(
                     scaleX = scale,
                     scaleY = scale,
                     translationX = offset.x,
-                    translationY = offset.y
+                    translationY = offset.y,
                 ),
             model = image.file.toUri(),
             contentDescription = null,
@@ -202,3 +204,6 @@ fun ZoomableImage(
 }
 
 private class ZoomableState(val width: Int, val height: Int)
+
+private const val MAX_ZOOM_SCALE = 4f
+private const val PAGER_HANDOFF_TOUCH_SLOP_MULTIPLIER = 2

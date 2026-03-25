@@ -16,8 +16,6 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material.icons.rounded.FastForward
-import androidx.compose.material.icons.rounded.FastRewind
 import androidx.compose.material.icons.rounded.Forward10
 import androidx.compose.material.icons.rounded.Pause
 import androidx.compose.material.icons.rounded.PlayArrow
@@ -107,8 +105,8 @@ private fun TopBar(
                     colors = listOf(
                         MaterialTheme.colorScheme.scrim.copy(alpha = 0.60f),
                         Color.Transparent,
-                    )
-                )
+                    ),
+                ),
             )
             .statusBarsPadding()
             .padding(horizontal = 8.dp, vertical = 8.dp),
@@ -122,7 +120,7 @@ private fun TopBar(
                     contentDescription = stringResource(R.string.back),
                     tint = MaterialTheme.colorScheme.onSurface,
                 )
-            }
+            },
         )
         HorizontalSpacer(of = 8.dp)
         Text(
@@ -157,8 +155,8 @@ private fun BottomBar(
                     colors = listOf(
                         Color.Transparent,
                         MaterialTheme.colorScheme.scrim.copy(alpha = 0.72f),
-                    )
-                )
+                    ),
+                ),
             )
             .navigationBarsPadding()
             .padding(horizontal = 20.dp, vertical = 24.dp),
@@ -206,7 +204,7 @@ private fun BottomBar(
                             R.string.pause_video
                         } else {
                             R.string.play_video
-                        }
+                        },
                     ),
                 )
             }

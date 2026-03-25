@@ -61,9 +61,9 @@ class HomeScreenDestination : Screen {
                     ExplorerScreenDestination(
                         titles = listOf(it.name),
                         directoryPath = nextDirectory.file.absolutePath,
-                    )
+                    ),
                 )
-            }
+            },
         )
     }
 }
@@ -79,9 +79,9 @@ private fun HomeScreen(
             TopAppBar(
                 title = {
                     Text(text = stringResource(R.string.storage))
-                }
+                },
             )
-        }
+        },
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -112,7 +112,7 @@ private fun HomeScreen(
 
                 AccessStatus.ACCESS_DENIED -> {
                     GalleryEmptyState(
-                        onButtonClick = { onAction(HomeAction.OnRequestAccessClick) }
+                        onButtonClick = { onAction(HomeAction.OnRequestAccessClick) },
                     )
                 }
             }
@@ -128,7 +128,7 @@ private fun HomePreview() {
             HomeScreen(
                 state = HomeState(
                     accessStatus = AccessStatus.ACCESS_DENIED,
-                    volumes = listOf()
+                    volumes = listOf(),
                 ),
                 onAction = {},
                 navigateToExplorer = {},

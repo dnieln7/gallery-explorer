@@ -41,7 +41,7 @@ internal object VideoPlaybackRestoreIntent {
 
         return PendingIntent.getActivity(
             context,
-            1001,
+            NOTIFICATION_RESTORE_REQUEST_CODE,
             intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
@@ -62,7 +62,7 @@ internal object VideoPlaybackRestoreIntent {
         sessionStore: VideoPlaybackSessionStore,
     ): VideoPlaybackRestoreRequest? {
         val shouldRestore = intent?.action == ActionResumeVideoPlayback &&
-            intent.getBooleanExtra(ExtraRestoreVideoPlayback, false)
+                intent.getBooleanExtra(ExtraRestoreVideoPlayback, false)
 
         if (!shouldRestore) {
             return null
@@ -88,4 +88,6 @@ internal object VideoPlaybackRestoreIntent {
             }
         }
     }
+
+    private const val NOTIFICATION_RESTORE_REQUEST_CODE = 1001
 }
