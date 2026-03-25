@@ -63,6 +63,16 @@ internal interface VideoPlaybackController {
      * @param index Index of the item that should become the active video.
      */
     fun selectVideo(index: Int)
+
+    /**
+     * Stops the active playback session in response to an explicit user exit action.
+     *
+     * This is intended for the "leave the viewer" path, not for temporary background transitions
+     * such as pressing Home or locking the device. Implementations must clear both local restore
+     * state and the remote Media3 session state so the notification is dismissed and playback cannot
+     * be restored accidentally.
+     */
+    fun stopPlayback()
 }
 
 /**
@@ -177,6 +187,21 @@ internal class DefaultVideoPlaybackController @Inject constructor(
     }
 
     /**
+     * Stops playback and clears the active viewer session.
+     *
+     * This method is safe to call multiple times. It first clears pending local state so a late
+     * controller connection cannot revive an old playlist, then it asks the connected Media3
+     * controller to stop transport playback and remove its media items so the session is no longer
+     * restorable from the notification.
+     */
+    override fun stopPlayback() {
+        pendingRequest = null
+        sessionStore.clear()
+
+        controller?.let(::stopAndClearPlayback)
+    }
+
+    /**
      * Applies a playback request to the connected Media3 controller.
      *
      * If the playlist already matches, only the current item is updated. Otherwise the whole playlist
@@ -213,6 +238,19 @@ internal class DefaultVideoPlaybackController @Inject constructor(
         )
         mediaController.prepare()
         mediaController.play()
+    }
+
+    /**
+     * Clears the remote Media3 playback session after an explicit back-navigation exit.
+     *
+     * Stopping and clearing media items ensures the playback notification is removed and that the
+     * service no longer advertises a restorable active playlist.
+     *
+     * @param mediaController Connected Media3 controller bound to the service session.
+     */
+    private fun stopAndClearPlayback(mediaController: MediaController) {
+        mediaController.stop()
+        mediaController.clearMediaItems()
     }
 }
 
