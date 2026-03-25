@@ -1,20 +1,32 @@
 [versions]
 gradle = "8.9.3"
 kotlin = "2.1.21"
+ksp = "2.1.21-2.0.2"
+detekt = "1.23.8"
+kover = "0.9.3"
 core-ktx = "1.16.0"
 core-splashscreen = "1.2.0"
 lifecycle = "2.9.4"
-compose-bom = "2025.11.01"
+compose-bom = "2025.12.01"
 activity-compose = "1.10.1"
 coil = "2.7.0"
 timber = "5.0.1"
 hilt = "2.57.2"
+room = "2.7.2"
 voyager = "1.1.0-beta03"
 media3 = "1.8.0"
 
 junit = "4.13.2"
 ext-junit = "1.3.0"
 espresso-core = "3.7.0"
+leakcanary = "2.14"
+coroutines-test = "1.10.2"
+mockk = "1.14.9"
+turbine = "1.2.1"
+kluent-android = "1.73"
+robolectric = "4.16.1"
+konsist = "0.17.3"
+arch-core-testing = "2.2.0"
 
 [plugins]
 com-android-application = { id = "com.android.application", version.ref = "gradle" }
@@ -22,7 +34,11 @@ com-android-library = { id = "com.android.library", version.ref = "gradle" }
 org-jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 org-jetbrains-kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
 org-jetbrains-kotlin-plugin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+com-google-devtools-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 com-google-dagger-hilt-android = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
+io-gitlab-arturbosch-detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
+org-jetbrains-kotlinx-kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }
+androidx-room = { id = "androidx.room", version.ref = "room" }
 
 [libraries]
 androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "core-ktx" }
@@ -43,12 +59,23 @@ io-coil-kt-coil-video = { module = "io.coil-kt:coil-video", version.ref = "coil"
 com-jakewharton-timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 com-google-dagger-hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hilt" }
 com-google-dagger-hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
+androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
+androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
+androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
+androidx-room-testing = { module = "androidx.room:room-testing", version.ref = "room" }
 cafe-adriel-voyager-navigator = { module = "cafe.adriel.voyager:voyager-navigator", version.ref = "voyager" }
 cafe-adriel-voyager-hilt = { module = "cafe.adriel.voyager:voyager-hilt", version.ref = "voyager" }
 androidx-media3-exoplayer = { module = "androidx.media3:media3-exoplayer", version.ref = "media3" }
 androidx-media3-session = { module = "androidx.media3:media3-session", version.ref = "media3" }
 androidx-media3-ui = { module = "androidx.media3:media3-ui", version.ref = "media3" }
+io-gitlab-arturbosch-detekt-formatting = { module = "io.gitlab.arturbosch.detekt:detekt-formatting", version.ref = "detekt" }
 
 junit = { module = "junit:junit", version.ref = "junit" }
 androidx-test-ext-junit = { module = "androidx.test.ext:junit", version.ref = "ext-junit" }
 androidx-test-espresso-core = { module = "androidx.test.espresso:espresso-core", version.ref = "espresso-core" }
+org-jetbrains-kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines-test" }
+io-mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
+app-cash-turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
+org-amshove-kluent-android = { module = "org.amshove.kluent:kluent-android", version.ref = "kluent-android" }
+org-robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
+com-lemonappdev-konsist = { module = "com.lemonappdev:konsist", version.ref = "konsist" }
