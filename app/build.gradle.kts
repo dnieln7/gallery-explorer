@@ -1,4 +1,5 @@
 import io.gitlab.arturbosch.detekt.Detekt
+import kotlinx.kover.gradle.plugin.dsl.CoverageUnit
 
 plugins {
     alias(libs.plugins.com.android.application)
@@ -52,6 +53,12 @@ android {
         buildConfig = true
     }
 
+    testOptions {
+        unitTests {
+            isIncludeAndroidResources = true
+        }
+    }
+
     room {
         schemaDirectory("$projectDir/schemas")
     }
@@ -96,6 +103,9 @@ dependencies {
     implementation(libs.androidx.activity.compose)
     implementation(libs.io.coil.kt.coil.compose)
     implementation(libs.io.coil.kt.coil.video)
+    testImplementation(platform(libs.androidx.compose.bom))
+//    testImplementation(libs.androidx.compose.ui.test.junit4.android)
+    testImplementation(libs.androidx.compose.ui.test.junit4)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
@@ -133,4 +143,49 @@ dependencies {
     androidTestImplementation(libs.androidx.test.espresso.core)
     androidTestImplementation(libs.org.amshove.kluent.android)
     androidTestImplementation(libs.org.jetbrains.kotlinx.coroutines.test)
+}
+
+val excludedPackages = listOf(
+    "dagger.hilt.internal.aggregatedroot.codegen", // Generated code
+    "hilt_aggregated_deps", // Generated code
+    "xyz.dnieln7.galleryex.di",
+    "xyz.dnieln7.galleryex.main",
+    "xyz.dnieln7.galleryex.feature.viewer.framework",
+    "xyz.dnieln7.galleryex.core.framework",
+    "xyz.dnieln7.galleryex.core.presentation.modifier",
+    "xyz.dnieln7.galleryex.core.presentation.theme",
+)
+
+val excludedClasses = listOf(
+    "xyz.dnieln7.galleryex.GalleryExplorerApplication",
+    "xyz.dnieln7.galleryex.BuildConfig",
+    "xyz.dnieln7.galleryex.core.presentation.component.ComposableSingletons*",
+    "xyz.dnieln7.galleryex.feature.home.presentation.component.ComposableSingletons*",
+    "xyz.dnieln7.galleryex.feature.home.presentation.screen.ComposableSingletons*",
+    "xyz.dnieln7.galleryex.feature.home.presentation.screen.HomeViewModel_Factory",
+    "xyz.dnieln7.galleryex.feature.home.presentation.screen.HomeViewModel_HiltModules*",
+    "xyz.dnieln7.galleryex.feature.home.presentation.screen.HomeViewModel_HiltModules_BindsModule_Binds_LazyMapKey",
+    "xyz.dnieln7.galleryex.feature.home.presentation.screen.HomeViewModel_HiltModules_KeyModule_ProvideFactory*",
+    "xyz.dnieln7.galleryex.feature.home.presentation.screen.HomeViewModel_HiltModules_KeyModule_Provide_LazyMapKey",
+    "xyz.dnieln7.galleryex.feature.explorer.presentation.component.ComposableSingletons*",
+    "xyz.dnieln7.galleryex.feature.explorer.presentation.screen.ComposableSingletons*",
+    "xyz.dnieln7.galleryex.feature.viewer.presentation.component.ComposableSingletons*",
+    "xyz.dnieln7.galleryex.feature.viewer.presentation.screen.ComposableSingletons*",
+    "xyz.dnieln7.galleryex.feature.viewer.presentation.screen.PreviewVideoPlaybackController",
+)
+
+kover {
+    reports {
+        filters {
+            excludes {
+                packages(excludedPackages)
+                classes(excludedClasses)
+            }
+        }
+        verify {
+            rule {
+                minBound(minValue = 20, coverageUnits = CoverageUnit.LINE)
+            }
+        }
+    }
 }
