@@ -69,10 +69,12 @@ Contains the code of the application, the sources are in `app/src/main/java/xyz/
 #### Structure
 
 * `core/`: Shared logic and utility functions that can be used in any feature.
-    * `core/domain/`: Interfaces, use cases, models, and utilities globally used by `app`.
+    * `/core/domain/`: Interfaces, use cases, models, and utilities globally used by `app`.
     * `/core/framework/`: Global Android platform specific utilities like WorkManager, Timber,
       Context, etc.
-    * `core/presentation/`: Global UI components, Themes, UI Utils.
+    * `/core/data/`: Room, Retrofit and Preferences code, along with it's mappers to Domain layer classes. All
+      repositories that are data sources must be in this package.
+    * `/core/presentation/`: Global UI components, Themes, UI Utils.
 * `di/`: Hilt dependency injection modules
 * `feature/`: Individual logic units that represent a single feature of the app, every unit contains
   a `presentation` package for the Screen/ViewModels and a `domain` package for the business logic
@@ -145,6 +147,8 @@ The `[Feature]Screen` (Stateless) is the Renderer. It is strictly responsible fo
 * `[Feature]State`: Immutable Data class representing the entire screen.
 * `[Feature]Action`: Sealed interface for user intents (e.g., `OnRefresh`, `OnRequestAccess`).
 * `[Feature]Event`: Sealed interface for one-time commands (e.g., `ShowSnackbar`, `Logout`).
+
+**Rule**: `State`, `Action` and `Event` files must be located in the `[feature]/domain/model` package.
 
 **ViewModel Contract**
 
