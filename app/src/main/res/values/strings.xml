@@ -12,4 +12,10 @@
     <string name="pause_video">Pause video</string>
     <string name="rewind_ten_seconds">Rewind 10 seconds</string>
     <string name="advance_ten_seconds">Advance 10 seconds</string>
+
+    <!-- Sorting -->
+    <string name="name">Name</string>
+    <string name="date">Date</string>
+    <string name="sort_type">Sort type</string>
+    <string name="sort_order">Sort order</string>
 </resources>

@@ -24,6 +24,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -43,7 +44,21 @@ import xyz.dnieln7.galleryex.core.presentation.theme.GalleryExplorerTheme
 import xyz.dnieln7.galleryex.feature.explorer.presentation.component.VolumeFileTile
 import xyz.dnieln7.galleryex.feature.viewer.presentation.screen.ImageViewerScreenDestination
 import xyz.dnieln7.galleryex.feature.viewer.presentation.screen.VideoViewerScreenDestination
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import cafe.adriel.voyager.hilt.getViewModel
 import java.io.File
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.automirrored.rounded.Sort
+import androidx.compose.material.icons.rounded.ArrowDownward
+import androidx.compose.material.icons.rounded.ArrowUpward
+import androidx.compose.material3.TextButton
+import xyz.dnieln7.galleryex.core.domain.enums.SortOrder
+import xyz.dnieln7.galleryex.core.domain.enums.SortType
+import xyz.dnieln7.galleryex.feature.explorer.domain.model.ExplorerAction
+import xyz.dnieln7.galleryex.feature.explorer.domain.model.ExplorerState
 
 /**
  * Voyager destination that shows the contents of a directory identified by its absolute path.
@@ -51,18 +66,24 @@ import java.io.File
  * @property titles Breadcrumb labels shown in the top app bar.
  * @property directoryPath Absolute path of the directory to render.
  */
-class ExplorerScreenDestination(
+data class ExplorerScreenDestination(
     val titles: List<String>,
     val directoryPath: String,
 ) : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
-        val directory = remember(directoryPath) { directoryFromPath(directoryPath) }
+        val viewModel = getViewModel<ExplorerViewModel>()
+        val state by viewModel.uiState.collectAsStateWithLifecycle()
+
+        LaunchedEffect(directoryPath) {
+            viewModel.onAction(ExplorerAction.LoadFiles(directoryPath))
+        }
 
         ExplorerScreen(
             titles = titles,
-            directory = directory,
+            state = state,
+            onAction = viewModel::onAction,
             navigateBack = { navigator.pop() },
             navigateToExplorer = {
                 navigator.push(
@@ -99,7 +120,8 @@ class ExplorerScreenDestination(
 @Composable
 private fun ExplorerScreen(
     titles: List<String>,
-    directory: VolumeFile.Directory,
+    state: ExplorerState,
+    onAction: (ExplorerAction) -> Unit,
     navigateBack: () -> Unit,
     navigateToExplorer: (VolumeFile.Directory) -> Unit,
     navigateToImageViewer: (List<VolumeFile>, VolumeFile.Image) -> Unit,
@@ -108,7 +130,7 @@ private fun ExplorerScreen(
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
 
     val title = remember(titles) { titles.joinToString(separator = " • ") }
-    val files = remember(directory) { directory.children }
+    val files = state.files
 
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -138,6 +160,41 @@ private fun ExplorerScreen(
                         },
                     )
                 },
+                actions = {
+                    TextButton(
+                        onClick = {
+                            val nextType = if (state.sortType == SortType.NAME) SortType.DATE else SortType.NAME
+                            onAction(ExplorerAction.ChangeSortType(nextType))
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Rounded.Sort,
+                            contentDescription = stringResource(R.string.sort_type)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = when (state.sortType) {
+                                SortType.NAME -> stringResource(R.string.name)
+                                SortType.DATE -> stringResource(R.string.date)
+                            }
+                        )
+                    }
+                    IconButton(
+                        onClick = {
+                            val nextOrder = if (state.sortOrder == SortOrder.ASCENDING) SortOrder.DESCENDING else SortOrder.ASCENDING
+                            onAction(ExplorerAction.ChangeSortOrder(nextOrder))
+                        }
+                    ) {
+                        Icon(
+                            imageVector = if (state.sortOrder == SortOrder.ASCENDING) {
+                                Icons.Rounded.ArrowUpward
+                            } else {
+                                Icons.Rounded.ArrowDownward
+                            },
+                            contentDescription = stringResource(R.string.sort_order),
+                        )
+                    }
+                },
             )
         },
         content = { paddingValues ->
@@ -148,7 +205,9 @@ private fun ExplorerScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
             ) {
-                if (files.isNotEmpty()) {
+                if (state.isLoading) {
+                    CircularProgressIndicator()
+                } else if (files.isNotEmpty()) {
                     LazyVerticalGrid(
                         modifier = Modifier.fillMaxSize(),
                         columns = GridCells.Fixed(EXPLORER_GRID_COLUMN_COUNT),
@@ -193,9 +252,8 @@ private fun ExplorerPreview() {
                     "Internal Storage",
                     "Pictures",
                 ),
-                directory = VolumeFile.Directory(
-                    file = File("/storage/emulated/0/Pictures"),
-                ),
+                state = ExplorerState(),
+                onAction = { },
                 navigateBack = { },
                 navigateToExplorer = { },
                 navigateToImageViewer = { _, _ -> },

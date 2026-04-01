@@ -6,8 +6,9 @@ import java.net.URLConnection
 
 sealed interface VolumeFile {
     val name: String
+    val file: File
 
-    data class Directory(val file: File) : VolumeFile {
+    data class Directory(override val file: File) : VolumeFile {
         override val name: String
             get() = file.name
 
@@ -25,17 +26,17 @@ sealed interface VolumeFile {
         }
     }
 
-    data class Image(val file: File) : VolumeFile {
+    data class Image(override val file: File) : VolumeFile {
         override val name: String
             get() = file.nameWithoutExtension
     }
 
-    data class Video(val file: File) : VolumeFile {
+    data class Video(override val file: File) : VolumeFile {
         override val name: String
             get() = file.nameWithoutExtension
     }
 
-    data class Other(val file: File) : VolumeFile {
+    data class Other(override val file: File) : VolumeFile {
         override val name: String
             get() = file.nameWithoutExtension
     }
