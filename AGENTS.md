@@ -19,7 +19,8 @@ create a tiktok like experience.
 | **DI**                   | Hilt                                               | Standard Hilt implementation.              |
 | **Navigation**           | adrielcafe's Voyager with Hilt integration         | Use `1.1.0-beta03`                         |
 | **Build System**         | Gradle KTS + Version Catalogs (libs.versions.toml) | Use located in `gradle/libs.versions.toml` |
-| **Architecture Pattern** | MVI                                                | Action, State, Event                       |
+| **Architecture Pattern** | MVI                                                | Use Action, State, Event                   |
+| **Error handling**       | Arrow                                              | Use Either                                 |
 
 ### Data Persistence
 
@@ -157,6 +158,111 @@ The `[Feature]Screen` (Stateless) is the Renderer. It is strictly responsible fo
   `StateFlow` via `asStateFlow()`. Update via `_uiState.update { ... }`.
 * **Event Output**: `private val _events = Channel<[Feature]Event>()` expose as a `Flow` via
   `receiveAsFlow()`. Update via `_events.send(...)`.
+
+### Error handling
+
+**Domain Errors**
+
+Feature domain errors (`/feature/domain/error`) must implement the `Error` interface located in `/core/domain/error/`:
+
+```kotlin
+sealed interface ExampleError : Error {
+    data object EmptyInput : ExampleError
+    data class Other(val message: String) : ExampleError
+}
+```
+
+* Create a `ThrowableTo[ERROR_NAME]Error` file in `/feature/presentation/error/` to map exceptions to custom errors:
+
+```kotlin
+fun Throwable.toExampleError(): ExampleError {
+    return when (this) {
+        is IllegalStateException -> ExampleError.EmptyInput
+        else -> ExampleError.Other(localizedMessage ?: message ?: this.toString())
+    }
+}
+```
+
+**Repositories/Controllers/Use Cases/etc Contract**
+
+Wrap the return type of functions (including `Unit` returns) with `Either<Error, T>` (Arrow-kt style).
+
+```kotlin
+interface ExampleRepository {
+    suspend fun getData(): Either<ExampleError, List<String>>
+}
+```
+
+Use `Either.catch` to avoid try-catch blocks:
+
+```kotlin
+class DefaultExampleRepository : ExampleRepository {
+    val data = mutableListOf("DATA_1", "DATA_2", "DATA_3")
+
+    override suspend fun getData(): Either<ExampleError, List<String>> {
+        return Either.catch {
+            data
+        }.mapLeft {
+            it.toExampleError()
+        }
+    }
+}
+```
+
+**UI Translation (UIText)**
+
+Error events must inherit `UIText` from `/core/presentation/text/`:
+
+**UIText Types**: `UIText.FromString(message)`, `UIText.FromResource(R.string...)` or
+`FromResourceWithArgs(R.string..., arrayOf(...))`.
+
+```kotlin
+sealed interface ExampleEvent {
+    data class OnError(val message: UIText) : ExampleEvent
+}
+```
+
+Create a `[ERROR_NAME]ErrorToUIText` file in `/feature/presentation/error/` to map errors to `UIText` objects:
+
+```kotlin
+fun ExampleError.toUIText(): UIText {
+    return when (this) {
+        ExampleError.EmptyInput -> UIText.FromResource(R.string.input_error)
+        is ExampleError.Other -> UIText.FromString(message)
+    }
+}
+```
+
+**ViewModel/Event Propagation**
+
+When calling a function use the `fold` function to handle the error and map it to a UI text:
+
+```kotlin
+exampleRepository.getData().fold(
+    { error ->
+        _events.send(ExampleEvent.OnError(error.toUIText()))
+    },
+    { data ->
+        // Success
+    },
+)
+```
+
+When collecting events on the screen use the `asString()` (Composable) or `asString(Context)` function to convert
+`UIText` to a string:
+
+```kotlin
+CollectEventsWithLifeCycle(viewModel.events) {
+    when (it) {
+        is ExampleEvent.OnError -> {
+            context.toastLong(it.message.asString(context))
+        }
+    }
+}
+```
+
+**Rule**: Shared errors (e.g., `NetworkError`, `DatabaseError`) must reside in `/core/domain/error`. Common UI
+translations for these go in `/core/presentation/error`.
 
 ### Compose Standards
 
