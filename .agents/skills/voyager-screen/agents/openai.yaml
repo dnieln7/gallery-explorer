@@ -1,0 +1,4 @@
+interface:
+  display_name: "Voyager Screen"
+  short_description: "Simple Voyager screen structure"
+  default_prompt: "Use $voyager-screen to create or update a simple non-ViewModel Voyager screen in this repository, including the destination, stateless screen, and preview structure."
