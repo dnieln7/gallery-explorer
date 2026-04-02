@@ -1,0 +1,4 @@
+interface:
+  display_name: "MVI Screen ViewModel"
+  short_description: "Repo-specific MVI screen scaffold"
+  default_prompt: "Use $mvi-screen-viewmodel to create or update a ViewModel-backed MVI screen in this repository, including the screen file, ViewModel, State/Action/Event models, and ordered ViewModel tests."
