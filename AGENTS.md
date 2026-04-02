@@ -266,7 +266,8 @@ translations for these go in `/core/presentation/error`.
 
 ### Compose Standards
 
-* **Modifiers**: First parameter of any Composable must be a Modifier: `Modifier = Modifier`.
+* **Modifiers**: First parameter of any Composable must be a Modifier: `Modifier = Modifier` (`[Feature]Screen`
+  composables and any composable acting like a "root" composable can omit this rule).
 * **Theming**: Use `MaterialTheme.colorScheme` and `stringResource`. No hardcoded values.
 * **Components**: Use project-specific atoms (e.g., `GalleryButtonPrimary`, `VerticalSpacer`).
 * **Previews**:
