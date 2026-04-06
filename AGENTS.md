@@ -280,7 +280,9 @@ translations for these go in `/core/presentation/error`.
 
 1. Never deviate from the Material 3 guidelines.
 2. Composables that represent an specific functionality or state must be separated into their own files like
-   @GalleryButtonPrimary.kt
-3. Shapes must be created in @Shape.kt
-4. Composables that are only needed in an specific feature must be in [feature]/presentation/component otherwise they
-   must be in @core/presentation/component
+   `GalleryButtonPrimary.kt`
+3. Shapes must be created in `Shape.kt`
+4. Composables that are only needed in an specific feature must be in `[feature]/presentation/component` otherwise they
+   must be in `core/presentation/component`
+5. Always add documentation for new functions, classes and behavior so the intent is easier to follow for future
+   contributors. 
