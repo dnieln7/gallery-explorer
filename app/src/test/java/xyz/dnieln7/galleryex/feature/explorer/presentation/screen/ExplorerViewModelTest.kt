@@ -3,6 +3,7 @@ package xyz.dnieln7.galleryex.feature.explorer.presentation.screen
 import app.cash.turbine.test
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
@@ -83,9 +84,12 @@ class ExplorerViewModelTest {
 
             val sortedState = awaitItem()
             sortedState.sortOrder.shouldBeEqualTo(SortOrder.DESCENDING)
-            sortedState.files[0].name.shouldBeEqualTo("c")
-            sortedState.files[1].name.shouldBeEqualTo("b")
-            sortedState.files[2].name.shouldBeEqualTo("a")
+
+            val sortedFilesState = awaitItem()
+
+            sortedFilesState.files[0].name.shouldBeEqualTo("c")
+            sortedFilesState.files[1].name.shouldBeEqualTo("b")
+            sortedFilesState.files[2].name.shouldBeEqualTo("a")
         }
     }
 
@@ -110,9 +114,12 @@ class ExplorerViewModelTest {
             val sortedState = awaitItem()
             sortedState.sortType.shouldBeEqualTo(SortType.DATE)
             sortedState.sortOrder.shouldBeEqualTo(SortOrder.ASCENDING)
-            sortedState.files[0].name.shouldBeEqualTo("c")
-            sortedState.files[1].name.shouldBeEqualTo("b")
-            sortedState.files[2].name.shouldBeEqualTo("a")
+
+            val sortedFilesState = awaitItem()
+
+            sortedFilesState.files[0].name.shouldBeEqualTo("c")
+            sortedFilesState.files[1].name.shouldBeEqualTo("b")
+            sortedFilesState.files[2].name.shouldBeEqualTo("a")
         }
     }
 
@@ -133,16 +140,19 @@ class ExplorerViewModelTest {
             }
             
             viewModel.onAction(ExplorerAction.ChangeSortType(SortType.DATE))
-            awaitItem() // Skip to Date Ascending state
+            skipItems(2) // Skip to Date Ascending and sorted files
             
             viewModel.onAction(ExplorerAction.ChangeSortOrder(SortOrder.DESCENDING))
             val finalState = awaitItem()
             
             finalState.sortType.shouldBeEqualTo(SortType.DATE)
             finalState.sortOrder.shouldBeEqualTo(SortOrder.DESCENDING)
-            finalState.files[0].name.shouldBeEqualTo("a")
-            finalState.files[1].name.shouldBeEqualTo("b")
-            finalState.files[2].name.shouldBeEqualTo("c")
+
+            val sortedFilesState = awaitItem()
+
+            sortedFilesState.files[0].name.shouldBeEqualTo("a")
+            sortedFilesState.files[1].name.shouldBeEqualTo("b")
+            sortedFilesState.files[2].name.shouldBeEqualTo("c")
         }
     }
 
