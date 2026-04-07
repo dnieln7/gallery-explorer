@@ -8,6 +8,8 @@
     <string name="back">Back</string>
     <string name="empty_directory">This folder is empty.</string>
     <string name="empty_directory_message">There are no images or videos here.</string>
+    <string name="external_media_removed">The external storage device was removed. Returning to Home.</string>
+    <string name="external_media_removed_with_name">%1$s was removed. Returning to Home.</string>
     <string name="play_video">Play video</string>
     <string name="pause_video">Pause video</string>
     <string name="rewind_ten_seconds">Rewind 10 seconds</string>

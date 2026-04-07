@@ -2,6 +2,7 @@ package xyz.dnieln7.galleryex.feature.viewer.framework.playback
 
 import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.core.content.ContextCompat
 import androidx.media3.common.Player
@@ -27,7 +28,7 @@ import javax.inject.Singleton
  * a single place that knows how to connect to the service, sanitize playlists, and keep the shared
  * session store synchronized.
  */
-internal interface VideoPlaybackController {
+interface VideoPlaybackController {
     /**
      * Exposes the connected Media3 player instance when the controller is attached to the service.
      *
@@ -70,7 +71,7 @@ internal interface VideoPlaybackController {
      * This is intended for the "leave the viewer" path, not for temporary background transitions
      * such as pressing Home or locking the device. Implementations must clear both local restore
      * state and the remote Media3 session state so the notification is dismissed and playback cannot
-     * be restored accidentally.
+     * be restored accidentally. The durable stop path is also used when removable storage disappears.
      */
     fun stopPlayback()
 }
@@ -91,7 +92,7 @@ internal interface VideoPlaybackController {
  * @property sessionStore Shared in-memory state for the active playback session.
  */
 @Singleton
-internal class DefaultVideoPlaybackController @Inject constructor(
+class DefaultVideoPlaybackController @Inject constructor(
     @ApplicationContext private val context: Context,
     private val sessionStore: VideoPlaybackSessionStore,
 ) : VideoPlaybackController {
@@ -192,13 +193,19 @@ internal class DefaultVideoPlaybackController @Inject constructor(
      * This method is safe to call multiple times. It first clears pending local state so a late
      * controller connection cannot revive an old playlist, then it asks the connected Media3
      * controller to stop transport playback and remove its media items so the session is no longer
-     * restorable from the notification.
+     * restorable from the notification. Finally it requests that the playback service stop itself,
+     * which covers background cases where no UI collector is available to clean up the session later.
      */
     override fun stopPlayback() {
         pendingRequest = null
         sessionStore.clear()
 
-        controller?.let(::stopAndClearPlayback)
+        controller?.let { mediaController ->
+            ContextCompat.getMainExecutor(context).execute {
+                stopAndClearPlayback(mediaController)
+            }
+        }
+        context.stopService(Intent(context, VideoPlaybackService::class.java))
     }
 
     /**

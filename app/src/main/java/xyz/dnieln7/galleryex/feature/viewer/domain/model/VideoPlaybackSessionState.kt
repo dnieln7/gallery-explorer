@@ -15,7 +15,7 @@ import java.io.File
  * @property currentVideoTitle Best-effort display title for the active media item.
  * @property isPlaying Whether Media3 reports the session as actively playing.
  */
-internal data class VideoPlaybackSessionState(
+data class VideoPlaybackSessionState(
     val videoPaths: List<String> = emptyList(),
     val selectedIndex: Int = -1,
     val currentVideoPath: String? = null,

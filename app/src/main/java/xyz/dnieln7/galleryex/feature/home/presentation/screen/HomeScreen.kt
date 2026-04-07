@@ -54,13 +54,15 @@ class HomeScreenDestination : Screen {
         HomeScreen(
             state = state,
             onAction = viewModel::onAction,
-            navigateToExplorer = {
-                val nextDirectory = it.root
+            navigateToExplorer = { volume ->
+                val nextDirectory = volume.root
 
                 navigator.push(
                     ExplorerScreenDestination(
-                        titles = listOf(it.name),
+                        titles = listOf(volume.name),
                         directoryPath = nextDirectory.file.absolutePath,
+                        removableVolumeRootPath = nextDirectory.file.absolutePath.takeIf { volume.isRemovable },
+                        removableVolumeName = volume.name.takeIf { volume.isRemovable },
                     ),
                 )
             },

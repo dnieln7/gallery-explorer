@@ -63,6 +63,7 @@ private fun createVolume(): Volume {
     return Volume(
         name = "Internal storage",
         file = File("/storage/emulated/0"),
+        isRemovable = false,
     )
 }
 

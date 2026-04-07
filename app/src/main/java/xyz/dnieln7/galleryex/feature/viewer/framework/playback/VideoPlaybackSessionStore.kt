@@ -21,7 +21,7 @@ import javax.inject.Singleton
  * rebuild the viewer when the user taps the media notification.
  */
 @Singleton
-internal class VideoPlaybackSessionStore @Inject constructor() {
+class VideoPlaybackSessionStore @Inject constructor() {
     private val _sessionState = MutableStateFlow(VideoPlaybackSessionState())
 
     /**

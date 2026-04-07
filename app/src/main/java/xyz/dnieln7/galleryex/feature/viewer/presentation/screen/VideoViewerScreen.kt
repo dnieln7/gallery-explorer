@@ -18,6 +18,7 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -41,26 +42,39 @@ import xyz.dnieln7.galleryex.feature.viewer.presentation.component.positionToSli
 import xyz.dnieln7.galleryex.feature.viewer.presentation.component.seekBackwardPosition
 import xyz.dnieln7.galleryex.feature.viewer.presentation.component.seekForwardPosition
 import xyz.dnieln7.galleryex.feature.viewer.presentation.component.sliderValueToPosition
+import xyz.dnieln7.galleryex.main.framework.ExternalMediaRedirectCoordinator
+import xyz.dnieln7.galleryex.main.framework.ExternalMediaScreenTarget
+import xyz.dnieln7.galleryex.main.framework.LocalExternalMediaRedirectCoordinator
+import xyz.dnieln7.galleryex.main.framework.NoOpExternalMediaRedirectCoordinator
 import java.io.File
+import kotlinx.coroutines.launch
 
 /**
  * Voyager destination that shows a vertically swipeable video viewer for a folder-scoped list of videos.
  *
  * @property videoPaths Absolute paths of the videos available in the current folder, preserved in folder order.
  * @property selectedIndex Index of the tapped video that should start playback.
+ * @property removableVolumeRootPath Removable volume root captured when the destination was created.
+ * @property removableVolumeName Removable volume label used if the destination must be redirected home.
  */
 class VideoViewerScreenDestination(
     val videoPaths: List<String>,
     val selectedIndex: Int,
+    val removableVolumeRootPath: String? = null,
+    val removableVolumeName: String? = null,
 ) : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
         val videos = remember(videoPaths) { videosFromPaths(videoPaths) }
+        val externalMediaRedirectCoordinator = LocalExternalMediaRedirectCoordinator.current
 
         VideoViewerScreen(
             videos = videos,
             selectedIndex = selectedIndex,
+            removableVolumeRootPath = removableVolumeRootPath,
+            removableVolumeName = removableVolumeName,
+            externalMediaRedirectCoordinator = externalMediaRedirectCoordinator,
             navigateBack = { navigator.pop() },
         )
     }
@@ -70,6 +84,9 @@ class VideoViewerScreenDestination(
 private fun VideoViewerScreen(
     videos: List<VolumeFile.Video>,
     selectedIndex: Int,
+    removableVolumeRootPath: String?,
+    removableVolumeName: String?,
+    externalMediaRedirectCoordinator: ExternalMediaRedirectCoordinator,
     navigateBack: () -> Unit,
 ) {
     if (videos.isEmpty()) {
@@ -93,7 +110,30 @@ private fun VideoViewerScreen(
             sessionState.selectedIndex.takeIf { it in videos.indices } ?: pagerState.settledPage
         }
     }
+    val coroutineScope = rememberCoroutineScope()
     val activeVideo by remember(videos, activePage) { derivedStateOf { videos[activePage] } }
+    val activeVideoPath = activeVideo.file.absolutePath
+    val screenTarget by remember(activeVideoPath, removableVolumeRootPath, removableVolumeName) {
+        derivedStateOf {
+            ExternalMediaScreenTarget(
+                path = activeVideoPath,
+                removableVolumeRootPath = removableVolumeRootPath,
+                removableVolumeName = removableVolumeName,
+            )
+        }
+    }
+
+    LaunchedEffect(screenTarget) {
+        externalMediaRedirectCoordinator.registerTarget(screenTarget)
+    }
+
+    DisposableEffect(activeVideoPath) {
+        onDispose {
+            coroutineScope.launch {
+                externalMediaRedirectCoordinator.clearPath(activeVideoPath)
+            }
+        }
+    }
 
     var isPlaying by remember { mutableStateOf(false) }
     var showControls by remember { mutableStateOf(true) }
@@ -306,6 +346,9 @@ private fun VideoViewerScreenPreview() {
                         ),
                     ),
                     selectedIndex = 0,
+                    removableVolumeRootPath = null,
+                    removableVolumeName = null,
+                    externalMediaRedirectCoordinator = NoOpExternalMediaRedirectCoordinator,
                     navigateBack = {},
                 )
             }

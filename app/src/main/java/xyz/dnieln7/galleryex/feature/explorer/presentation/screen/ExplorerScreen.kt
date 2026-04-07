@@ -26,6 +26,10 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -46,35 +50,60 @@ import xyz.dnieln7.galleryex.feature.viewer.presentation.screen.ImageViewerScree
 import xyz.dnieln7.galleryex.feature.viewer.presentation.screen.VideoViewerScreenDestination
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cafe.adriel.voyager.hilt.getViewModel
-import java.io.File
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.automirrored.rounded.Sort
 import androidx.compose.material.icons.rounded.ArrowDownward
 import androidx.compose.material.icons.rounded.ArrowUpward
 import androidx.compose.material3.TextButton
+import kotlinx.coroutines.launch
 import xyz.dnieln7.galleryex.core.domain.enums.SortOrder
 import xyz.dnieln7.galleryex.core.domain.enums.SortType
 import xyz.dnieln7.galleryex.feature.explorer.domain.model.ExplorerAction
 import xyz.dnieln7.galleryex.feature.explorer.domain.model.ExplorerState
+import xyz.dnieln7.galleryex.main.framework.ExternalMediaScreenTarget
+import xyz.dnieln7.galleryex.main.framework.LocalExternalMediaRedirectCoordinator
 
 /**
  * Voyager destination that shows the contents of a directory identified by its absolute path.
  *
  * @property titles Breadcrumb labels shown in the top app bar.
  * @property directoryPath Absolute path of the directory to render.
+ * @property removableVolumeRootPath Removable volume root captured when the destination was created.
+ * @property removableVolumeName Removable volume label used if the destination must be redirected home.
  */
 data class ExplorerScreenDestination(
     val titles: List<String>,
     val directoryPath: String,
+    val removableVolumeRootPath: String? = null,
+    val removableVolumeName: String? = null,
 ) : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
         val viewModel = getViewModel<ExplorerViewModel>()
         val state by viewModel.uiState.collectAsStateWithLifecycle()
+        val externalMediaRedirectCoordinator = LocalExternalMediaRedirectCoordinator.current
+        val coroutineScope = rememberCoroutineScope()
+        val screenTarget = remember(directoryPath, removableVolumeRootPath, removableVolumeName) {
+            ExternalMediaScreenTarget(
+                path = directoryPath,
+                removableVolumeRootPath = removableVolumeRootPath,
+                removableVolumeName = removableVolumeName,
+            )
+        }
+
+        LaunchedEffect(screenTarget) {
+            externalMediaRedirectCoordinator.registerTarget(screenTarget)
+        }
+
+        DisposableEffect(directoryPath) {
+            onDispose {
+                coroutineScope.launch {
+                    externalMediaRedirectCoordinator.clearPath(directoryPath)
+                }
+            }
+        }
 
         LaunchedEffect(directoryPath) {
             viewModel.onAction(ExplorerAction.LoadFiles(directoryPath))
@@ -90,6 +119,8 @@ data class ExplorerScreenDestination(
                     ExplorerScreenDestination(
                         titles = titles + it.name,
                         directoryPath = it.file.absolutePath,
+                        removableVolumeRootPath = removableVolumeRootPath,
+                        removableVolumeName = removableVolumeName,
                     ),
                 )
             },
@@ -100,6 +131,8 @@ data class ExplorerScreenDestination(
                     ImageViewerScreenDestination(
                         imagePaths = request.imagePaths,
                         selectedIndex = request.selectedIndex,
+                        removableVolumeRootPath = removableVolumeRootPath,
+                        removableVolumeName = removableVolumeName,
                     ),
                 )
             },
@@ -110,6 +143,8 @@ data class ExplorerScreenDestination(
                     VideoViewerScreenDestination(
                         videoPaths = request.videoPaths,
                         selectedIndex = request.selectedIndex,
+                        removableVolumeRootPath = removableVolumeRootPath,
+                        removableVolumeName = removableVolumeName,
                     ),
                 )
             },
@@ -261,10 +296,6 @@ private fun ExplorerPreview() {
             )
         }
     }
-}
-
-internal fun directoryFromPath(directoryPath: String): VolumeFile.Directory {
-    return VolumeFile.Directory(file = File(directoryPath))
 }
 
 private const val EXPLORER_GRID_COLUMN_COUNT = 3

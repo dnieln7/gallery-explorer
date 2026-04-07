@@ -8,6 +8,10 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineScope
 import xyz.dnieln7.galleryex.core.framework.explorer.Explorer
+import xyz.dnieln7.galleryex.feature.viewer.framework.playback.DefaultVideoPlaybackController
+import xyz.dnieln7.galleryex.feature.viewer.framework.playback.VideoPlaybackController
+import xyz.dnieln7.galleryex.main.framework.DefaultExternalMediaRedirectCoordinator
+import xyz.dnieln7.galleryex.main.framework.ExternalMediaRedirectCoordinator
 import javax.inject.Singleton
 
 @Module
@@ -17,8 +21,29 @@ object SingletonModule {
     @Singleton
     fun provideExplorer(
         @ApplicationContext context: Context,
-        @ApplicationScope scope: CoroutineScope,
     ): Explorer {
-        return Explorer(context, scope)
+        return Explorer(context)
+    }
+
+    @Provides
+    @Singleton
+    fun provideVideoPlaybackController(
+        defaultVideoPlaybackController: DefaultVideoPlaybackController,
+    ): VideoPlaybackController {
+        return defaultVideoPlaybackController
+    }
+
+    @Provides
+    @Singleton
+    fun provideExternalMediaRedirectCoordinator(
+        explorer: Explorer,
+        videoPlaybackController: VideoPlaybackController,
+        @ApplicationScope scope: CoroutineScope,
+    ): ExternalMediaRedirectCoordinator {
+        return DefaultExternalMediaRedirectCoordinator(
+            explorer = explorer,
+            videoPlaybackController = videoPlaybackController,
+            scope = scope,
+        )
     }
 }

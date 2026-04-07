@@ -14,7 +14,7 @@ import java.io.File
  * @property videoPaths Absolute file paths for the active folder-scoped playlist.
  * @property selectedIndex Index of the item that should be shown as the current video.
  */
-internal data class VideoPlaybackRestoreRequest(
+data class VideoPlaybackRestoreRequest(
     val videoPaths: List<String>,
     val selectedIndex: Int,
 )

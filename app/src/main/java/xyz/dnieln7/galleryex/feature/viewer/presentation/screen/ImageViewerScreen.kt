@@ -21,10 +21,13 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -37,26 +40,39 @@ import xyz.dnieln7.galleryex.R
 import xyz.dnieln7.galleryex.core.domain.model.VolumeFile
 import xyz.dnieln7.galleryex.core.presentation.theme.GalleryExplorerTheme
 import xyz.dnieln7.galleryex.feature.viewer.presentation.component.ZoomableImage
+import xyz.dnieln7.galleryex.main.framework.ExternalMediaRedirectCoordinator
+import xyz.dnieln7.galleryex.main.framework.ExternalMediaScreenTarget
+import xyz.dnieln7.galleryex.main.framework.LocalExternalMediaRedirectCoordinator
+import xyz.dnieln7.galleryex.main.framework.NoOpExternalMediaRedirectCoordinator
 import java.io.File
+import kotlinx.coroutines.launch
 
 /**
  * Voyager destination that shows a vertically swipeable image viewer for a folder-scoped list of images.
  *
  * @property imagePaths Absolute paths of the images available in the current folder, preserved in folder order.
  * @property selectedIndex Index of the tapped image that should be focused first.
+ * @property removableVolumeRootPath Removable volume root captured when the destination was created.
+ * @property removableVolumeName Removable volume label used if the destination must be redirected home.
  */
 class ImageViewerScreenDestination(
     val imagePaths: List<String>,
     val selectedIndex: Int,
+    val removableVolumeRootPath: String? = null,
+    val removableVolumeName: String? = null,
 ) : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
         val images = remember(imagePaths) { imagesFromPaths(imagePaths) }
+        val externalMediaRedirectCoordinator = LocalExternalMediaRedirectCoordinator.current
 
         ImageViewerScreen(
             images = images,
             selectedIndex = selectedIndex,
+            removableVolumeRootPath = removableVolumeRootPath,
+            removableVolumeName = removableVolumeName,
+            externalMediaRedirectCoordinator = externalMediaRedirectCoordinator,
             navigateBack = { navigator.pop() },
         )
     }
@@ -66,10 +82,36 @@ class ImageViewerScreenDestination(
 private fun ImageViewerScreen(
     images: List<VolumeFile.Image>,
     selectedIndex: Int,
+    removableVolumeRootPath: String?,
+    removableVolumeName: String?,
+    externalMediaRedirectCoordinator: ExternalMediaRedirectCoordinator,
     navigateBack: () -> Unit,
 ) {
     val pagerState = rememberPagerState(pageCount = { images.size }, initialPage = selectedIndex)
+    val coroutineScope = rememberCoroutineScope()
     val currentImage by remember { derivedStateOf { images[pagerState.currentPage] } }
+    val currentImagePath = currentImage.file.absolutePath
+    val screenTarget by remember(currentImagePath, removableVolumeRootPath, removableVolumeName) {
+        derivedStateOf {
+            ExternalMediaScreenTarget(
+                path = currentImagePath,
+                removableVolumeRootPath = removableVolumeRootPath,
+                removableVolumeName = removableVolumeName,
+            )
+        }
+    }
+
+    LaunchedEffect(screenTarget) {
+        externalMediaRedirectCoordinator.registerTarget(screenTarget)
+    }
+
+    DisposableEffect(currentImagePath) {
+        onDispose {
+            coroutineScope.launch {
+                externalMediaRedirectCoordinator.clearPath(currentImagePath)
+            }
+        }
+    }
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.surface,
@@ -140,6 +182,9 @@ private fun ImageViewerPreview() {
                     ),
                 ),
                 selectedIndex = 0,
+                removableVolumeRootPath = null,
+                removableVolumeName = null,
+                externalMediaRedirectCoordinator = NoOpExternalMediaRedirectCoordinator,
                 navigateBack = { },
             )
         }

@@ -71,6 +71,7 @@ private fun VolumeTilePreview() {
                 volume = Volume(
                     name = "internal storage",
                     file = File("/storage/emulated/0"),
+                    isRemovable = false,
                 ),
                 onClick = {},
             )

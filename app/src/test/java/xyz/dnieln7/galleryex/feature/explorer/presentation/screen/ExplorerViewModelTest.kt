@@ -2,6 +2,7 @@ package xyz.dnieln7.galleryex.feature.explorer.presentation.screen
 
 import app.cash.turbine.test
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeFalse
@@ -9,6 +10,7 @@ import org.amshove.kluent.shouldBeTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
+import xyz.dnieln7.galleryex.core.domain.preferences.AppPreferences
 import xyz.dnieln7.galleryex.core.domain.enums.SortOrder
 import xyz.dnieln7.galleryex.core.domain.enums.SortType
 import xyz.dnieln7.galleryex.feature.explorer.domain.model.ExplorerAction
@@ -24,14 +26,15 @@ class ExplorerViewModelTest {
     @get:Rule
     val temporaryFolder = TemporaryFolder()
 
-    private val viewModel by lazy { ExplorerViewModel() }
+    private val appPreferences = FakeAppPreferences()
+    private val viewModel by lazy { ExplorerViewModel(appPreferences) }
 
     @Test
     fun `GIVEN directory path WHEN LoadFiles action is dispatched THEN state indicates loading and loads files correctly sorted by default criteria`() = runTest {
         val root = temporaryFolder.newFolder("test_dir")
-        val fileB = createDummyFile(root, "b.jpg", 2000L)
-        val fileC = createDummyFile(root, "c.jpg", 1000L)
-        val fileA = createDummyFile(root, "a.jpg", 3000L)
+        createDummyFile(root, "b.jpg", 2000L)
+        createDummyFile(root, "c.jpg", 1000L)
+        createDummyFile(root, "a.jpg", 3000L)
         
         viewModel.uiState.test {
             val initialState = awaitItem()
@@ -65,19 +68,19 @@ class ExplorerViewModelTest {
         createDummyFile(root, "a.jpg", 3000L)
         createDummyFile(root, "b.jpg", 2000L)
         createDummyFile(root, "c.jpg", 1000L)
-        
+
         viewModel.onAction(ExplorerAction.LoadFiles(root.absolutePath))
-        
+
         viewModel.uiState.test {
             // Skip up to loaded state
             var state = awaitItem()
             while (state.files.isEmpty()) {
                 state = awaitItem()
             }
-            
+
             // Apply sorting
             viewModel.onAction(ExplorerAction.ChangeSortOrder(SortOrder.DESCENDING))
-            
+
             val sortedState = awaitItem()
             sortedState.sortOrder.shouldBeEqualTo(SortOrder.DESCENDING)
             sortedState.files[0].name.shouldBeEqualTo("c")
@@ -92,18 +95,18 @@ class ExplorerViewModelTest {
         createDummyFile(root, "b.jpg", 2000L)
         createDummyFile(root, "c.jpg", 1000L) // Oldest
         createDummyFile(root, "a.jpg", 3000L) // Newest
-        
+
         viewModel.onAction(ExplorerAction.LoadFiles(root.absolutePath))
-        
+
         viewModel.uiState.test {
             var state = awaitItem()
             while (state.files.isEmpty()) {
                 state = awaitItem()
             }
-            
+
             // Apply sorting
             viewModel.onAction(ExplorerAction.ChangeSortType(SortType.DATE))
-            
+
             val sortedState = awaitItem()
             sortedState.sortType.shouldBeEqualTo(SortType.DATE)
             sortedState.sortOrder.shouldBeEqualTo(SortOrder.ASCENDING)
@@ -112,16 +115,16 @@ class ExplorerViewModelTest {
             sortedState.files[2].name.shouldBeEqualTo("a")
         }
     }
-    
+
     @Test
     fun `GIVEN loaded files WHEN sorting by date descending THEN files are reordered correctly`() = runTest {
         val root = temporaryFolder.newFolder("test_dir")
         createDummyFile(root, "b.jpg", 2000L)
         createDummyFile(root, "c.jpg", 1000L) // Oldest
         createDummyFile(root, "a.jpg", 3000L) // Newest
-        
+
         viewModel.onAction(ExplorerAction.LoadFiles(root.absolutePath))
-        
+
         // Wait for files to load first before sending both actions, otherwise StateFlow conflation might drop intermediate states
         viewModel.uiState.test {
             var state = awaitItem()
@@ -148,5 +151,18 @@ class ExplorerViewModelTest {
             createNewFile()
             setLastModified(lastModified)
         }
+    }
+}
+
+private class FakeAppPreferences : AppPreferences {
+    override val sortTypeFlow = MutableStateFlow(SortType.NAME)
+    override val sortOrderFlow = MutableStateFlow(SortOrder.ASCENDING)
+
+    override suspend fun saveSortType(type: SortType) {
+        sortTypeFlow.value = type
+    }
+
+    override suspend fun saveSortOrder(order: SortOrder) {
+        sortOrderFlow.value = order
     }
 }
