@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.FolderOff
@@ -45,6 +46,7 @@ import xyz.dnieln7.galleryex.R
 import xyz.dnieln7.galleryex.core.domain.media.ExternalMediaScreenTarget
 import xyz.dnieln7.galleryex.core.domain.model.VolumeFile
 import xyz.dnieln7.galleryex.core.presentation.component.EmptyState
+import xyz.dnieln7.galleryex.core.presentation.component.PullToRefresh
 import xyz.dnieln7.galleryex.core.presentation.media.LocalExternalMediaRedirectCoordinator
 import xyz.dnieln7.galleryex.core.presentation.theme.GalleryExplorerTheme
 import xyz.dnieln7.galleryex.feature.explorer.presentation.component.VolumeFileTile
@@ -111,6 +113,7 @@ data class ExplorerScreenDestination(
 
         ExplorerScreen(
             titles = titles,
+            directoryPath = directoryPath,
             state = state,
             onAction = viewModel::onAction,
             navigateBack = { navigator.pop() },
@@ -155,6 +158,7 @@ data class ExplorerScreenDestination(
 @Composable
 private fun ExplorerScreen(
     titles: List<String>,
+    directoryPath: String,
     state: ExplorerState,
     onAction: (ExplorerAction) -> Unit,
     navigateBack: () -> Unit,
@@ -242,35 +246,43 @@ private fun ExplorerScreen(
             ) {
                 if (state.isLoading) {
                     CircularProgressIndicator()
-                } else if (files.isNotEmpty()) {
-                    LazyVerticalGrid(
+                } else {
+                    PullToRefresh(
                         modifier = Modifier.fillMaxSize(),
-                        columns = GridCells.Fixed(EXPLORER_GRID_COLUMN_COUNT),
-                        contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        onRefresh = { onAction(ExplorerAction.LoadFiles(directoryPath)) },
                     ) {
-                        items(files) {
-                            VolumeFileTile(
-                                modifier = Modifier,
-                                file = it,
-                                onClick = {
-                                    when (it) {
-                                        is VolumeFile.Directory -> navigateToExplorer(it)
-                                        is VolumeFile.Image -> navigateToImageViewer(files, it)
-                                        is VolumeFile.Video -> navigateToVideoViewer(files, it)
-                                        else -> Unit
-                                    }
-                                },
+                        if (files.isNotEmpty()) {
+                            LazyVerticalGrid(
+                                modifier = Modifier.fillMaxSize(),
+                                columns = GridCells.Fixed(EXPLORER_GRID_COLUMN_COUNT),
+                                contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                verticalArrangement = Arrangement.spacedBy(8.dp),
+                            ) {
+                                items(files) {
+                                    VolumeFileTile(
+                                        modifier = Modifier,
+                                        file = it,
+                                        onClick = {
+                                            when (it) {
+                                                is VolumeFile.Directory -> navigateToExplorer(it)
+                                                is VolumeFile.Image -> navigateToImageViewer(files, it)
+                                                is VolumeFile.Video -> navigateToVideoViewer(files, it)
+                                                else -> Unit
+                                            }
+                                        },
+                                    )
+                                }
+                            }
+                        } else {
+                            EmptyState(
+                                modifier = Modifier.verticalScroll(rememberScrollState()),
+                                icon = Icons.Rounded.FolderOff,
+                                title = stringResource(R.string.empty_directory),
+                                message = stringResource(R.string.empty_directory_message),
                             )
                         }
                     }
-                } else {
-                    EmptyState(
-                        icon = Icons.Rounded.FolderOff,
-                        title = stringResource(R.string.empty_directory),
-                        message = stringResource(R.string.empty_directory_message),
-                    )
                 }
             }
         },
@@ -287,6 +299,7 @@ private fun ExplorerPreview() {
                     "Internal Storage",
                     "Pictures",
                 ),
+                directoryPath = "/storage/emulated/0/Pictures",
                 state = ExplorerState(),
                 onAction = { },
                 navigateBack = { },
