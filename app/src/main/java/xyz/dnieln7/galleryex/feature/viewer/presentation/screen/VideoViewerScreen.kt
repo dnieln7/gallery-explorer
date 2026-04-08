@@ -29,8 +29,10 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 import xyz.dnieln7.galleryex.core.domain.model.VolumeFile
 import xyz.dnieln7.galleryex.core.presentation.theme.GalleryExplorerTheme
+import xyz.dnieln7.galleryex.feature.home.presentation.screen.HomeScreenDestination
 import xyz.dnieln7.galleryex.feature.viewer.domain.model.VideoPlaybackSessionState
 import xyz.dnieln7.galleryex.feature.viewer.domain.model.currentVideoTitleOrFileName
 import xyz.dnieln7.galleryex.feature.viewer.framework.playback.LocalVideoPlaybackController
@@ -47,7 +49,6 @@ import xyz.dnieln7.galleryex.main.framework.ExternalMediaScreenTarget
 import xyz.dnieln7.galleryex.main.framework.LocalExternalMediaRedirectCoordinator
 import xyz.dnieln7.galleryex.main.framework.NoOpExternalMediaRedirectCoordinator
 import java.io.File
-import kotlinx.coroutines.launch
 
 /**
  * Voyager destination that shows a vertically swipeable video viewer for a folder-scoped list of videos.
@@ -75,7 +76,13 @@ class VideoViewerScreenDestination(
             removableVolumeRootPath = removableVolumeRootPath,
             removableVolumeName = removableVolumeName,
             externalMediaRedirectCoordinator = externalMediaRedirectCoordinator,
-            navigateBack = { navigator.pop() },
+            navigateBack = {
+                if (navigator.canPop) {
+                    navigator.pop()
+                } else {
+                    navigator.replaceAll(HomeScreenDestination())
+                }
+            },
         )
     }
 }
