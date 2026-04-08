@@ -20,7 +20,11 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
+import xyz.dnieln7.galleryex.core.domain.media.ExternalMediaRedirectCoordinator
+import xyz.dnieln7.galleryex.core.domain.media.ExternalMediaRedirectEvent
 import xyz.dnieln7.galleryex.core.framework.extension.toastLong
+import xyz.dnieln7.galleryex.core.presentation.media.LocalExternalMediaRedirectCoordinator
+import xyz.dnieln7.galleryex.core.presentation.media.NoOpExternalMediaRedirectCoordinator
 import xyz.dnieln7.galleryex.core.presentation.util.CollectEventsWithLifeCycle
 import xyz.dnieln7.galleryex.core.presentation.theme.GalleryExplorerTheme
 import xyz.dnieln7.galleryex.feature.home.presentation.screen.HomeScreenDestination
@@ -30,10 +34,6 @@ import xyz.dnieln7.galleryex.feature.viewer.framework.playback.LocalVideoPlaybac
 import xyz.dnieln7.galleryex.feature.viewer.framework.playback.VideoPlaybackRestoreIntent
 import xyz.dnieln7.galleryex.feature.viewer.framework.playback.VideoPlaybackSessionStore
 import xyz.dnieln7.galleryex.feature.viewer.presentation.screen.VideoViewerScreenDestination
-import xyz.dnieln7.galleryex.main.framework.ExternalMediaRedirectCoordinator
-import xyz.dnieln7.galleryex.main.framework.ExternalMediaRedirectEvent
-import xyz.dnieln7.galleryex.main.framework.LocalExternalMediaRedirectCoordinator
-import xyz.dnieln7.galleryex.main.framework.NoOpExternalMediaRedirectCoordinator
 import javax.inject.Inject
 
 @AndroidEntryPoint

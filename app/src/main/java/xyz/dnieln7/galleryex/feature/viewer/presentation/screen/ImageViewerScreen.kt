@@ -37,13 +37,13 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import xyz.dnieln7.galleryex.R
+import xyz.dnieln7.galleryex.core.domain.media.ExternalMediaRedirectCoordinator
+import xyz.dnieln7.galleryex.core.domain.media.ExternalMediaScreenTarget
 import xyz.dnieln7.galleryex.core.domain.model.VolumeFile
+import xyz.dnieln7.galleryex.core.presentation.media.LocalExternalMediaRedirectCoordinator
+import xyz.dnieln7.galleryex.core.presentation.media.NoOpExternalMediaRedirectCoordinator
 import xyz.dnieln7.galleryex.core.presentation.theme.GalleryExplorerTheme
 import xyz.dnieln7.galleryex.feature.viewer.presentation.component.ZoomableImage
-import xyz.dnieln7.galleryex.main.framework.ExternalMediaRedirectCoordinator
-import xyz.dnieln7.galleryex.main.framework.ExternalMediaScreenTarget
-import xyz.dnieln7.galleryex.main.framework.LocalExternalMediaRedirectCoordinator
-import xyz.dnieln7.galleryex.main.framework.NoOpExternalMediaRedirectCoordinator
 import java.io.File
 import kotlinx.coroutines.launch
 

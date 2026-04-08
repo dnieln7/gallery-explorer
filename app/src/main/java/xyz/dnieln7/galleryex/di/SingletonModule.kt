@@ -7,11 +7,11 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineScope
+import xyz.dnieln7.galleryex.core.domain.media.ExternalMediaRedirectCoordinator
 import xyz.dnieln7.galleryex.core.framework.explorer.Explorer
+import xyz.dnieln7.galleryex.core.framework.media.DefaultExternalMediaRedirectCoordinator
 import xyz.dnieln7.galleryex.feature.viewer.framework.playback.DefaultVideoPlaybackController
 import xyz.dnieln7.galleryex.feature.viewer.framework.playback.VideoPlaybackController
-import xyz.dnieln7.galleryex.main.framework.DefaultExternalMediaRedirectCoordinator
-import xyz.dnieln7.galleryex.main.framework.ExternalMediaRedirectCoordinator
 import javax.inject.Singleton
 
 @Module

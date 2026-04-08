@@ -42,8 +42,10 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import xyz.dnieln7.galleryex.R
+import xyz.dnieln7.galleryex.core.domain.media.ExternalMediaScreenTarget
 import xyz.dnieln7.galleryex.core.domain.model.VolumeFile
 import xyz.dnieln7.galleryex.core.presentation.component.EmptyState
+import xyz.dnieln7.galleryex.core.presentation.media.LocalExternalMediaRedirectCoordinator
 import xyz.dnieln7.galleryex.core.presentation.theme.GalleryExplorerTheme
 import xyz.dnieln7.galleryex.feature.explorer.presentation.component.VolumeFileTile
 import xyz.dnieln7.galleryex.feature.viewer.presentation.screen.ImageViewerScreenDestination
@@ -61,8 +63,6 @@ import xyz.dnieln7.galleryex.core.domain.enums.SortOrder
 import xyz.dnieln7.galleryex.core.domain.enums.SortType
 import xyz.dnieln7.galleryex.feature.explorer.domain.model.ExplorerAction
 import xyz.dnieln7.galleryex.feature.explorer.domain.model.ExplorerState
-import xyz.dnieln7.galleryex.main.framework.ExternalMediaScreenTarget
-import xyz.dnieln7.galleryex.main.framework.LocalExternalMediaRedirectCoordinator
 
 /**
  * Voyager destination that shows the contents of a directory identified by its absolute path.

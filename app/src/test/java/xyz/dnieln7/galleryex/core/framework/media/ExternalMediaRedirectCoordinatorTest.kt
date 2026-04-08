@@ -1,15 +1,18 @@
-package xyz.dnieln7.galleryex.main.framework
+package xyz.dnieln7.galleryex.core.framework.media
 
+import androidx.media3.common.Player
 import app.cash.turbine.test
 import io.mockk.every
+import java.io.File
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import androidx.media3.common.Player
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import xyz.dnieln7.galleryex.R
+import xyz.dnieln7.galleryex.core.domain.media.ExternalMediaRedirectEvent
+import xyz.dnieln7.galleryex.core.domain.media.ExternalMediaScreenTarget
 import xyz.dnieln7.galleryex.core.domain.model.Volume
 import xyz.dnieln7.galleryex.core.framework.explorer.Explorer
 import xyz.dnieln7.galleryex.core.framework.explorer.resolveVolumeForPath
@@ -17,7 +20,6 @@ import xyz.dnieln7.galleryex.core.presentation.text.UIText
 import xyz.dnieln7.galleryex.feature.viewer.domain.model.VideoPlaybackSessionState
 import xyz.dnieln7.galleryex.feature.viewer.framework.playback.VideoPlaybackController
 import xyz.dnieln7.galleryex.testutil.relaxedMockk
-import java.io.File
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class ExternalMediaRedirectCoordinatorTest {

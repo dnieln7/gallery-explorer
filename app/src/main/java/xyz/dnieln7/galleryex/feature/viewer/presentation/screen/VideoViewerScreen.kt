@@ -30,7 +30,11 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import xyz.dnieln7.galleryex.core.domain.media.ExternalMediaRedirectCoordinator
+import xyz.dnieln7.galleryex.core.domain.media.ExternalMediaScreenTarget
 import xyz.dnieln7.galleryex.core.domain.model.VolumeFile
+import xyz.dnieln7.galleryex.core.presentation.media.LocalExternalMediaRedirectCoordinator
+import xyz.dnieln7.galleryex.core.presentation.media.NoOpExternalMediaRedirectCoordinator
 import xyz.dnieln7.galleryex.core.presentation.theme.GalleryExplorerTheme
 import xyz.dnieln7.galleryex.feature.home.presentation.screen.HomeScreenDestination
 import xyz.dnieln7.galleryex.feature.viewer.domain.model.VideoPlaybackSessionState
@@ -44,10 +48,6 @@ import xyz.dnieln7.galleryex.feature.viewer.presentation.component.positionToSli
 import xyz.dnieln7.galleryex.feature.viewer.presentation.component.seekBackwardPosition
 import xyz.dnieln7.galleryex.feature.viewer.presentation.component.seekForwardPosition
 import xyz.dnieln7.galleryex.feature.viewer.presentation.component.sliderValueToPosition
-import xyz.dnieln7.galleryex.main.framework.ExternalMediaRedirectCoordinator
-import xyz.dnieln7.galleryex.main.framework.ExternalMediaScreenTarget
-import xyz.dnieln7.galleryex.main.framework.LocalExternalMediaRedirectCoordinator
-import xyz.dnieln7.galleryex.main.framework.NoOpExternalMediaRedirectCoordinator
 import java.io.File
 
 /**
