@@ -125,15 +125,8 @@ private fun MainContent(
         CollectEventsWithLifeCycle(events = externalMediaRedirectCoordinator.events) { event ->
             when (event) {
                 is ExternalMediaRedirectEvent.Redirect -> {
-                    handleExternalMediaRedirect(
-                        navigateHome = {
-                            navigator.replaceAll(HomeScreenDestination())
-                        },
-                        showToast = { message ->
-                            context.toastLong(message)
-                        },
-                        message = event.message.asString(context),
-                    )
+                    navigator.replaceAll(HomeScreenDestination())
+                    context.toastLong(event.message.asString(context))
                 }
             }
         }
@@ -160,12 +153,3 @@ private fun VideoPlaybackRestoreRequest?.toScreenDestination() = this?.let {
         removableVolumeName = null,
     )
 } ?: HomeScreenDestination()
-
-internal fun handleExternalMediaRedirect(
-    navigateHome: () -> Unit,
-    showToast: (String) -> Unit,
-    message: String,
-) {
-    navigateHome()
-    showToast(message)
-}

@@ -202,7 +202,8 @@ class DefaultVideoPlaybackController @Inject constructor(
 
         controller?.let { mediaController ->
             ContextCompat.getMainExecutor(context).execute {
-                stopAndClearPlayback(mediaController)
+                mediaController.stop()
+                mediaController.clearMediaItems()
             }
         }
         context.stopService(Intent(context, VideoPlaybackService::class.java))
@@ -247,18 +248,6 @@ class DefaultVideoPlaybackController @Inject constructor(
         mediaController.play()
     }
 
-    /**
-     * Clears the remote Media3 playback session after an explicit back-navigation exit.
-     *
-     * Stopping and clearing media items ensures the playback notification is removed and that the
-     * service no longer advertises a restorable active playlist.
-     *
-     * @param mediaController Connected Media3 controller bound to the service session.
-     */
-    private fun stopAndClearPlayback(mediaController: MediaController) {
-        mediaController.stop()
-        mediaController.clearMediaItems()
-    }
 }
 
 /**

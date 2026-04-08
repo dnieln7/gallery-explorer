@@ -94,12 +94,6 @@ private fun VideoViewerScreen(
     }
 
     val videoPlaybackController = LocalVideoPlaybackController.current
-    val stopPlaybackAndNavigateBack = remember(videoPlaybackController, navigateBack) {
-        stopPlaybackAndNavigateBack(
-            videoPlaybackController = videoPlaybackController,
-            navigateBack = navigateBack,
-        )
-    }
 
     val initialPage = selectedIndex.coerceIn(0, videos.lastIndex)
     val pagerState = rememberPagerState(pageCount = { videos.size }, initialPage = initialPage)
@@ -144,7 +138,10 @@ private fun VideoViewerScreen(
 
     BackHandler(
         enabled = true,
-        onBack = stopPlaybackAndNavigateBack,
+        onBack = {
+            videoPlaybackController.stopPlayback()
+            navigateBack()
+        },
     )
 
     // Keeps the local Compose state in sync with the current Player instance exposed by the
@@ -278,7 +275,10 @@ private fun VideoViewerScreen(
                 currentPositionMs = displayedPositionMs,
                 durationMs = durationMs,
                 sliderValue = sliderValue,
-                onBackClick = stopPlaybackAndNavigateBack,
+                onBackClick = {
+                    videoPlaybackController.stopPlayback()
+                    navigateBack()
+                },
                 onPlayPauseClick = {
                     val activePlayer = player
 
@@ -360,26 +360,6 @@ internal fun videosFromPaths(videoPaths: List<String>): List<VolumeFile.Video> {
     return videoPaths.map { path ->
         VolumeFile.Video(file = File(path))
     }
-}
-
-/**
- * Creates the explicit "stop and leave" action used by every back-navigation path in the viewer.
- *
- * In this feature, going back means the user no longer wants the current playback session. The
- * returned callback therefore stops playback first and clears restore state through the controller
- * before delegating to the screen navigation callback. The operation is safe to trigger more than
- * once because the controller stop path is idempotent.
- *
- * @param videoPlaybackController Shared playback controller responsible for the background session.
- * @param navigateBack Navigation callback that leaves the viewer screen.
- * @return Callback that stops playback and then exits the viewer.
- */
-internal fun stopPlaybackAndNavigateBack(
-    videoPlaybackController: VideoPlaybackController,
-    navigateBack: () -> Unit,
-): () -> Unit = {
-    videoPlaybackController.stopPlayback()
-    navigateBack()
 }
 
 private class PreviewVideoPlaybackController : VideoPlaybackController {

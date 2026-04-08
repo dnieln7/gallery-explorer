@@ -101,6 +101,8 @@ Contains the code of the application, the sources are in `app/src/main/java/xyz/
 
 * **Format**: Use KDoc (/** ... */) for all public classes and functions.
 * **Tags**: Use `@property`, `@return`, `@deprecated`, etc to maintain high readability.
+* **Rule**: Always add documentation for new functions, classes and behavior so the intent is easier to follow for
+  future contributors.
 
 ### Formatting & Linting
 
@@ -114,6 +116,9 @@ Contains the code of the application, the sources are in `app/src/main/java/xyz/
     * Functions always have a body block, avoid `fun doSomething() = ...`.
     * Files must end with a newline (\n).
     * Class body must not start with blank line.
+    * Avoid wrapper functions that only delegate to other function calls or trigger side effects without adding
+      meaningful logic, transformation, validation, or reusable domain behavior. Inline those calls at the usage site
+      instead.
     * Constants must be located at the end of the file and use SCREAMING_SNAKE_CASE.
     * Functions/Constants/Classes that are exclusively used in the file they are declared must be private otherwise
       leave them as public (no visibility modifier).
@@ -283,6 +288,4 @@ translations for these go in `/core/presentation/error`.
    `GalleryButtonPrimary.kt`
 3. Shapes must be created in `Shape.kt`
 4. Composables that are only needed in an specific feature must be in `[feature]/presentation/component` otherwise they
-   must be in `core/presentation/component`
-5. Always add documentation for new functions, classes and behavior so the intent is easier to follow for future
-   contributors. 
+   must be in `core/presentation/component` 
