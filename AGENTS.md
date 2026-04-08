@@ -76,6 +76,15 @@ Contains the code of the application, the sources are in `app/src/main/java/xyz/
     * `/core/data/`: Room, Retrofit and Preferences code, along with it's mappers to Domain layer classes. All
       repositories that are data sources must be in this package.
     * `/core/presentation/`: Global UI components, Themes, UI Utils.
+    * **Rule**: Shared contracts, models, events, and errors used by more than one feature must be placed under
+      `core/`, not under a specific feature.
+    * **Rule**: Interfaces and pure/shared models belong in `core/domain/<area>/`, Android/framework implementations
+      belong in `core/framework/<area>/`, and Compose/UI-specific helpers such as `CompositionLocal`, preview no-op
+      implementations, or UI adapters belong in `core/presentation/<area>/`.
+    * **Rule**: Do not colocate domain contracts, domain models, framework implementations, and presentation helpers
+      in the same file.
+    * **Rule**: Shared models, events, and errors must be separated into their own files unless they are private to a
+      single implementation.
 * `di/`: Hilt dependency injection modules
 * `feature/`: Individual logic units that represent a single feature of the app, every unit contains
   a `presentation` package for the Screen/ViewModels and a `domain` package for the business logic
@@ -120,49 +129,9 @@ Contains the code of the application, the sources are in `app/src/main/java/xyz/
       meaningful logic, transformation, validation, or reusable domain behavior. Inline those calls at the usage site
       instead.
     * Constants must be located at the end of the file and use SCREAMING_SNAKE_CASE.
-    * Functions/Constants/Classes that are exclusively used in the file they are declared must be private otherwise
-      leave them as public (no visibility modifier).
+    * Functions/Constants/Classes that are exclusively used in the file they are declared must be private.
     * Avoid magic numbers, always create a const with an easy-to-understand name:
       `const val CONTROLS_AUTO_HIDE_DELAY_MS: Long = 2_500L`.
-
-### UI & Architecture (MVI + Voyager)
-
-**The Destination Contract**
-
-The [Feature]ScreenDestination : Screen is the Orchestrator. It is strictly responsible for:
-
-* **Dependency Injection**: Obtaining the ViewModel via `getViewModel<T>()`.
-* **State Collection**: Transforming `uiState` into a Compose State via
-  `collectAsStateWithLifecycle()`.
-* **Event Handling**: Observing the `events` Flow and executing side-effects (Toasts, Dialogs).
-* **Lifecycle Mapping**: Using `LifecycleEventEffect` to bridge platform events (e.g., `ON_RESUME`)
-  to `onAction` calls.
-* **Navigation Logic**: Defining the lambdas that call `navigator.push/replace`. UI Composables must
-  never see the Navigator.
-
-**The View Contract**
-
-The `[Feature]Screen` (Stateless) is the Renderer. It is strictly responsible for:
-
-* **Layout**: Using `Scaffold`, `Column`, `LazyColumn`, etc.
-* **Interactions**: Passing user clicks back to the Orchestrator via `onAction`.
-* **Visual States**: Mapping the `[Feature]State` to specific UI branches.
-
-**MVI Pattern Definitions**
-
-* `[Feature]State`: Immutable Data class representing the entire screen.
-* `[Feature]Action`: Sealed interface for user intents (e.g., `OnRefresh`, `OnRequestAccess`).
-* `[Feature]Event`: Sealed interface for one-time commands (e.g., `ShowSnackbar`, `Logout`).
-
-**Rule**: `State`, `Action` and `Event` files must be located in the `[feature]/domain/model` package.
-
-**ViewModel Contract**
-
-* **Entry Point**: A single entry point `fun onAction(action: [Feature]Action)`.
-* **State Output**: `private val _uiState = MutableStateFlow([Feature]State())` expose as a
-  `StateFlow` via `asStateFlow()`. Update via `_uiState.update { ... }`.
-* **Event Output**: `private val _events = Channel<[Feature]Event>()` expose as a `Flow` via
-  `receiveAsFlow()`. Update via `_events.send(...)`.
 
 ### Error handling
 
@@ -269,7 +238,7 @@ CollectEventsWithLifeCycle(viewModel.events) {
 **Rule**: Shared errors (e.g., `NetworkError`, `DatabaseError`) must reside in `/core/domain/error`. Common UI
 translations for these go in `/core/presentation/error`.
 
-### Compose Standards
+### Compose
 
 * **Modifiers**: First parameter of any Composable must be a Modifier: `Modifier = Modifier` (`[Feature]Screen`
   composables and any composable acting like a "root" composable can omit this rule).
@@ -281,11 +250,50 @@ translations for these go in `/core/presentation/error`.
 * **Visibility**: Composables that are exclusively used in the file they are declared must be private otherwise leave
   them as public (no visibility modifier).
 
+### UI & Architecture (MVI + Voyager)
+
+**The Destination Contract**
+
+The [Feature]ScreenDestination : Screen is the Orchestrator. It is strictly responsible for:
+
+* **Dependency Injection**: Obtaining the ViewModel via `getViewModel<T>()`.
+* **State Collection**: Transforming `uiState` into a Compose State via
+  `collectAsStateWithLifecycle()`.
+* **Event Handling**: Observing the `events` Flow and executing side-effects (Toasts, Dialogs).
+* **Lifecycle Mapping**: Using `LifecycleEventEffect` to bridge platform events (e.g., `ON_RESUME`)
+  to `onAction` calls.
+* **Navigation Logic**: Defining the lambdas that call `navigator.push/replace`. UI Composables must
+  never see the Navigator.
+
+**The View Contract**
+
+The `[Feature]Screen` (Stateless) is the Renderer. It is strictly responsible for:
+
+* **Layout**: Using `Scaffold`, `Column`, `LazyColumn`, etc.
+* **Interactions**: Passing user clicks back to the Orchestrator via `onAction`.
+* **Visual States**: Mapping the `[Feature]State` to specific UI branches.
+
+**MVI Pattern Definitions**
+
+* `[Feature]State`: Immutable Data class representing the entire screen.
+* `[Feature]Action`: Sealed interface for user intents (e.g., `OnRefresh`, `OnRequestAccess`).
+* `[Feature]Event`: Sealed interface for one-time commands (e.g., `ShowSnackbar`, `Logout`).
+
+**Rule**: `State`, `Action` and `Event` files must be located in the `[feature]/domain/model` package.
+
+**ViewModel Contract**
+
+* **Entry Point**: A single entry point `fun onAction(action: [Feature]Action)`.
+* **State Output**: `private val _uiState = MutableStateFlow([Feature]State())` expose as a
+  `StateFlow` via `asStateFlow()`. Update via `_uiState.update { ... }`.
+* **Event Output**: `private val _events = Channel<[Feature]Event>()` expose as a `Flow` via
+  `receiveAsFlow()`. Update via `_events.send(...)`.
+
 ## Project Rules
 
 1. Never deviate from the Material 3 guidelines.
 2. Composables that represent an specific functionality or state must be separated into their own files like
    `GalleryButtonPrimary.kt`
-3. Shapes must be created in `Shape.kt`
+3. Shapes must be created in `core/presentation/theme/Shape.kt`
 4. Composables that are only needed in an specific feature must be in `[feature]/presentation/component` otherwise they
    must be in `core/presentation/component` 
