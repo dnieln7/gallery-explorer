@@ -1,15 +1,13 @@
 # Gallery Explorer
 
-## Overview
+## Project Overview
 
 **Gallery Explorer**: Media-only Android file explorer (Images/Video).
 **Exclusions**: No audio-only files.
 **Key UX**: Viewers must support vertical swiping between files of the same type without exiting to the folder view, to
 create a tiktok like experience.
 
-## Project tech stack
-
-### General
+## Project Tech Stack
 
 | Category                 | Technology                                         | Notes                                      |
 |:-------------------------|:---------------------------------------------------|:-------------------------------------------|
@@ -59,7 +57,7 @@ fun `This function name is readable`() {
 }
 ```
 
-## Project file structure
+## Project Structure
 
 The project contains a single module: `app`.
 
@@ -97,7 +95,7 @@ Contains the code of the application, the sources are in `app/src/main/java/xyz/
 * `main/`: Entry point components; MainActivity.
 * `GalleryExplorerApplication.kt`: Global app initialization.
 
-## Project Coding standards
+## Project Coding Standards
 
 ### Naming conventions
 
