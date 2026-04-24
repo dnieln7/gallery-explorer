@@ -1,0 +1,1167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gallery Explorer — Design System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet" />
+  <style>
+    /* ─── CSS Custom Properties ─────────────────────────────────────── */
+    :root {
+      --light-surface: #F9F9FF;
+      --light-surface-dim: #D9D9E0;
+      --light-surface-bright: #F9F9FF;
+      --light-surface-container-lowest: #FFFFFF;
+      --light-surface-container-low: #F3F3FA;
+      --light-surface-container: #EDEDF4;
+      --light-surface-container-high: #E8E7EE;
+      --light-surface-container-highest: #E2E2E9;
+      --light-on-surface: #1A1B20;
+      --light-on-surface-variant: #44474F;
+      --light-on-surface-muted: #44474F;
+      --light-surface-variant: #E1E2EC;
+      --light-surface-variant-muted: #E1E2EC;
+      --light-outline: #74777F;
+      --light-outline-variant: #C4C6D0;
+      --light-primary: #445E91;
+      --light-on-primary: #FFFFFF;
+      --light-primary-container: #D8E2FF;
+      --light-on-primary-container: #2B4678;
+      --light-inverse-primary: #ADC6FF;
+      --light-secondary: #575E71;
+      --light-on-secondary: #FFFFFF;
+      --light-secondary-container: #DBE2F9;
+      --light-on-secondary-container: #3F4759;
+      --light-tertiary: #715573;
+      --light-on-tertiary: #FFFFFF;
+      --light-tertiary-container: #FBD7FC;
+      --light-on-tertiary-container: #583E5B;
+      --light-error: #BA1A1A;
+      --light-on-error: #FFFFFF;
+      --light-error-container: #FFDAD6;
+      --light-on-error-container: #93000A;
+      --light-inverse-surface: #2F3036;
+      --light-inverse-on-surface: #F0F0F7;
+
+      --dark-surface: #111318;
+      --dark-surface-dim: #111318;
+      --dark-surface-bright: #37393E;
+      --dark-surface-container-lowest: #0C0E13;
+      --dark-surface-container-low: #1A1B20;
+      --dark-surface-container: #1E1F25;
+      --dark-surface-container-high: #282A2F;
+      --dark-surface-container-highest: #33353A;
+      --dark-on-surface: #E2E2E9;
+      --dark-on-surface-variant: #C4C6D0;
+      --dark-on-surface-muted: #63656C;
+      --dark-surface-variant: #44474F;
+      --dark-surface-variant-muted: #2B2D34;
+      --dark-outline: #8E9099;
+      --dark-outline-variant: #44474F;
+      --dark-primary: #ADC6FF;
+      --dark-on-primary: #102F60;
+      --dark-primary-container: #2B4678;
+      --dark-on-primary-container: #D8E2FF;
+      --dark-inverse-primary: #445E91;
+      --dark-secondary: #BFC6DC;
+      --dark-on-secondary: #293041;
+      --dark-secondary-container: #3F4759;
+      --dark-on-secondary-container: #DBE2F9;
+      --dark-tertiary: #DEBCDF;
+      --dark-on-tertiary: #402843;
+      --dark-tertiary-container: #583E5B;
+      --dark-on-tertiary-container: #FBD7FC;
+      --dark-error: #FFB4AB;
+      --dark-on-error: #690005;
+      --dark-error-container: #93000A;
+      --dark-on-error-container: #FFDAD6;
+      --dark-inverse-surface: #E2E2E9;
+      --dark-inverse-on-surface: #2F3036;
+
+      /* Active theme vars (light default) */
+      --surface: var(--light-surface);
+      --surface-dim: var(--light-surface-dim);
+      --surface-container-lowest: var(--light-surface-container-lowest);
+      --surface-container-low: var(--light-surface-container-low);
+      --surface-container: var(--light-surface-container);
+      --surface-container-high: var(--light-surface-container-high);
+      --surface-container-highest: var(--light-surface-container-highest);
+      --on-surface: var(--light-on-surface);
+      --on-surface-variant: var(--light-on-surface-variant);
+      --on-surface-muted: var(--light-on-surface-muted);
+      --surface-variant: var(--light-surface-variant);
+      --surface-variant-muted: var(--light-surface-variant-muted);
+      --outline: var(--light-outline);
+      --outline-variant: var(--light-outline-variant);
+      --primary: var(--light-primary);
+      --on-primary: var(--light-on-primary);
+      --primary-container: var(--light-primary-container);
+      --on-primary-container: var(--light-on-primary-container);
+      --secondary: var(--light-secondary);
+      --on-secondary: var(--light-on-secondary);
+      --secondary-container: var(--light-secondary-container);
+      --on-secondary-container: var(--light-on-secondary-container);
+      --tertiary: var(--light-tertiary);
+      --on-tertiary: var(--light-on-tertiary);
+      --tertiary-container: var(--light-tertiary-container);
+      --on-tertiary-container: var(--light-on-tertiary-container);
+      --error: var(--light-error);
+      --on-error: var(--light-on-error);
+      --error-container: var(--light-error-container);
+      --on-error-container: var(--light-on-error-container);
+
+      /* Spacing */
+      --sp-xs: 4px; --sp-sm: 8px; --sp-md: 16px; --sp-lg: 20px;
+      --sp-xl: 24px; --sp-xxl: 32px; --sp-gutter: 16px;
+      --sp-tile-gap: 8px; --sp-tile-pad: 20px; --sp-empty: 24px;
+      /* Rounded */
+      --r-sm: 8px; --r-md: 16px; --r-lg: 24px; --r-full: 9999px;
+    }
+
+    [data-theme="dark"] {
+      --surface: var(--dark-surface);
+      --surface-dim: var(--dark-surface-dim);
+      --surface-container-lowest: var(--dark-surface-container-lowest);
+      --surface-container-low: var(--dark-surface-container-low);
+      --surface-container: var(--dark-surface-container);
+      --surface-container-high: var(--dark-surface-container-high);
+      --surface-container-highest: var(--dark-surface-container-highest);
+      --on-surface: var(--dark-on-surface);
+      --on-surface-variant: var(--dark-on-surface-variant);
+      --on-surface-muted: var(--dark-on-surface-muted);
+      --surface-variant: var(--dark-surface-variant);
+      --surface-variant-muted: var(--dark-surface-variant-muted);
+      --outline: var(--dark-outline);
+      --outline-variant: var(--dark-outline-variant);
+      --primary: var(--dark-primary);
+      --on-primary: var(--dark-on-primary);
+      --primary-container: var(--dark-primary-container);
+      --on-primary-container: var(--dark-on-primary-container);
+      --secondary: var(--dark-secondary);
+      --on-secondary: var(--dark-on-secondary);
+      --secondary-container: var(--dark-secondary-container);
+      --on-secondary-container: var(--dark-on-secondary-container);
+      --tertiary: var(--dark-tertiary);
+      --on-tertiary: var(--dark-on-tertiary);
+      --tertiary-container: var(--dark-tertiary-container);
+      --on-tertiary-container: var(--dark-on-tertiary-container);
+      --error: var(--dark-error);
+      --on-error: var(--dark-on-error);
+      --error-container: var(--dark-error-container);
+      --on-error-container: var(--dark-on-error-container);
+    }
+
+    /* ─── Reset & Base ──────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Google Sans', system-ui, sans-serif;
+      background: var(--surface);
+      color: var(--on-surface);
+      transition: background 200ms, color 200ms;
+    }
+
+    /* ─── Page Chrome ───────────────────────────────────────────────── */
+    .page-header {
+      background: var(--surface-container-low);
+      border-bottom: 1px solid var(--outline-variant);
+      padding: 16px var(--sp-gutter);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .page-header h1 { font-size: 22px; font-weight: 400; }
+
+    .version-badge {
+      font-size: 11px; font-weight: 500; letter-spacing: 0.5px;
+      background: var(--primary-container); color: var(--on-primary-container);
+      padding: 3px 10px; border-radius: var(--r-full);
+    }
+
+    .theme-toggle { display: flex; gap: 6px; }
+
+    .toggle-btn {
+      background: var(--surface-container-high); color: var(--on-surface);
+      border: 1px solid var(--outline-variant); border-radius: var(--r-full);
+      padding: 5px 16px; font-family: 'Google Sans', sans-serif;
+      font-size: 12px; font-weight: 500; letter-spacing: 0.5px; cursor: pointer;
+      transition: background 150ms ease-out;
+    }
+    .toggle-btn.active { background: var(--primary); color: var(--on-primary); border-color: transparent; }
+
+    .content {
+      max-width: 1100px; margin: 0 auto;
+      padding: var(--sp-xxl) var(--sp-gutter);
+      display: flex; flex-direction: column; gap: 56px;
+    }
+
+    .section-title {
+      font-size: 24px; font-weight: 400; line-height: 32px;
+      margin-bottom: var(--sp-xl);
+      padding-bottom: var(--sp-sm);
+      border-bottom: 1px solid var(--outline-variant);
+    }
+
+    .section-label {
+      font-size: 11px; font-weight: 500; letter-spacing: 1px;
+      text-transform: uppercase; color: var(--on-surface-variant);
+      margin-bottom: var(--sp-md);
+    }
+
+    /* ─── Color Swatches ────────────────────────────────────────────── */
+    .color-pair-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: var(--sp-sm);
+    }
+
+    .color-pair { border-radius: var(--r-md); overflow: hidden; border: 1px solid var(--outline-variant); }
+
+    .pair-bg {
+      height: 72px; display: flex; align-items: center;
+      justify-content: center; font-size: 14px; font-weight: 500;
+    }
+
+    .pair-info {
+      background: var(--surface-container-low);
+      padding: 8px 10px; display: grid;
+      grid-template-columns: 1fr 1fr; gap: 3px;
+    }
+
+    .pair-label { font-size: 10px; font-weight: 500; letter-spacing: 0.5px; color: var(--on-surface-muted); }
+    .pair-hex { font-size: 10px; font-family: monospace; color: var(--on-surface-variant); }
+
+    .color-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: var(--sp-sm);
+    }
+
+    .color-swatch { border-radius: var(--r-md); overflow: hidden; border: 1px solid var(--outline-variant); }
+    .swatch-color { height: 56px; }
+    .swatch-info { background: var(--surface-container-low); padding: 7px 10px; }
+    .swatch-name { font-size: 11px; font-weight: 500; color: var(--on-surface); display: block; margin-bottom: 2px; }
+    .swatch-hex { font-size: 10px; font-family: monospace; color: var(--on-surface-variant); }
+
+    /* ─── Typography ────────────────────────────────────────────────── */
+    .type-stack { display: flex; flex-direction: column; gap: var(--sp-sm); }
+
+    .type-row {
+      display: grid; grid-template-columns: 180px 1fr;
+      gap: var(--sp-md); align-items: center;
+      padding: var(--sp-md); background: var(--surface-container-low);
+      border-radius: var(--r-md); border: 1px solid var(--outline-variant);
+    }
+
+    .type-meta { display: flex; flex-direction: column; gap: 3px; }
+    .type-label { font-size: 10px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; color: var(--primary); }
+    .type-spec { font-size: 10px; font-family: monospace; color: var(--on-surface-muted); line-height: 1.7; }
+
+    /* ─── Spacing ───────────────────────────────────────────────────── */
+    .spacing-stack { display: flex; flex-direction: column; gap: var(--sp-sm); }
+
+    .spacing-row {
+      display: grid; grid-template-columns: 200px 1fr 56px;
+      align-items: center; gap: var(--sp-md);
+    }
+
+    .spacing-name { font-size: 12px; font-weight: 500; letter-spacing: 0.5px; color: var(--on-surface-variant); }
+
+    .spacing-bar-wrap { height: 20px; display: flex; align-items: center; }
+
+    .spacing-bar {
+      height: 100%; background: var(--primary-container);
+      border-radius: var(--r-sm); border: 1px solid var(--primary);
+      min-width: 2px;
+    }
+
+    .spacing-value { font-size: 11px; font-family: monospace; color: var(--on-surface-muted); text-align: right; }
+
+    /* ─── Rounded ───────────────────────────────────────────────────── */
+    .rounded-row { display: flex; flex-wrap: wrap; gap: var(--sp-xl); }
+
+    .rounded-item { display: flex; flex-direction: column; align-items: center; gap: var(--sp-sm); }
+
+    .rounded-box {
+      width: 80px; height: 80px;
+      background: var(--primary-container);
+      border: 2px solid var(--primary);
+    }
+
+    .rounded-label { font-size: 12px; font-weight: 500; color: var(--on-surface-variant); }
+    .rounded-value { font-size: 11px; font-family: monospace; color: var(--on-surface-muted); }
+
+    /* ─── Motion ────────────────────────────────────────────────────── */
+    .motion-stack { display: flex; flex-direction: column; gap: var(--sp-sm); }
+
+    .motion-row {
+      display: grid; grid-template-columns: 240px 1fr;
+      gap: var(--sp-md); align-items: center;
+      padding: var(--sp-md); background: var(--surface-container-low);
+      border-radius: var(--r-md); border: 1px solid var(--outline-variant);
+    }
+
+    .motion-name { font-size: 12px; font-weight: 500; color: var(--on-surface-variant); }
+    .motion-value { font-size: 12px; font-family: monospace; color: var(--on-surface); }
+
+    /* ─── Components grid ───────────────────────────────────────────── */
+    .comp-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: var(--sp-xl);
+    }
+
+    .comp-card {
+      background: var(--surface-container-low);
+      border: 1px solid var(--outline-variant);
+      border-radius: var(--r-lg);
+      overflow: hidden;
+    }
+
+    .comp-header {
+      padding: 10px var(--sp-lg); border-bottom: 1px solid var(--outline-variant);
+      font-size: 10px; font-weight: 500; letter-spacing: 1px;
+      text-transform: uppercase; color: var(--on-surface-variant);
+    }
+
+    .comp-body {
+      padding: var(--sp-lg);
+      display: flex; flex-direction: column; gap: var(--sp-md);
+      align-items: flex-start;
+    }
+
+    /* ── Phone shell shared ─────────────────────────────────────────── */
+    .phone {
+      width: 220px; border-radius: 28px; overflow: hidden;
+      background: #111318; box-shadow: 0 0 0 1px rgba(255,255,255,0.08);
+      flex-shrink: 0;
+    }
+
+    .phone.light-phone { background: #F9F9FF; box-shadow: 0 0 0 1px rgba(0,0,0,0.12); }
+
+    .phone-screen { padding: 16px 12px 20px; }
+
+    /* ── Home screen ────────────────────────────────────────────────── */
+    .home-title {
+      font-size: 28px; font-weight: 400; line-height: 36px;
+      color: #E2E2E9; margin-bottom: 16px;
+    }
+
+    .home-title.light { color: #1A1B20; }
+
+    .volume-card {
+      background: #1A1B20; border-radius: 24px;
+      padding: 16px 20px;
+      display: flex; align-items: center; gap: 14px;
+    }
+
+    .volume-card.light { background: #F3F3FA; }
+
+    .volume-icon {
+      width: 36px; height: 36px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .volume-label { font-size: 16px; font-weight: 400; color: #E2E2E9; }
+    .volume-label.light { color: #1A1B20; }
+
+    /* ── Explorer top bar ───────────────────────────────────────────── */
+    .exp-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 0 0 0; margin-bottom: 14px;
+    }
+
+    .exp-back {
+      width: 32px; height: 32px;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .exp-sort {
+      display: flex; align-items: center; gap: 6px;
+      color: #ADC6FF;
+    }
+
+    .exp-sort.light { color: #445E91; }
+
+    .exp-sort svg { fill: currentColor; width: 18px; height: 18px; }
+    .exp-sort-label { font-size: 14px; font-weight: 400; color: inherit; }
+    .exp-sort-arrow { width: 18px; height: 18px; fill: currentColor; }
+
+    .exp-headline {
+      font-size: 24px; font-weight: 400; line-height: 32px;
+      color: #E2E2E9; margin-bottom: 12px;
+    }
+
+    .exp-headline.light { color: #1A1B20; }
+
+    /* Breadcrumb */
+    .exp-breadcrumb {
+      font-size: 22px; font-weight: 400; line-height: 28px;
+      color: #E2E2E9; margin-bottom: 12px;
+      white-space: nowrap; overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .exp-breadcrumb.light { color: #1A1B20; }
+    .exp-breadcrumb .sep { color: #63656C; margin: 0 5px; }
+
+    /* ── Tile grids ─────────────────────────────────────────────────── */
+    .tile-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 6px; width: 100%;
+    }
+
+    .tile-wrap {
+      display: flex; flex-direction: column; align-items: center; gap: 5px;
+    }
+
+    .tile {
+      width: 100%; aspect-ratio: 1;
+      border-radius: 20px; overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+      position: relative;
+    }
+
+    .tile-folder { background: #33353A; }
+    .tile-folder.light { background: #E1E2EC; }
+
+    .tile-unsupported { background: #2B2D34; }
+    .tile-unsupported.light { background: #E1E2EC; }
+
+    .tile svg { width: 32px; height: 32px; fill: #ADC6FF; }
+    .tile-unsupported svg { fill: #63656C; }
+    .tile-folder.light svg { fill: #445E91; }
+    .tile-unsupported.light svg { fill: #44474F; }
+
+    .tile-thumb { width: 100%; height: 100%; object-fit: cover; }
+
+    .tile-play-overlay {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .tile-play-btn {
+      width: 30px; height: 30px; border-radius: 50%;
+      background: rgba(0,0,0,0.5);
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .tile-play-btn svg { width: 16px; height: 16px; fill: white; margin-left: 2px; }
+
+    .tile-caption {
+      font-size: 11px; font-weight: 500; letter-spacing: 0.5px;
+      color: #E2E2E9; text-align: center;
+      width: 100%; overflow: hidden;
+      text-overflow: ellipsis; white-space: nowrap;
+    }
+
+    .tile-caption.light { color: #1A1B20; }
+
+    /* ── Primary Button ─────────────────────────────────────────────── */
+    .btn-primary {
+      background: var(--primary); color: var(--on-primary);
+      border: none; border-radius: var(--r-full);
+      height: 40px; padding: 0 24px;
+      font-family: 'Google Sans', sans-serif;
+      font-size: 14px; font-weight: 500; letter-spacing: 0.1px;
+      cursor: pointer; transition: opacity 150ms ease-out;
+    }
+    .btn-primary:hover { opacity: 0.88; }
+
+    /* ── Video Controls ─────────────────────────────────────────────── */
+    .video-ctrl-wrap { width: 100%; display: flex; flex-direction: column; gap: 10px; }
+
+    /* Split slider: played (left, primary) | divider line | unplayed (right, surface-container-high) */
+    .split-slider {
+      width: 100%; height: 6px; display: flex;
+      align-items: stretch; border-radius: 3px; overflow: hidden;
+    }
+
+    .slider-played { flex: 0 0 45%; background: var(--primary); }
+    .slider-divider { flex: 0 0 2px; background: var(--on-surface); }
+    .slider-unplayed { flex: 1; background: var(--surface-container-high); position: relative; }
+    .slider-dot {
+      position: absolute; right: 0; top: 50%;
+      transform: translateY(-50%);
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--on-surface-variant);
+    }
+
+    .time-row {
+      display: flex; justify-content: space-between;
+      font-size: 11px; font-weight: 500; letter-spacing: 0.5px;
+      color: var(--on-surface-variant);
+    }
+
+    .transport-row { display: flex; justify-content: center; gap: 12px; width: 100%; }
+
+    .transport-btn {
+      width: 48px; height: 48px; border-radius: 50%;
+      background: var(--surface-container-high);
+      border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 150ms ease-out;
+    }
+
+    .transport-btn:hover { background: var(--surface-container-highest); }
+    .transport-btn svg { width: 22px; height: 22px; fill: var(--on-surface); }
+
+    /* ── Empty State ────────────────────────────────────────────────── */
+    .empty-state {
+      width: 100%; display: flex; flex-direction: column;
+      align-items: center; gap: var(--sp-md);
+      padding: var(--sp-empty); text-align: center;
+    }
+
+    .empty-icon {
+      width: 64px; height: 64px; border-radius: 50%;
+      background: var(--surface-container);
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .empty-icon svg { width: 32px; height: 32px; fill: var(--on-surface-variant); }
+    .empty-headline { font-size: 16px; font-weight: 400; line-height: 24px; color: var(--on-surface-variant); }
+    .empty-body { font-size: 14px; font-weight: 400; line-height: 20px; letter-spacing: 0.25px; color: var(--on-surface-muted); }
+
+    /* ── Viewer screens ─────────────────────────────────────────────── */
+    .viewers-row { display: flex; gap: 24px; flex-wrap: wrap; }
+
+    /* Image viewer */
+    .img-viewer { background: #000; border-radius: 28px; overflow: hidden; width: 220px; flex-shrink: 0; }
+
+    .img-viewer-bar {
+      padding: 12px 10px 8px;
+      display: flex; align-items: center; gap: 8px; background: #000;
+    }
+
+    .viewer-back { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; }
+    .viewer-back svg { fill: #E2E2E9; width: 20px; height: 20px; }
+
+    .viewer-filename {
+      font-size: 14px; font-weight: 400; color: #E2E2E9;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+
+    .img-viewer-media {
+      width: 100%; aspect-ratio: 3/4;
+      background: linear-gradient(160deg, #1e3a5f, #2d5986 50%, #1a2d4a);
+    }
+
+    /* Video viewer */
+    .vid-viewer { background: #000; border-radius: 28px; overflow: hidden; width: 220px; flex-shrink: 0; }
+
+    .vid-viewer-bar {
+      padding: 12px 10px 8px;
+      display: flex; align-items: center; gap: 8px; background: #000;
+    }
+
+    .vid-viewer-media {
+      width: 100%; aspect-ratio: 9/10;
+      background: #000;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .vid-viewer-media svg { width: 80px; height: 80px; fill: rgba(255,255,255,0.06); }
+
+    .vid-viewer-controls {
+      padding: 12px 14px 18px; background: #000;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+
+    /* Split slider dark (video viewer always dark) */
+    .vid-split-slider {
+      width: 100%; height: 5px; display: flex;
+      align-items: stretch; border-radius: 2.5px; overflow: hidden;
+    }
+
+    .vid-played { flex: 0 0 53%; background: #ADC6FF; }
+    .vid-divider { flex: 0 0 2px; background: #E2E2E9; }
+    .vid-unplayed { flex: 1; background: #282A2F; position: relative; }
+    .vid-dot { position: absolute; right: 0; top: 50%; transform: translateY(-50%); width: 5px; height: 5px; border-radius: 50%; background: #63656C; }
+
+    .vid-time-row {
+      display: flex; justify-content: space-between;
+      font-size: 10px; font-weight: 500; letter-spacing: 0.5px; color: #C4C6D0;
+    }
+
+    .vid-transport { display: flex; justify-content: center; gap: 10px; }
+
+    .vid-btn {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: #282A2F; border: none;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .vid-btn svg { width: 20px; height: 20px; fill: #E2E2E9; }
+  </style>
+</head>
+<body>
+
+<header class="page-header">
+  <div style="display:flex;align-items:center;gap:10px;">
+    <h1>Gallery Explorer</h1>
+    <span class="version-badge">alpha</span>
+  </div>
+  <div class="theme-toggle">
+    <button class="toggle-btn active" id="btn-light" onclick="setTheme('light')">Light</button>
+    <button class="toggle-btn" id="btn-dark" onclick="setTheme('dark')">Dark</button>
+  </div>
+</header>
+
+<main class="content">
+
+  <!-- ── Color Palette ─────────────────────────────────────────────── -->
+  <section>
+    <h2 class="section-title">Color Palette</h2>
+
+    <div style="display:flex;flex-direction:column;gap:28px;">
+      <div>
+        <p class="section-label">Role Pairs</p>
+        <div class="color-pair-grid" id="pairs-el"></div>
+      </div>
+      <div>
+        <p class="section-label">Surface Scale</p>
+        <div class="color-grid" id="surfaces-el"></div>
+      </div>
+      <div>
+        <p class="section-label">Outline &amp; Utility</p>
+        <div class="color-grid" id="utility-el"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Typography ────────────────────────────────────────────────── -->
+  <section>
+    <h2 class="section-title">Typography — Google Sans</h2>
+    <div class="type-stack">
+      <div class="type-row">
+        <div class="type-meta"><span class="type-label">Display LG</span><span class="type-spec">57px · 64px lh · 400 · −0.25px</span></div>
+        <span style="font-size:57px;font-weight:400;line-height:1.1;letter-spacing:-0.25px;">Aa</span>
+      </div>
+      <div class="type-row">
+        <div class="type-meta"><span class="type-label">Display MD</span><span class="type-spec">45px · 52px lh · 400 · 0px</span></div>
+        <span style="font-size:45px;font-weight:400;line-height:1.15;">Aa</span>
+      </div>
+      <div class="type-row">
+        <div class="type-meta"><span class="type-label">Display SM</span><span class="type-spec">36px · 44px lh · 400 · 0px</span></div>
+        <span style="font-size:36px;font-weight:400;line-height:1.2;">Aa</span>
+      </div>
+      <div class="type-row">
+        <div class="type-meta"><span class="type-label">Headline LG</span><span class="type-spec">32px · 40px lh · 400 · 0px</span></div>
+        <span style="font-size:32px;font-weight:400;line-height:40px;">Storage</span>
+      </div>
+      <div class="type-row">
+        <div class="type-meta"><span class="type-label">Headline MD</span><span class="type-spec">28px · 36px lh · 400 · 0px</span></div>
+        <span style="font-size:28px;font-weight:400;line-height:36px;">Internal storage</span>
+      </div>
+      <div class="type-row">
+        <div class="type-meta"><span class="type-label">Headline SM</span><span class="type-spec">24px · 32px lh · 400 · 0px</span></div>
+        <span style="font-size:24px;font-weight:400;line-height:32px;">Internal storage</span>
+      </div>
+      <div class="type-row">
+        <div class="type-meta"><span class="type-label">Title LG</span><span class="type-spec">22px · 28px lh · 400 · 0px</span></div>
+        <span style="font-size:22px;font-weight:400;line-height:28px;">Internal storage · Download</span>
+      </div>
+      <div class="type-row">
+        <div class="type-meta"><span class="type-label">Title MD</span><span class="type-spec">16px · 24px lh · 500 · 0.15px</span></div>
+        <span style="font-size:16px;font-weight:500;line-height:24px;letter-spacing:0.15px;">Sort by date</span>
+      </div>
+      <div class="type-row">
+        <div class="type-meta"><span class="type-label">Title SM</span><span class="type-spec">14px · 20px lh · 500 · 0.1px</span></div>
+        <span style="font-size:14px;font-weight:500;line-height:20px;letter-spacing:0.1px;">Date</span>
+      </div>
+      <div class="type-row">
+        <div class="type-meta"><span class="type-label">Body LG</span><span class="type-spec">16px · 24px lh · 400 · 0.5px</span></div>
+        <span style="font-size:16px;font-weight:400;line-height:24px;letter-spacing:0.5px;">No images found in this folder.</span>
+      </div>
+      <div class="type-row">
+        <div class="type-meta"><span class="type-label">Body MD</span><span class="type-spec">14px · 20px lh · 400 · 0.25px</span></div>
+        <span style="font-size:14px;font-weight:400;line-height:20px;letter-spacing:0.25px;">Grant access to see your media files.</span>
+      </div>
+      <div class="type-row">
+        <div class="type-meta"><span class="type-label">Body SM</span><span class="type-spec">12px · 16px lh · 400 · 0.4px</span></div>
+        <span style="font-size:12px;font-weight:400;line-height:16px;letter-spacing:0.4px;">Modified 2 days ago</span>
+      </div>
+      <div class="type-row">
+        <div class="type-meta"><span class="type-label">Label LG</span><span class="type-spec">14px · 20px lh · 500 · 0.1px</span></div>
+        <span style="font-size:14px;font-weight:500;line-height:20px;letter-spacing:0.1px;">Grant Access</span>
+      </div>
+      <div class="type-row">
+        <div class="type-meta"><span class="type-label">Label MD</span><span class="type-spec">12px · 16px lh · 500 · 0.5px</span></div>
+        <span style="font-size:12px;font-weight:500;line-height:16px;letter-spacing:0.5px;">IMG_3094.jpg</span>
+      </div>
+      <div class="type-row">
+        <div class="type-meta"><span class="type-label">Label SM</span><span class="type-spec">11px · 16px lh · 500 · 0.5px</span></div>
+        <span style="font-size:11px;font-weight:500;line-height:16px;letter-spacing:0.5px;">00:16 / 00:30</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Spacing ────────────────────────────────────────────────────── -->
+  <section>
+    <h2 class="section-title">Spacing</h2>
+    <div class="spacing-stack">
+      <div class="spacing-row"><span class="spacing-name">xs</span><div class="spacing-bar-wrap"><div class="spacing-bar" style="width:4px;"></div></div><span class="spacing-value">4px</span></div>
+      <div class="spacing-row"><span class="spacing-name">sm</span><div class="spacing-bar-wrap"><div class="spacing-bar" style="width:8px;"></div></div><span class="spacing-value">8px</span></div>
+      <div class="spacing-row"><span class="spacing-name">md</span><div class="spacing-bar-wrap"><div class="spacing-bar" style="width:16px;"></div></div><span class="spacing-value">16px</span></div>
+      <div class="spacing-row"><span class="spacing-name">lg</span><div class="spacing-bar-wrap"><div class="spacing-bar" style="width:20px;"></div></div><span class="spacing-value">20px</span></div>
+      <div class="spacing-row"><span class="spacing-name">xl</span><div class="spacing-bar-wrap"><div class="spacing-bar" style="width:24px;"></div></div><span class="spacing-value">24px</span></div>
+      <div class="spacing-row"><span class="spacing-name">xxl</span><div class="spacing-bar-wrap"><div class="spacing-bar" style="width:32px;"></div></div><span class="spacing-value">32px</span></div>
+      <div class="spacing-row"><span class="spacing-name">app-bar-edge</span><div class="spacing-bar-wrap"><div class="spacing-bar" style="width:8px;"></div></div><span class="spacing-value">8px</span></div>
+      <div class="spacing-row"><span class="spacing-name">screen-gutter</span><div class="spacing-bar-wrap"><div class="spacing-bar" style="width:16px;"></div></div><span class="spacing-value">16px</span></div>
+      <div class="spacing-row"><span class="spacing-name">tile-gap</span><div class="spacing-bar-wrap"><div class="spacing-bar" style="width:8px;"></div></div><span class="spacing-value">8px</span></div>
+      <div class="spacing-row"><span class="spacing-name">tile-padding</span><div class="spacing-bar-wrap"><div class="spacing-bar" style="width:20px;"></div></div><span class="spacing-value">20px</span></div>
+      <div class="spacing-row"><span class="spacing-name">empty-state-padding</span><div class="spacing-bar-wrap"><div class="spacing-bar" style="width:24px;"></div></div><span class="spacing-value">24px</span></div>
+      <div class="spacing-row"><span class="spacing-name">viewer-title-end</span><div class="spacing-bar-wrap"><div class="spacing-bar" style="width:16px;"></div></div><span class="spacing-value">16px</span></div>
+      <div class="spacing-row"><span class="spacing-name">playback-controls-h</span><div class="spacing-bar-wrap"><div class="spacing-bar" style="width:20px;"></div></div><span class="spacing-value">20px</span></div>
+      <div class="spacing-row"><span class="spacing-name">playback-controls-v</span><div class="spacing-bar-wrap"><div class="spacing-bar" style="width:24px;"></div></div><span class="spacing-value">24px</span></div>
+    </div>
+  </section>
+
+  <!-- ── Shape ──────────────────────────────────────────────────────── -->
+  <section>
+    <h2 class="section-title">Shape / Corner Radius</h2>
+    <div class="rounded-row">
+      <div class="rounded-item">
+        <div class="rounded-box" style="border-radius:0;"></div>
+        <span class="rounded-label">none</span><span class="rounded-value">0px</span>
+      </div>
+      <div class="rounded-item">
+        <div class="rounded-box" style="border-radius:8px;"></div>
+        <span class="rounded-label">sm</span><span class="rounded-value">8px</span>
+      </div>
+      <div class="rounded-item">
+        <div class="rounded-box" style="border-radius:16px;"></div>
+        <span class="rounded-label">md</span><span class="rounded-value">16px</span>
+      </div>
+      <div class="rounded-item">
+        <div class="rounded-box" style="border-radius:24px;"></div>
+        <span class="rounded-label">lg — primary</span><span class="rounded-value">24px</span>
+      </div>
+      <div class="rounded-item">
+        <div class="rounded-box" style="border-radius:9999px;width:80px;height:40px;"></div>
+        <span class="rounded-label">full</span><span class="rounded-value">9999px</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Motion ─────────────────────────────────────────────────────── -->
+  <section>
+    <h2 class="section-title">Motion</h2>
+    <div class="motion-stack">
+      <div class="motion-row"><span class="motion-name">controls-fade-in</span><span class="motion-value">150ms ease-out</span></div>
+      <div class="motion-row"><span class="motion-name">controls-fade-out</span><span class="motion-value">150ms ease-in</span></div>
+      <div class="motion-row"><span class="motion-name">controls-auto-hide-delay</span><span class="motion-value">2500ms</span></div>
+      <div class="motion-row"><span class="motion-name">refresh-settle-delay</span><span class="motion-value">500ms</span></div>
+    </div>
+  </section>
+
+  <!-- ── Components ─────────────────────────────────────────────────── -->
+  <section>
+    <h2 class="section-title">Components</h2>
+    <div class="comp-grid">
+
+      <!-- Home Screen -->
+      <div class="comp-card">
+        <div class="comp-header">Home Screen</div>
+        <div class="comp-body" style="align-items:center;">
+          <div id="phone-home" class="phone">
+            <div class="phone-screen">
+              <div class="home-title">Storage</div>
+              <div class="volume-card">
+                <div class="volume-icon">
+                  <!-- DNS / stacked-storage icon (3 rows each with a bullet + bar) -->
+                  <svg viewBox="0 0 24 24" width="28" height="28" fill="#ADC6FF">
+                    <path d="M19 3H5c-1.1 0-2 .9-2 2v4c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 4.5c-.83 0-1.5-.67-1.5-1.5S11.17 4.5 12 4.5s1.5.67 1.5 1.5S12.83 7.5 12 7.5zM19 13H5c-1.1 0-2 .9-2 2v4c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-4c0-1.1-.9-2-2-2zm-7 4.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/>
+                  </svg>
+                </div>
+                <span class="volume-label">Internal storage</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Explorer — Folders -->
+      <div class="comp-card">
+        <div class="comp-header">Explorer — Folders</div>
+        <div class="comp-body" style="align-items:center;">
+          <div id="phone-exp-folders" class="phone">
+            <div class="phone-screen">
+              <div class="exp-bar">
+                <div class="exp-back">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="#E2E2E9"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+                </div>
+                <div class="exp-sort">
+                  <svg viewBox="0 0 24 24"><path d="M10 18h4v-2h-4v2zm-7-12v2h18V6H3zm3 7h12v-2H6v2z"/></svg>
+                  <span class="exp-sort-label">Date</span>
+                  <svg viewBox="0 0 24 24" class="exp-sort-arrow"><path d="M20 12l-1.41-1.41L13 16.17V4h-2v12.17l-5.58-5.59L4 12l8 8 8-8z"/></svg>
+                </div>
+              </div>
+              <div class="exp-headline">Internal storage</div>
+              <div class="tile-grid">
+                <div class="tile-wrap">
+                  <div class="tile tile-folder">
+                    <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+                  </div>
+                  <span class="tile-caption">Download</span>
+                </div>
+                <div class="tile-wrap">
+                  <div class="tile tile-folder">
+                    <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+                  </div>
+                  <span class="tile-caption">Pictures</span>
+                </div>
+                <div class="tile-wrap">
+                  <div class="tile tile-folder">
+                    <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+                  </div>
+                  <span class="tile-caption">DCIM</span>
+                </div>
+                <div class="tile-wrap">
+                  <div class="tile tile-folder">
+                    <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+                  </div>
+                  <span class="tile-caption">Movies</span>
+                </div>
+                <div class="tile-wrap">
+                  <div class="tile tile-folder">
+                    <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+                  </div>
+                  <span class="tile-caption">Recordings</span>
+                </div>
+                <div class="tile-wrap">
+                  <div class="tile tile-folder">
+                    <svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+                  </div>
+                  <span class="tile-caption">Alarms</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Explorer — Files (breadcrumb + mixed grid) -->
+      <div class="comp-card">
+        <div class="comp-header">Explorer — Files</div>
+        <div class="comp-body" style="align-items:center;">
+          <div id="phone-exp-files" class="phone">
+            <div class="phone-screen">
+              <div class="exp-bar">
+                <div class="exp-back">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="#E2E2E9"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+                </div>
+                <div class="exp-sort">
+                  <svg viewBox="0 0 24 24"><path d="M10 18h4v-2h-4v2zm-7-12v2h18V6H3zm3 7h12v-2H6v2z"/></svg>
+                  <span class="exp-sort-label">Date</span>
+                  <svg viewBox="0 0 24 24" class="exp-sort-arrow"><path d="M20 12l-1.41-1.41L13 16.17V4h-2v12.17l-5.58-5.59L4 12l8 8 8-8z"/></svg>
+                </div>
+              </div>
+              <div class="exp-breadcrumb">
+                Internal storage<span class="sep">•</span>Download<span class="sep">•</span>Gal
+              </div>
+              <div class="tile-grid">
+                <!-- image tiles with gradient placeholders -->
+                <div class="tile-wrap">
+                  <div class="tile" style="background:linear-gradient(135deg,#3d3226,#6b5233);">
+                  </div>
+                  <span class="tile-caption">kaboompics_…</span>
+                </div>
+                <div class="tile-wrap">
+                  <div class="tile" style="background:linear-gradient(135deg,#2a3540,#3d5467);">
+                  </div>
+                  <span class="tile-caption">kaboompics_…</span>
+                </div>
+                <div class="tile-wrap">
+                  <div class="tile" style="background:linear-gradient(135deg,#e8e4df,#c8c0b4);">
+                  </div>
+                  <span class="tile-caption">kaboompics_…</span>
+                </div>
+                <!-- video tile with play overlay -->
+                <div class="tile-wrap">
+                  <div class="tile" style="background:linear-gradient(135deg,#1e2a3a,#2c4a6e);">
+                    <div class="tile-play-overlay">
+                      <div class="tile-play-btn">
+                        <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                      </div>
+                    </div>
+                  </div>
+                  <span class="tile-caption">file_example…</span>
+                </div>
+                <!-- image tile -->
+                <div class="tile-wrap">
+                  <div class="tile" style="background:linear-gradient(135deg,#2d3d28,#4a6240);">
+                  </div>
+                  <span class="tile-caption">kaboompics_…</span>
+                </div>
+                <!-- unsupported tile -->
+                <div class="tile-wrap">
+                  <div class="tile tile-unsupported">
+                    <svg viewBox="0 0 24 24"><path d="M11.07 12.85c.77-1.39 2.25-2.21 3.11-3.44.91-1.29.4-3.7-2.18-3.7-1.69 0-2.52 1.28-2.87 2.34L7.1 7.05C7.83 4.99 9.81 3 11.99 3c2.35 0 3.96 1.07 4.78 2.41.7 1.15 1.11 3.3.03 4.9-1.2 1.77-2.35 2.31-2.97 3.45-.25.46-.35.76-.35 2.24h-2.01c-.01-.93-.16-1.44.6-2.15zM14 20c0 1.1-.9 2-2 2s-2-.9-2-2 .9-2 2-2 2 .9 2 2z"/></svg>
+                  </div>
+                  <span class="tile-caption">Z1</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Primary Button -->
+      <div class="comp-card">
+        <div class="comp-header">Primary Button</div>
+        <div class="comp-body">
+          <button class="btn-primary">Grant Access</button>
+          <button class="btn-primary">Browse Storage</button>
+          <button class="btn-primary" disabled style="opacity:0.38;cursor:default;">Disabled</button>
+          <p style="font-size:11px;color:var(--on-surface-muted);margin-top:4px;">
+            height 40px · padding 24px · radius full · label-lg 14/500
+          </p>
+        </div>
+      </div>
+
+      <!-- Video Controls -->
+      <div class="comp-card">
+        <div class="comp-header">Video Controls</div>
+        <div class="comp-body" style="width:100%;">
+          <div class="video-ctrl-wrap">
+            <!-- Split slider: played | divider | unplayed -->
+            <div class="split-slider">
+              <div class="slider-played"></div>
+              <div class="slider-divider"></div>
+              <div class="slider-unplayed"><div class="slider-dot"></div></div>
+            </div>
+            <!-- elapsed / total (not remaining) -->
+            <div class="time-row">
+              <span>00:16</span>
+              <span>00:30</span>
+            </div>
+            <!-- rewind-10 · pause · forward-10 -->
+            <div class="transport-row">
+              <button class="transport-btn" title="Rewind 10s">
+                <svg viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8zm-1.1 11H10v-3.26L9 13.14v-.82l1.8-.62h.1V16zm4.38 0h-3.17v-.76l1.5-1.56c.2-.21.34-.39.42-.54a.9.9 0 0 0 .12-.43c0-.17-.05-.3-.14-.4s-.22-.14-.38-.14c-.18 0-.32.06-.43.18s-.16.28-.16.48h-.96c0-.28.07-.53.2-.75a1.4 1.4 0 0 1 .56-.52c.24-.12.51-.18.81-.18.44 0 .79.1 1.04.31s.38.5.38.87c0 .2-.05.4-.16.6s-.3.43-.57.7l-.96 1h1.9v.78z"/></svg>
+              </button>
+              <button class="transport-btn" title="Pause">
+                <svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+              </button>
+              <button class="transport-btn" title="Forward 10s">
+                <svg viewBox="0 0 24 24"><path d="M18 13c0 3.31-2.69 6-6 6s-6-2.69-6-6 2.69-6 6-6v4l5-5-5-5v4c-4.42 0-8 3.58-8 8s3.58 8 8 8 8-3.58 8-8h-2zm-5.1 3H11v-3.26l-1 .4v-.82l1.8-.62h.1V16zm4.38 0h-3.17v-.76l1.5-1.56c.2-.21.34-.39.42-.54a.9.9 0 0 0 .12-.43c0-.17-.05-.3-.14-.4s-.22-.14-.38-.14c-.18 0-.32.06-.43.18s-.16.28-.16.48h-.96c0-.28.07-.53.2-.75a1.4 1.4 0 0 1 .56-.52c.24-.12.51-.18.81-.18.44 0 .79.1 1.04.31s.38.5.38.87c0 .2-.05.4-.16.6s-.3.43-.57.7l-.96 1h1.9v.78z"/></svg>
+              </button>
+            </div>
+          </div>
+          <p style="font-size:11px;color:var(--on-surface-muted);margin-top:4px;">
+            Split slider (played | marker | unplayed) · elapsed / total · ↺10 pause ↻10
+          </p>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div class="comp-card">
+        <div class="comp-header">Empty State</div>
+        <div class="comp-body" style="width:100%;">
+          <div class="empty-state">
+            <div class="empty-icon">
+              <svg viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
+            </div>
+            <p class="empty-headline">No images here</p>
+            <p class="empty-body">This folder is empty. Try opening a different location.</p>
+            <button class="btn-primary">Browse Storage</button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /comp-grid -->
+
+    <!-- Viewers — full width row -->
+    <div style="margin-top:24px;">
+      <p class="section-label" style="margin-bottom:16px;">Viewer Screens (always full-bleed, always dark)</p>
+      <div class="viewers-row">
+
+        <!-- Image Viewer -->
+        <div style="display:flex;flex-direction:column;gap:8px;align-items:center;">
+          <div class="img-viewer">
+            <div class="img-viewer-bar">
+              <div class="viewer-back"><svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg></div>
+              <span class="viewer-filename">kaboompics_cozy-breakfast-ar</span>
+            </div>
+            <div class="img-viewer-media"></div>
+          </div>
+          <span style="font-size:11px;color:var(--on-surface-muted);">Image Viewer — no bottom chrome</span>
+        </div>
+
+        <!-- Video Viewer -->
+        <div style="display:flex;flex-direction:column;gap:8px;align-items:center;">
+          <div class="vid-viewer">
+            <div class="vid-viewer-bar">
+              <div class="viewer-back"><svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg></div>
+              <span class="viewer-filename">file_example_AVI_1920_2_3MG.avi</span>
+            </div>
+            <div class="vid-viewer-media">
+              <!-- earth placeholder -->
+              <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+            </div>
+            <div class="vid-viewer-controls">
+              <div class="vid-split-slider">
+                <div class="vid-played"></div>
+                <div class="vid-divider"></div>
+                <div class="vid-unplayed"><div class="vid-dot"></div></div>
+              </div>
+              <div class="vid-time-row">
+                <span>00:16</span>
+                <span>00:30</span>
+              </div>
+              <div class="vid-transport">
+                <div class="vid-btn">
+                  <svg viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8zm-1.1 11H10v-3.26L9 13.14v-.82l1.8-.62h.1V16zm4.38 0h-3.17v-.76l1.5-1.56c.2-.21.34-.39.42-.54a.9.9 0 0 0 .12-.43c0-.17-.05-.3-.14-.4s-.22-.14-.38-.14c-.18 0-.32.06-.43.18s-.16.28-.16.48h-.96c0-.28.07-.53.2-.75a1.4 1.4 0 0 1 .56-.52c.24-.12.51-.18.81-.18.44 0 .79.1 1.04.31s.38.5.38.87c0 .2-.05.4-.16.6s-.3.43-.57.7l-.96 1h1.9v.78z"/></svg>
+                </div>
+                <div class="vid-btn">
+                  <svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                </div>
+                <div class="vid-btn">
+                  <svg viewBox="0 0 24 24"><path d="M18 13c0 3.31-2.69 6-6 6s-6-2.69-6-6 2.69-6 6-6v4l5-5-5-5v4c-4.42 0-8 3.58-8 8s3.58 8 8 8 8-3.58 8-8h-2zm-5.1 3H11v-3.26l-1 .4v-.82l1.8-.62h.1V16zm4.38 0h-3.17v-.76l1.5-1.56c.2-.21.34-.39.42-.54a.9.9 0 0 0 .12-.43c0-.17-.05-.3-.14-.4s-.22-.14-.38-.14c-.18 0-.32.06-.43.18s-.16.28-.16.48h-.96c0-.28.07-.53.2-.75a1.4 1.4 0 0 1 .56-.52c.24-.12.51-.18.81-.18.44 0 .79.1 1.04.31s.38.5.38.87c0 .2-.05.4-.16.6s-.3.43-.57.7l-.96 1h1.9v.78z"/></svg>
+                </div>
+              </div>
+            </div>
+          </div>
+          <span style="font-size:11px;color:var(--on-surface-muted);">Video Viewer — split slider + transport</span>
+        </div>
+
+      </div>
+    </div>
+
+  </section>
+
+</main>
+
+<script>
+  const COLORS = {
+    light: {
+      pairs: [
+        { name:'Primary', bg:'#445E91', fg:'#FFFFFF', bgTok:'primary', fgTok:'on-primary' },
+        { name:'Primary Container', bg:'#D8E2FF', fg:'#2B4678', bgTok:'primary-container', fgTok:'on-primary-container' },
+        { name:'Secondary', bg:'#575E71', fg:'#FFFFFF', bgTok:'secondary', fgTok:'on-secondary' },
+        { name:'Secondary Container', bg:'#DBE2F9', fg:'#3F4759', bgTok:'secondary-container', fgTok:'on-secondary-container' },
+        { name:'Tertiary', bg:'#715573', fg:'#FFFFFF', bgTok:'tertiary', fgTok:'on-tertiary' },
+        { name:'Tertiary Container', bg:'#FBD7FC', fg:'#583E5B', bgTok:'tertiary-container', fgTok:'on-tertiary-container' },
+        { name:'Error', bg:'#BA1A1A', fg:'#FFFFFF', bgTok:'error', fgTok:'on-error' },
+        { name:'Error Container', bg:'#FFDAD6', fg:'#93000A', bgTok:'error-container', fgTok:'on-error-container' },
+      ],
+      surfaces: [
+        { name:'Surface', hex:'#F9F9FF' },{ name:'Surface Dim', hex:'#D9D9E0' },
+        { name:'Surface Bright', hex:'#F9F9FF' },{ name:'Container Lowest', hex:'#FFFFFF' },
+        { name:'Container Low', hex:'#F3F3FA' },{ name:'Container', hex:'#EDEDF4' },
+        { name:'Container High', hex:'#E8E7EE' },{ name:'Container Highest', hex:'#E2E2E9' },
+        { name:'Surface Variant', hex:'#E1E2EC' },{ name:'Variant Muted', hex:'#E1E2EC' },
+      ],
+      utility: [
+        { name:'On Surface', hex:'#1A1B20' },{ name:'On Surface Variant', hex:'#44474F' },
+        { name:'On Surface Muted', hex:'#44474F' },{ name:'Outline', hex:'#74777F' },
+        { name:'Outline Variant', hex:'#C4C6D0' },{ name:'Inverse Surface', hex:'#2F3036' },
+        { name:'Inverse On Surface', hex:'#F0F0F7' },{ name:'Inverse Primary', hex:'#ADC6FF' },
+        { name:'Scrim', hex:'#000000' },
+      ],
+    },
+    dark: {
+      pairs: [
+        { name:'Primary', bg:'#ADC6FF', fg:'#102F60', bgTok:'primary', fgTok:'on-primary' },
+        { name:'Primary Container', bg:'#2B4678', fg:'#D8E2FF', bgTok:'primary-container', fgTok:'on-primary-container' },
+        { name:'Secondary', bg:'#BFC6DC', fg:'#293041', bgTok:'secondary', fgTok:'on-secondary' },
+        { name:'Secondary Container', bg:'#3F4759', fg:'#DBE2F9', bgTok:'secondary-container', fgTok:'on-secondary-container' },
+        { name:'Tertiary', bg:'#DEBCDF', fg:'#402843', bgTok:'tertiary', fgTok:'on-tertiary' },
+        { name:'Tertiary Container', bg:'#583E5B', fg:'#FBD7FC', bgTok:'tertiary-container', fgTok:'on-tertiary-container' },
+        { name:'Error', bg:'#FFB4AB', fg:'#690005', bgTok:'error', fgTok:'on-error' },
+        { name:'Error Container', bg:'#93000A', fg:'#FFDAD6', bgTok:'error-container', fgTok:'on-error-container' },
+      ],
+      surfaces: [
+        { name:'Surface', hex:'#111318' },{ name:'Surface Dim', hex:'#111318' },
+        { name:'Surface Bright', hex:'#37393E' },{ name:'Container Lowest', hex:'#0C0E13' },
+        { name:'Container Low', hex:'#1A1B20' },{ name:'Container', hex:'#1E1F25' },
+        { name:'Container High', hex:'#282A2F' },{ name:'Container Highest', hex:'#33353A' },
+        { name:'Surface Variant', hex:'#44474F' },{ name:'Variant Muted', hex:'#2B2D34' },
+      ],
+      utility: [
+        { name:'On Surface', hex:'#E2E2E9' },{ name:'On Surface Variant', hex:'#C4C6D0' },
+        { name:'On Surface Muted', hex:'#63656C' },{ name:'Outline', hex:'#8E9099' },
+        { name:'Outline Variant', hex:'#44474F' },{ name:'Inverse Surface', hex:'#E2E2E9' },
+        { name:'Inverse On Surface', hex:'#2F3036' },{ name:'Inverse Primary', hex:'#445E91' },
+        { name:'Scrim', hex:'#000000' },
+      ],
+    },
+  };
+
+  function lum(hex) {
+    const n = parseInt(hex.slice(1), 16);
+    return 0.299*((n>>16)&0xff) + 0.587*((n>>8)&0xff) + 0.114*(n&0xff);
+  }
+
+  function renderPairs(id, items) {
+    document.getElementById(id).innerHTML = items.map(i => `
+      <div class="color-pair">
+        <div class="pair-bg" style="background:${i.bg};color:${i.fg};">${i.name}</div>
+        <div class="pair-info">
+          <span class="pair-label">${i.bgTok}</span><span class="pair-hex">${i.bg}</span>
+          <span class="pair-label">${i.fgTok}</span><span class="pair-hex">${i.fg}</span>
+        </div>
+      </div>`).join('');
+  }
+
+  function renderSwatches(id, items) {
+    document.getElementById(id).innerHTML = items.map(i => `
+      <div class="color-swatch">
+        <div class="swatch-color" style="background:${i.hex};"></div>
+        <div class="swatch-info">
+          <span class="swatch-name">${i.name}</span>
+          <span class="swatch-hex">${i.hex}</span>
+        </div>
+      </div>`).join('');
+  }
+
+  function applyPhoneTheme(theme) {
+    const dark = theme === 'dark';
+    // Home phone
+    document.querySelector('.home-title').className = 'home-title' + (dark ? '' : ' light');
+    document.querySelector('.volume-card').className = 'volume-card' + (dark ? '' : ' light');
+    document.querySelector('.volume-label').className = 'volume-label' + (dark ? '' : ' light');
+    document.querySelector('.volume-icon svg').setAttribute('fill', dark ? '#ADC6FF' : '#445E91');
+    // Explorer phones
+    document.querySelectorAll('.exp-headline').forEach(el => el.className = 'exp-headline' + (dark ? '' : ' light'));
+    document.querySelectorAll('.exp-breadcrumb').forEach(el => el.className = 'exp-breadcrumb' + (dark ? '' : ' light'));
+    document.querySelectorAll('.exp-sort').forEach(el => el.className = 'exp-sort' + (dark ? '' : ' light'));
+    document.querySelectorAll('.exp-back svg').forEach(el => el.setAttribute('fill', dark ? '#E2E2E9' : '#1A1B20'));
+    // Tiles
+    document.querySelectorAll('.tile-folder').forEach(el => {
+      el.className = 'tile tile-folder' + (dark ? '' : ' light');
+    });
+    document.querySelectorAll('.tile-unsupported').forEach(el => {
+      el.className = 'tile tile-unsupported' + (dark ? '' : ' light');
+    });
+    document.querySelectorAll('.tile-caption').forEach(el => {
+      el.className = 'tile-caption' + (dark ? '' : ' light');
+    });
+    // Phone shells
+    document.querySelectorAll('.phone').forEach(el => {
+      el.className = dark ? 'phone' : 'phone light-phone';
+    });
+  }
+
+  function setTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    document.getElementById('btn-light').classList.toggle('active', theme === 'light');
+    document.getElementById('btn-dark').classList.toggle('active', theme === 'dark');
+    renderPairs('pairs-el', COLORS[theme].pairs);
+    renderSwatches('surfaces-el', COLORS[theme].surfaces);
+    renderSwatches('utility-el', COLORS[theme].utility);
+    applyPhoneTheme(theme);
+  }
+
+  setTheme('light');
+</script>
+</body>
+</html>
