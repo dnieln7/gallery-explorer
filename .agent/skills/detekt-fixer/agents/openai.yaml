@@ -1,4 +1,0 @@
-interface:
-  display_name: "Detekt Fixer"
-  short_description: "Repo-specific Detekt triage"
-  default_prompt: "Use $detekt-fixer to run Detekt in this repository, classify findings by level, fix the allowed issues, and ask before any baseline decision."
