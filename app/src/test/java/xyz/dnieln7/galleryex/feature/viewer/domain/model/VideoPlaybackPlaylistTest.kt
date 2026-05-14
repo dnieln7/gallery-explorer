@@ -5,13 +5,13 @@ import org.junit.Assert.assertNull
 import org.junit.Test
 import java.io.File
 
-class VideoPlaybackRestoreRequestTest {
+class VideoPlaybackPlaylistTest {
     @Test
-    fun `GIVEN invalid paths around the selected index WHEN creating a restore request THEN missing files are skipped and the closest valid selection is kept`() {
+    fun `GIVEN invalid paths around the selected index WHEN creating a playlist THEN missing files are skipped and the closest valid selection is kept`() {
         val firstVideo = createTempVideoFile("first.mp4")
         val thirdVideo = createTempVideoFile("third.mp4")
 
-        val request = createVideoPlaybackRestoreRequest(
+        val playlist = createVideoPlaybackPlaylist(
             videoPaths = listOf(
                 firstVideo.absolutePath,
                 "/missing/second.mp4",
@@ -22,14 +22,14 @@ class VideoPlaybackRestoreRequestTest {
 
         assertEquals(
             listOf(firstVideo.absolutePath, thirdVideo.absolutePath),
-            request?.videoPaths,
+            playlist?.videoPaths,
         )
-        assertEquals(1, request?.selectedIndex)
+        assertEquals(1, playlist?.selectedIndex)
     }
 
     @Test
-    fun `GIVEN no valid files WHEN creating a restore request THEN null is returned`() {
-        val request = createVideoPlaybackRestoreRequest(
+    fun `GIVEN no valid files WHEN creating a playlist THEN null is returned`() {
+        val playlist = createVideoPlaybackPlaylist(
             videoPaths = listOf(
                 "/missing/first.mp4",
                 "/missing/second.mp4",
@@ -37,7 +37,7 @@ class VideoPlaybackRestoreRequestTest {
             selectedIndex = 0,
         )
 
-        assertNull(request)
+        assertNull(playlist)
     }
 
     private fun createTempVideoFile(fileName: String): File {

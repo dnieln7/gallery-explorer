@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import xyz.dnieln7.galleryex.feature.viewer.domain.model.VideoPlaybackRestoreRequest
+import xyz.dnieln7.galleryex.feature.viewer.domain.model.VideoPlaybackPlaylist
 import xyz.dnieln7.galleryex.feature.viewer.domain.model.VideoPlaybackSessionState
 import java.io.File
 import javax.inject.Inject
@@ -29,21 +29,21 @@ class VideoPlaybackSessionStore @Inject constructor() {
     val sessionState: StateFlow<VideoPlaybackSessionState> = _sessionState.asStateFlow()
 
     /**
-     * Updates the store from a playlist request issued by the UI/controller layer.
+     * Updates the store from a playlist issued by the UI/controller layer.
      *
      * This lets the app know which playlist is intended to be active even before Media3 has emitted
      * a player callback for the new media items.
      *
-     * @param request Sanitized playlist request that should become the active viewer session.
+     * @param playlist Sanitized playlist that should become the active viewer session.
      */
-    fun updateRequestedPlayback(request: VideoPlaybackRestoreRequest) {
+    fun updateRequestedPlayback(playlist: VideoPlaybackPlaylist) {
         _sessionState.update {
             it.copy(
-                videoPaths = request.videoPaths,
-                selectedIndex = request.selectedIndex,
-                currentVideoPath = request.videoPaths.getOrNull(request.selectedIndex),
-                currentVideoTitle = request.videoPaths
-                    .getOrNull(request.selectedIndex)
+                videoPaths = playlist.videoPaths,
+                selectedIndex = playlist.selectedIndex,
+                currentVideoPath = playlist.videoPaths.getOrNull(playlist.selectedIndex),
+                currentVideoTitle = playlist.videoPaths
+                    .getOrNull(playlist.selectedIndex)
                     ?.let(::File)
                     ?.name,
             )

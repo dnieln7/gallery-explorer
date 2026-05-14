@@ -14,9 +14,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import timber.log.Timber
-import xyz.dnieln7.galleryex.feature.viewer.domain.model.VideoPlaybackRestoreRequest
+import xyz.dnieln7.galleryex.feature.viewer.domain.model.VideoPlaybackPlaylist
 import xyz.dnieln7.galleryex.feature.viewer.domain.model.VideoPlaybackSessionState
-import xyz.dnieln7.galleryex.feature.viewer.domain.model.createVideoPlaybackRestoreRequest
+import xyz.dnieln7.galleryex.feature.viewer.domain.model.createVideoPlaybackPlaylist
 import xyz.dnieln7.galleryex.feature.viewer.domain.model.toMediaItems
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -119,14 +119,14 @@ class DefaultVideoPlaybackController @Inject constructor(
 
     private var controller: MediaController? = null
     private var controllerFuture: ListenableFuture<MediaController>? = null
-    private var pendingRequest: VideoPlaybackRestoreRequest? = null
+    private var pendingPlaylist: VideoPlaybackPlaylist? = null
     private var isConnecting = false
     private var resumeOnForeground = false
 
     /**
      * Connects to the service-backed Media3 session if not already connected.
      *
-     * Once connected, any queued [pendingRequest] is applied immediately so a viewer opening during
+     * Once connected, any queued [pendingPlaylist] is applied immediately so a viewer opening during
      * the connection phase still starts playback without needing a second user action.
      */
     override fun connect() {
@@ -150,7 +150,7 @@ class DefaultVideoPlaybackController @Inject constructor(
                         .onSuccess { mediaController ->
                             controller = mediaController
                             _player.value = mediaController
-                            pendingRequest?.let { applyRequest(mediaController, it) }
+                            pendingPlaylist?.let { applyPlaylist(mediaController, it) }
                         }
                         .onFailure { error ->
                             Timber.e(error, "Unable to connect to the video playback service.")
@@ -164,19 +164,19 @@ class DefaultVideoPlaybackController @Inject constructor(
     /**
      * Opens a sanitized playlist in the service-backed player.
      *
-     * The request is stored locally and mirrored into [sessionStore] before the service confirms it,
-     * which allows notification restore and UI state to remain coherent during connection/setup.
+     * The playlist is stored locally and mirrored into [sessionStore] before the service confirms it,
+     * which allows UI state to remain coherent during connection/setup.
      */
     override fun openPlaylist(videoPaths: List<String>, selectedIndex: Int) {
-        val request = createVideoPlaybackRestoreRequest(
+        val playlist = createVideoPlaybackPlaylist(
             videoPaths = videoPaths,
             selectedIndex = selectedIndex,
         ) ?: return
 
-        pendingRequest = request
-        sessionStore.updateRequestedPlayback(request)
+        pendingPlaylist = playlist
+        sessionStore.updateRequestedPlayback(playlist)
         connect()
-        controller?.let { applyRequest(it, request) }
+        controller?.let { applyPlaylist(it, playlist) }
     }
 
     /**
@@ -187,8 +187,8 @@ class DefaultVideoPlaybackController @Inject constructor(
      */
     override fun selectVideo(index: Int) {
         val mediaController = controller ?: return
-        val request = sessionStore.sessionState.value
-            .toRestoreRequest(index)
+        val playlist = sessionStore.sessionState.value
+            .toPlaylist(index)
             ?: return
 
         if (index !in 0 until mediaController.mediaItemCount) {
@@ -200,8 +200,8 @@ class DefaultVideoPlaybackController @Inject constructor(
             mediaController.play()
         }
 
-        pendingRequest = request
-        sessionStore.updateRequestedPlayback(request)
+        pendingPlaylist = playlist
+        sessionStore.updateRequestedPlayback(playlist)
     }
 
     /**
@@ -214,7 +214,7 @@ class DefaultVideoPlaybackController @Inject constructor(
      * which covers background cases where no UI collector is available to clean up the session later.
      */
     override fun stopPlayback() {
-        pendingRequest = null
+        pendingPlaylist = null
         sessionStore.clear()
 
         controller?.let { mediaController ->
@@ -239,25 +239,25 @@ class DefaultVideoPlaybackController @Inject constructor(
     }
 
     /**
-     * Applies a playback request to the connected Media3 controller.
+     * Applies a playlist to the connected Media3 controller.
      *
      * If the playlist already matches, only the current item is updated. Otherwise the whole playlist
      * is replaced and playback starts from the requested index.
      *
      * @param mediaController Connected Media3 controller.
-     * @param request Sanitized playlist request originating from the UI or restore flow.
+     * @param playlist Sanitized playlist originating from the UI.
      */
-    private fun applyRequest(
+    private fun applyPlaylist(
         mediaController: MediaController,
-        request: VideoPlaybackRestoreRequest,
+        playlist: VideoPlaybackPlaylist,
     ) {
         val currentVideoPaths = mediaController.currentVideoPaths()
-        val hasSamePlaylist = currentVideoPaths == request.videoPaths
-        val hasSameSelection = mediaController.currentMediaItemIndex == request.selectedIndex
+        val hasSamePlaylist = currentVideoPaths == playlist.videoPaths
+        val hasSameSelection = mediaController.currentMediaItemIndex == playlist.selectedIndex
 
         if (hasSamePlaylist) {
-            if (!hasSameSelection && request.selectedIndex in 0 until mediaController.mediaItemCount) {
-                mediaController.seekToDefaultPosition(request.selectedIndex)
+            if (!hasSameSelection && playlist.selectedIndex in 0 until mediaController.mediaItemCount) {
+                mediaController.seekToDefaultPosition(playlist.selectedIndex)
                 mediaController.play()
             }
 
@@ -269,8 +269,8 @@ class DefaultVideoPlaybackController @Inject constructor(
         }
 
         mediaController.setMediaItems(
-            request.toMediaItems(),
-            request.selectedIndex,
+            playlist.toMediaItems(),
+            playlist.selectedIndex,
             0L,
         )
         mediaController.prepare()
@@ -301,21 +301,21 @@ private fun MediaController.currentVideoPaths(): List<String> {
 }
 
 /**
- * Builds a direct restore request from the current session state using a replacement selected index.
+ * Builds a playlist from the current session state using a replacement selected index.
  *
  * This helper assumes the playlist is already sanitized because it comes from the live session store.
  *
  * @param selectedIndex Index that should become active.
- * @return A restore request for the current playlist, or `null` when the index is invalid.
+ * @return A playlist for the current video paths, or `null` when the index is invalid.
  */
-private fun VideoPlaybackSessionState.toRestoreRequest(
+private fun VideoPlaybackSessionState.toPlaylist(
     selectedIndex: Int,
-): VideoPlaybackRestoreRequest? {
+): VideoPlaybackPlaylist? {
     if (videoPaths.isEmpty() || selectedIndex !in videoPaths.indices) {
         return null
     }
 
-    return VideoPlaybackRestoreRequest(
+    return VideoPlaybackPlaylist(
         videoPaths = videoPaths,
         selectedIndex = selectedIndex,
     )
