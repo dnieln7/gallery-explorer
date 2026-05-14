@@ -66,8 +66,6 @@ class VideoPlaybackService : MediaSessionService() {
      * - 10-second rewind/forward increments required by the feature
      * - platform audio focus handling for media playback
      * - repeat-one playback to preserve the existing viewer behavior
-     *
-     * The session activity points notification taps back to [VideoPlaybackRestoreIntent].
      */
     @OptIn(UnstableApi::class)
     override fun onCreate() {
@@ -88,7 +86,6 @@ class VideoPlaybackService : MediaSessionService() {
                 addListener(playerListener)
             }
         mediaSession = MediaSession.Builder(this, player)
-            .setSessionActivity(VideoPlaybackRestoreIntent.createPendingIntent(this))
             .setMediaButtonPreferences(createMediaButtonPreferences())
             .build()
 
@@ -108,6 +105,27 @@ class VideoPlaybackService : MediaSessionService() {
      */
     override fun onGetSession(controllerInfo: MediaSession.ControllerInfo): MediaSession? {
         return mediaSession
+    }
+
+    /**
+     * Stops the service when the app is removed from the recents screen.
+     *
+     * Without this override [MediaSessionService] keeps the player alive after the task is
+     * cleared, which would let audio continue playing with no visible UI.
+     */
+    override fun onTaskRemoved(rootIntent: Intent?) {
+        player.stop()
+        stopSelf()
+    }
+
+    /**
+     * Passes through to the default implementation but never starts the service in foreground
+     * while paused. This removes the notification from the shade when playback stops, which
+     * prevents the user from resuming video playback outside the app UI.
+     */
+    @OptIn(UnstableApi::class)
+    override fun onUpdateNotification(session: MediaSession, startInForegroundWhenPaused: Boolean) {
+        super.onUpdateNotification(session, false)
     }
 
     /**

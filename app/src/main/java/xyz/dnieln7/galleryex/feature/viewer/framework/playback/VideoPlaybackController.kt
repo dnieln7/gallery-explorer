@@ -74,6 +74,22 @@ interface VideoPlaybackController {
      * be restored accidentally. The durable stop path is also used when removable storage disappears.
      */
     fun stopPlayback()
+
+    /**
+     * Pauses playback when the app leaves the foreground.
+     *
+     * Records whether the player was actively playing so [resumeFromBackground] can restore
+     * the same play/pause state when the app returns. Calling this while already paused is
+     * a no-op on the player but still clears the resume flag, so unlocking the phone after
+     * a user-initiated pause does not unexpectedly restart playback.
+     */
+    fun pauseForBackground()
+
+    /**
+     * Resumes playback when the app returns to the foreground, but only if playback was
+     * interrupted by [pauseForBackground] rather than by a deliberate user pause.
+     */
+    fun resumeFromBackground()
 }
 
 /**
@@ -105,6 +121,7 @@ class DefaultVideoPlaybackController @Inject constructor(
     private var controllerFuture: ListenableFuture<MediaController>? = null
     private var pendingRequest: VideoPlaybackRestoreRequest? = null
     private var isConnecting = false
+    private var resumeOnForeground = false
 
     /**
      * Connects to the service-backed Media3 session if not already connected.
@@ -207,6 +224,18 @@ class DefaultVideoPlaybackController @Inject constructor(
             }
         }
         context.stopService(Intent(context, VideoPlaybackService::class.java))
+    }
+
+    override fun pauseForBackground() {
+        resumeOnForeground = controller?.playWhenReady == true
+        controller?.pause()
+    }
+
+    override fun resumeFromBackground() {
+        if (resumeOnForeground) {
+            controller?.play()
+        }
+        resumeOnForeground = false
     }
 
     /**

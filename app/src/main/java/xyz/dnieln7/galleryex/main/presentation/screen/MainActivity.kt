@@ -1,6 +1,5 @@
 package xyz.dnieln7.galleryex.main.presentation.screen
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -17,8 +16,6 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import cafe.adriel.voyager.navigator.CurrentScreen
 import cafe.adriel.voyager.navigator.Navigator
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import xyz.dnieln7.galleryex.core.domain.media.ExternalMediaRedirectCoordinator
 import xyz.dnieln7.galleryex.core.domain.media.ExternalMediaRedirectEvent
@@ -28,12 +25,8 @@ import xyz.dnieln7.galleryex.core.presentation.media.NoOpExternalMediaRedirectCo
 import xyz.dnieln7.galleryex.core.presentation.util.CollectEventsWithLifeCycle
 import xyz.dnieln7.galleryex.core.presentation.theme.GalleryExplorerTheme
 import xyz.dnieln7.galleryex.feature.home.presentation.screen.HomeScreenDestination
-import xyz.dnieln7.galleryex.feature.viewer.domain.model.VideoPlaybackRestoreRequest
 import xyz.dnieln7.galleryex.feature.viewer.framework.playback.DefaultVideoPlaybackController
 import xyz.dnieln7.galleryex.feature.viewer.framework.playback.LocalVideoPlaybackController
-import xyz.dnieln7.galleryex.feature.viewer.framework.playback.VideoPlaybackRestoreIntent
-import xyz.dnieln7.galleryex.feature.viewer.framework.playback.VideoPlaybackSessionStore
-import xyz.dnieln7.galleryex.feature.viewer.presentation.screen.VideoViewerScreenDestination
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -42,12 +35,7 @@ class MainActivity : ComponentActivity() {
     internal lateinit var videoPlaybackController: DefaultVideoPlaybackController
 
     @Inject
-    internal lateinit var videoPlaybackSessionStore: VideoPlaybackSessionStore
-
-    @Inject
     internal lateinit var externalMediaRedirectCoordinator: ExternalMediaRedirectCoordinator
-
-    private val restoreRequests = MutableSharedFlow<VideoPlaybackRestoreRequest>(extraBufferCapacity = 1)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,8 +43,6 @@ class MainActivity : ComponentActivity() {
         installSplashScreen().apply {
             setKeepOnScreenCondition { false }
         }
-
-        val initialRestoreRequest = consumeRestoreRequest(intent)
 
         setContent {
             GalleryExplorerTheme {
@@ -66,8 +52,6 @@ class MainActivity : ComponentActivity() {
                 ) {
                     Surface {
                         MainContent(
-                            initialRestoreRequest = initialRestoreRequest,
-                            restoreRequests = restoreRequests,
                             externalMediaRedirectCoordinator = externalMediaRedirectCoordinator,
                         )
                     }
@@ -75,28 +59,10 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-
-    override fun onNewIntent(intent: Intent) {
-        super.onNewIntent(intent)
-        setIntent(intent)
-
-        consumeRestoreRequest(intent)?.let(restoreRequests::tryEmit)
-    }
-
-    private fun consumeRestoreRequest(intent: Intent?): VideoPlaybackRestoreRequest? {
-        val restoreRequest = VideoPlaybackRestoreIntent.consumeRestoreRequest(
-            intent = intent,
-            sessionStore = videoPlaybackSessionStore,
-        )
-
-        setIntent(VideoPlaybackRestoreIntent.clearFromIntent(intent))
-
-        return restoreRequest
-    }
 }
 
 /**
- * Top-level Voyager host for restore handling and external-media redirects.
+ * Top-level Voyager host for external-media redirects.
  *
  * The screen tree below this composable can be any Home, Explorer, or Viewer destination. This host
  * is responsible for reacting to global storage changes, because only it can safely replace the full
@@ -104,22 +70,16 @@ class MainActivity : ComponentActivity() {
  */
 @Composable
 private fun MainContent(
-    initialRestoreRequest: VideoPlaybackRestoreRequest?,
-    restoreRequests: Flow<VideoPlaybackRestoreRequest>,
     externalMediaRedirectCoordinator: ExternalMediaRedirectCoordinator = NoOpExternalMediaRedirectCoordinator,
 ) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
 
-    Navigator(screen = initialRestoreRequest.toScreenDestination()) { navigator ->
+    Navigator(screen = HomeScreenDestination()) { navigator ->
         LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
             coroutineScope.launch {
                 externalMediaRedirectCoordinator.refreshAndVerify()
             }
-        }
-
-        CollectEventsWithLifeCycle(events = restoreRequests) { restoreRequest ->
-            navigator.replaceAll(restoreRequest.toScreenDestination())
         }
 
         CollectEventsWithLifeCycle(events = externalMediaRedirectCoordinator.events) { event ->
@@ -139,17 +99,6 @@ private fun MainContent(
 @Composable
 private fun MainContentPreview() {
     MainContent(
-        initialRestoreRequest = null,
-        restoreRequests = MutableSharedFlow(),
         externalMediaRedirectCoordinator = NoOpExternalMediaRedirectCoordinator,
     )
 }
-
-private fun VideoPlaybackRestoreRequest?.toScreenDestination() = this?.let {
-    VideoViewerScreenDestination(
-        videoPaths = videoPaths,
-        selectedIndex = selectedIndex,
-        removableVolumeRootPath = null,
-        removableVolumeName = null,
-    )
-} ?: HomeScreenDestination()

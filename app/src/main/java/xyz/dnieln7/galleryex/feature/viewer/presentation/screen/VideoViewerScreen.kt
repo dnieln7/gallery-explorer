@@ -12,6 +12,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -69,6 +71,15 @@ class VideoViewerScreenDestination(
         val navigator = LocalNavigator.currentOrThrow
         val videos = remember(videoPaths) { videosFromPaths(videoPaths) }
         val externalMediaRedirectCoordinator = LocalExternalMediaRedirectCoordinator.current
+        val videoPlaybackController = LocalVideoPlaybackController.current
+
+        LifecycleEventEffect(Lifecycle.Event.ON_STOP) {
+            videoPlaybackController.pauseForBackground()
+        }
+
+        LifecycleEventEffect(Lifecycle.Event.ON_START) {
+            videoPlaybackController.resumeFromBackground()
+        }
 
         VideoViewerScreen(
             videos = videos,
@@ -390,6 +401,10 @@ private class PreviewVideoPlaybackController : VideoPlaybackController {
     override fun selectVideo(index: Int) = Unit
 
     override fun stopPlayback() = Unit
+
+    override fun pauseForBackground() = Unit
+
+    override fun resumeFromBackground() = Unit
 }
 
 private const val PLAYBACK_POSITION_POLL_INTERVAL_MS = 250L

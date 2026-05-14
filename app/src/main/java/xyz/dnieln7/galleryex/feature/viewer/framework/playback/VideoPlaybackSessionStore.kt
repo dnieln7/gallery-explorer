@@ -8,7 +8,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import xyz.dnieln7.galleryex.feature.viewer.domain.model.VideoPlaybackRestoreRequest
 import xyz.dnieln7.galleryex.feature.viewer.domain.model.VideoPlaybackSessionState
-import xyz.dnieln7.galleryex.feature.viewer.domain.model.toRestoreRequestOrNull
 import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -82,15 +81,6 @@ class VideoPlaybackSessionStore @Inject constructor() {
             currentVideoTitle = currentVideoTitle,
             isPlaying = player.isPlaying,
         )
-    }
-
-    /**
-     * Returns the current session as a restore request suitable for reopening the viewer.
-     *
-     * @return A sanitized restore request, or `null` when the current session is not restorable.
-     */
-    fun currentRestoreRequest(): VideoPlaybackRestoreRequest? {
-        return sessionState.value.toRestoreRequestOrNull()
     }
 
     /**

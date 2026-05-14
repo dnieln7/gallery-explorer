@@ -6,8 +6,7 @@ import java.io.File
  * In-memory description of the current video playback session.
  *
  * This is the shared state published by the playback service and observed by the UI. It mirrors the
- * information a screen needs to stay synchronized with the background player and the information the
- * app needs to rebuild the viewer when the notification is tapped.
+ * information a screen needs to stay synchronized with the background player.
  *
  * @property videoPaths Current ordered playlist exposed by the service.
  * @property selectedIndex Index of the currently selected media item, or `-1` when nothing is active.
@@ -22,25 +21,6 @@ data class VideoPlaybackSessionState(
     val currentVideoTitle: String? = null,
     val isPlaying: Boolean = false,
 )
-
-/**
- * Rebuilds a viewer restore request from the current session state.
- *
- * The conversion goes back through [createVideoPlaybackRestoreRequest] so missing files are still
- * filtered out before the app attempts to reopen the viewer.
- *
- * @return A sanitized restore request, or `null` when the session has no valid active playlist.
- */
-internal fun VideoPlaybackSessionState.toRestoreRequestOrNull(): VideoPlaybackRestoreRequest? {
-    if (videoPaths.isEmpty() || selectedIndex !in videoPaths.indices) {
-        return null
-    }
-
-    return createVideoPlaybackRestoreRequest(
-        videoPaths = videoPaths,
-        selectedIndex = selectedIndex,
-    )
-}
 
 /**
  * Returns the best title available for UI surfaces such as the in-app viewer controls.
