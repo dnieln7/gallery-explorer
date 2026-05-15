@@ -1,12 +1,29 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package xyz.dnieln7.galleryex.feature.viewer.presentation.screen
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.PagerDefaults
 import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -18,9 +35,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
@@ -32,6 +52,7 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import xyz.dnieln7.galleryex.R
 import xyz.dnieln7.galleryex.core.domain.media.ExternalMediaScreenTarget
 import xyz.dnieln7.galleryex.core.domain.model.VolumeFile
 import xyz.dnieln7.galleryex.core.presentation.media.LocalExternalMediaRedirectCoordinator
@@ -124,10 +145,36 @@ private fun VideoViewerScreen(
     var shouldPlay by remember { mutableStateOf(true) }
     var isPlaying by remember { mutableStateOf(false) }
     var showControls by remember { mutableStateOf(true) }
+
     var isScrubbing by remember { mutableStateOf(false) }
     var scrubSliderValue by remember { mutableFloatStateOf(0f) }
-    var currentPositionMs by remember { mutableLongStateOf(0L) }
-    var durationMs by remember { mutableLongStateOf(0L) }
+
+    var durationTotalMs by remember { mutableLongStateOf(0L) }
+    var durationCurrentRawMs by remember { mutableLongStateOf(0L) }
+    val durationCurrentMs by remember {
+        derivedStateOf {
+            if (isScrubbing) {
+                sliderValueToPosition(
+                    sliderValue = scrubSliderValue,
+                    durationMs = durationTotalMs,
+                )
+            } else {
+                durationCurrentRawMs
+            }
+        }
+    }
+    val durationSlider by remember {
+        derivedStateOf {
+            if (isScrubbing) {
+                scrubSliderValue
+            } else {
+                positionToSliderValue(
+                    positionMs = durationCurrentRawMs,
+                    durationMs = durationTotalMs,
+                )
+            }
+        }
+    }
 
     LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
         isScreenActive = true
@@ -151,7 +198,7 @@ private fun VideoViewerScreen(
         val listener = object : Player.Listener {
             override fun onEvents(player: Player, events: Player.Events) {
                 isPlaying = player.isPlaying
-                durationMs = player.duration.takeIf { it > 0L } ?: 0L
+                durationTotalMs = player.duration.takeIf { it > 0L } ?: 0L
             }
         }
 
@@ -176,8 +223,8 @@ private fun VideoViewerScreen(
         showControls = true
         isScrubbing = false
         scrubSliderValue = 0f
-        currentPositionMs = 0L
-        durationMs = 0L
+        durationCurrentRawMs = 0L
+        durationTotalMs = 0L
     }
 
     // Change playback state when the screen active state changes.
@@ -188,7 +235,7 @@ private fun VideoViewerScreen(
     // Poll current position and update the slider value.
     LaunchedEffect(isPlaying) {
         while (isPlaying) {
-            currentPositionMs = player.currentPosition.coerceAtLeast(0L)
+            durationCurrentRawMs = player.currentPosition.coerceAtLeast(0L)
             delay(POSITION_POLLING_INTERVAL_MS)
         }
     }
@@ -201,37 +248,41 @@ private fun VideoViewerScreen(
         }
     }
 
-    val sliderValue by remember {
-        derivedStateOf {
-            if (isScrubbing) {
-                scrubSliderValue
-            } else {
-                positionToSliderValue(
-                    positionMs = currentPositionMs,
-                    durationMs = durationMs,
-                )
-            }
-        }
-    }
-
-    val displayedPositionMs by remember {
-        derivedStateOf {
-            if (isScrubbing) {
-                sliderValueToPosition(
-                    sliderValue = scrubSliderValue,
-                    durationMs = durationMs,
-                )
-            } else {
-                currentPositionMs
-            }
-        }
-    }
-
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.surface,
-    ) {
-        Box(modifier = Modifier.fillMaxSize()) {
+    Scaffold(
+        containerColor = MaterialTheme.colorScheme.surface,
+        topBar = {
+            TopAppBar(
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                ),
+                title = {
+                    Text(
+                        modifier = Modifier
+                            .padding(end = 16.dp)
+                            .horizontalScroll(rememberScrollState()),
+                        text = currentVideo.name,
+                        maxLines = 1,
+                    )
+                },
+                navigationIcon = {
+                    IconButton(
+                        onClick = navigateBack,
+                        content = {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
+                                contentDescription = stringResource(R.string.back),
+                            )
+                        },
+                    )
+                },
+            )
+        },
+    ) { paddingValues ->
+        Box(
+            modifier = Modifier
+                .padding(paddingValues)
+                .fillMaxSize(),
+        ) {
             VerticalPager(
                 modifier = Modifier.fillMaxSize(),
                 state = pagerState,
@@ -249,44 +300,47 @@ private fun VideoViewerScreen(
                 )
             }
 
-            VideoPlaybackControls(
-                modifier = Modifier.fillMaxSize(),
-                title = currentVideo.name,
-                isVisible = showControls,
-                isPlaying = isPlaying,
-                currentPositionMs = displayedPositionMs,
-                durationMs = durationMs,
-                sliderValue = sliderValue,
-                onBackClick = navigateBack,
-                onPlayPauseClick = {
-                    shouldPlay = !shouldPlay
-                    showControls = true
-                },
-                onSeekBackClick = {
-                    player.seekBack()
-                    showControls = true
-                },
-                onSeekForwardClick = {
-                    player.seekForward()
-                    showControls = true
-                },
-                onSliderValueChange = { nextValue ->
-                    isScrubbing = true
-                    scrubSliderValue = nextValue
-                    showControls = true
-                },
-                onSliderValueChangeFinished = {
-                    val targetPosition = sliderValueToPosition(
-                        sliderValue = scrubSliderValue,
-                        durationMs = durationMs,
-                    )
+            AnimatedVisibility(
+                modifier = Modifier.align(Alignment.BottomCenter),
+                visible = showControls,
+                enter = fadeIn(),
+                exit = fadeOut(),
+            ) {
+                VideoPlaybackControls(
+                    isPlaying = isPlaying,
+                    durationCurrentMs = durationCurrentMs,
+                    durationTotalMs = durationTotalMs,
+                    durationSlider = durationSlider,
+                    onPlayPauseClick = {
+                        shouldPlay = !shouldPlay
+                        showControls = true
+                    },
+                    onSeekBackClick = {
+                        player.seekBack()
+                        showControls = true
+                    },
+                    onSeekForwardClick = {
+                        player.seekForward()
+                        showControls = true
+                    },
+                    onSliderValueChange = { nextValue ->
+                        isScrubbing = true
+                        scrubSliderValue = nextValue
+                        showControls = true
+                    },
+                    onSliderValueChangeFinished = {
+                        val targetPosition = sliderValueToPosition(
+                            sliderValue = scrubSliderValue,
+                            durationMs = durationTotalMs,
+                        )
 
-                    player.seekTo(targetPosition)
+                        player.seekTo(targetPosition)
 
-                    isScrubbing = false
-                    showControls = true
-                },
-            )
+                        isScrubbing = false
+                        showControls = true
+                    },
+                )
+            }
         }
     }
 }
