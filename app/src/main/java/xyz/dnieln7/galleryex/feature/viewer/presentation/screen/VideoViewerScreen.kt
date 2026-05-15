@@ -1,6 +1,5 @@
 package xyz.dnieln7.galleryex.feature.viewer.presentation.screen
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.pager.PagerDefaults
@@ -20,32 +19,26 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.core.net.toUri
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
+import androidx.media3.exoplayer.ExoPlayer
 import cafe.adriel.voyager.core.screen.Screen
-import cafe.adriel.voyager.hilt.getViewModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import xyz.dnieln7.galleryex.core.domain.media.ExternalMediaRedirectCoordinator
 import xyz.dnieln7.galleryex.core.domain.media.ExternalMediaScreenTarget
 import xyz.dnieln7.galleryex.core.domain.model.VolumeFile
 import xyz.dnieln7.galleryex.core.presentation.media.LocalExternalMediaRedirectCoordinator
-import xyz.dnieln7.galleryex.core.presentation.media.NoOpExternalMediaRedirectCoordinator
 import xyz.dnieln7.galleryex.core.presentation.theme.GalleryExplorerTheme
-import xyz.dnieln7.galleryex.feature.home.presentation.screen.HomeScreenDestination
-import xyz.dnieln7.galleryex.feature.viewer.domain.model.VideoViewerAction
-import xyz.dnieln7.galleryex.feature.viewer.domain.model.VideoViewerState
-import xyz.dnieln7.galleryex.feature.viewer.presentation.component.CONTROLS_AUTO_HIDE_DELAY_MS
 import xyz.dnieln7.galleryex.feature.viewer.presentation.component.VideoPlaybackControls
 import xyz.dnieln7.galleryex.feature.viewer.presentation.component.VideoSurface
 import xyz.dnieln7.galleryex.feature.viewer.presentation.component.positionToSliderValue
-import xyz.dnieln7.galleryex.feature.viewer.presentation.component.seekBackwardPosition
-import xyz.dnieln7.galleryex.feature.viewer.presentation.component.seekForwardPosition
 import xyz.dnieln7.galleryex.feature.viewer.presentation.component.sliderValueToPosition
 import java.io.File
 
@@ -67,38 +60,14 @@ class VideoViewerScreenDestination(
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
 
-        val viewModel = getViewModel<VideoViewerViewModel>()
-        val state by viewModel.uiState.collectAsStateWithLifecycle()
-
-        val externalMediaRedirectCoordinator = LocalExternalMediaRedirectCoordinator.current
-
-        LaunchedEffect(videoPaths, selectedIndex) {
-            viewModel.onAction(VideoViewerAction.OpenPlaylist(videoPaths, selectedIndex))
-        }
-
-        LifecycleEventEffect(Lifecycle.Event.ON_STOP) {
-            viewModel.onAction(VideoViewerAction.PauseForBackground)
-        }
-
-        LifecycleEventEffect(Lifecycle.Event.ON_START) {
-            viewModel.onAction(VideoViewerAction.ResumeFromBackground)
-        }
+        val videos = remember(videoPaths) { videosFromPaths(videoPaths) }
 
         VideoViewerScreen(
-            videos = remember(videoPaths) { videosFromPaths(videoPaths) },
-            state = state,
-            player = viewModel.player,
+            videos = videos,
+            selectedIndex = selectedIndex,
             removableVolumeRootPath = removableVolumeRootPath,
             removableVolumeName = removableVolumeName,
-            externalMediaRedirectCoordinator = externalMediaRedirectCoordinator,
-            onAction = viewModel::onAction,
-            navigateBack = {
-                if (navigator.canPop) {
-                    navigator.pop()
-                } else {
-                    navigator.replaceAll(HomeScreenDestination())
-                }
-            },
+            navigateBack = { navigator.pop() },
         )
     }
 }
@@ -106,32 +75,32 @@ class VideoViewerScreenDestination(
 @Composable
 private fun VideoViewerScreen(
     videos: List<VolumeFile.Video>,
-    state: VideoViewerState,
-    player: Player,
+    selectedIndex: Int,
     removableVolumeRootPath: String?,
     removableVolumeName: String?,
-    externalMediaRedirectCoordinator: ExternalMediaRedirectCoordinator,
-    onAction: (VideoViewerAction) -> Unit,
     navigateBack: () -> Unit,
 ) {
-    if (videos.isEmpty()) {
-        return
-    }
-
-    val initialPage = state.selectedIndex.coerceIn(0, videos.lastIndex).takeIf { it >= 0 } ?: 0
-    val pagerState = rememberPagerState(pageCount = { videos.size }, initialPage = initialPage)
-    val activePage by remember(state.selectedIndex, pagerState, videos) {
-        derivedStateOf {
-            state.selectedIndex.takeIf { it in videos.indices } ?: pagerState.settledPage
-        }
-    }
+    val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
-    val activeVideo by remember(videos, activePage) { derivedStateOf { videos[activePage] } }
-    val activeVideoPath = activeVideo.file.absolutePath
-    val screenTarget by remember(activeVideoPath, removableVolumeRootPath, removableVolumeName) {
+
+    // Pager
+    val pagerState = rememberPagerState(pageCount = { videos.size }, initialPage = selectedIndex)
+    val activePage by remember(pagerState) {
+        derivedStateOf { pagerState.settledPage }
+    }
+    val currentVideo by remember(videos, activePage) {
+        derivedStateOf { videos[activePage] }
+    }
+    // Pager
+
+    // External Media Redirect Coordinator
+    val externalMediaRedirectCoordinator = LocalExternalMediaRedirectCoordinator.current
+
+    val currentVideoPath = currentVideo.file.absolutePath
+    val screenTarget by remember(currentVideoPath, removableVolumeRootPath, removableVolumeName) {
         derivedStateOf {
             ExternalMediaScreenTarget(
-                path = activeVideoPath,
+                path = currentVideoPath,
                 removableVolumeRootPath = removableVolumeRootPath,
                 removableVolumeName = removableVolumeName,
             )
@@ -142,14 +111,17 @@ private fun VideoViewerScreen(
         externalMediaRedirectCoordinator.registerTarget(screenTarget)
     }
 
-    DisposableEffect(activeVideoPath) {
+    DisposableEffect(currentVideoPath) {
         onDispose {
             coroutineScope.launch {
-                externalMediaRedirectCoordinator.clearPath(activeVideoPath)
+                externalMediaRedirectCoordinator.clearPath(currentVideoPath)
             }
         }
     }
+    // External Media Redirect Coordinator
 
+    var isScreenActive by remember { mutableStateOf(true) }
+    var shouldPlay by remember { mutableStateOf(true) }
     var isPlaying by remember { mutableStateOf(false) }
     var showControls by remember { mutableStateOf(true) }
     var isScrubbing by remember { mutableStateOf(false) }
@@ -157,16 +129,29 @@ private fun VideoViewerScreen(
     var currentPositionMs by remember { mutableLongStateOf(0L) }
     var durationMs by remember { mutableLongStateOf(0L) }
 
-    BackHandler(enabled = true) {
-        onAction(VideoViewerAction.StopPlayback)
-        navigateBack()
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
+        isScreenActive = true
     }
 
-    // Keeps the local Compose state in sync with the Player instance. Runs on the non-nullable
-    // player directly, removing the null-guard required by the old StateFlow<Player?> approach.
+    LifecycleEventEffect(Lifecycle.Event.ON_PAUSE) {
+        isScreenActive = false
+    }
+
+    // ExoPlayer
+    val player = remember(context) {
+        ExoPlayer.Builder(context)
+            .setSeekBackIncrementMs(PLAYER_SEEK_INCREMENT_MS)
+            .setSeekForwardIncrementMs(PLAYER_SEEK_INCREMENT_MS)
+            .build()
+            .apply { repeatMode = Player.REPEAT_MODE_ONE }
+    }
+
+    // Listener for Exoplayer events
     DisposableEffect(player) {
         val listener = object : Player.Listener {
             override fun onEvents(player: Player, events: Player.Events) {
+                println("onEvents: $events")
+
                 isPlaying = player.isPlaying
                 currentPositionMs = player.currentPosition.coerceAtLeast(0L)
                 durationMs = player.duration.takeIf { it > 0L } ?: 0L
@@ -177,44 +162,32 @@ private fun VideoViewerScreen(
 
         onDispose {
             player.removeListener(listener)
+            player.release()
         }
     }
 
-    // Applies player-driven selection changes back into the pager.
-    LaunchedEffect(state.selectedIndex) {
-        val targetPage = state.selectedIndex.takeIf { it in videos.indices } ?: return@LaunchedEffect
-
-        if (pagerState.currentPage != targetPage) {
-            pagerState.scrollToPage(targetPage)
-        }
-    }
-
-    // Applies pager-driven selection changes back into the ViewModel.
-    LaunchedEffect(pagerState.settledPage) {
-        val settledPage = pagerState.settledPage
-
-        if (settledPage in videos.indices && state.selectedIndex != settledPage) {
-            onAction(VideoViewerAction.SelectVideo(settledPage))
-        }
-    }
-
-    // Resets transient overlay state whenever the active page changes.
+    // Change playing video and reset playback state when the active page changes.
     LaunchedEffect(activePage) {
+        val video = videos[activePage]
+
+        player.setMediaItem(MediaItem.fromUri(video.file.toUri()))
+        player.prepare()
+        player.seekTo(0L)
+
+        shouldPlay = true
         showControls = true
         isScrubbing = false
         scrubSliderValue = 0f
+        currentPositionMs = 0L
+        durationMs = 0L
     }
 
-    // Polls playback position while the viewer is active.
-    LaunchedEffect(player, isScrubbing) {
-        while (true) {
-            if (!isScrubbing) {
-                currentPositionMs = player.currentPosition.coerceAtLeast(0L)
-                durationMs = player.duration.takeIf { it > 0L } ?: 0L
-                isPlaying = player.isPlaying
-            }
-
-            delay(PLAYBACK_POSITION_POLL_INTERVAL_MS)
+    // Change playback state when the screen active state changes.
+    LaunchedEffect(isScreenActive, shouldPlay) {
+        if (isScreenActive && shouldPlay) {
+            player.play()
+        } else {
+            player.pause()
         }
     }
 
@@ -234,6 +207,7 @@ private fun VideoViewerScreen(
             durationMs = durationMs,
         )
     }
+
     val displayedPositionMs = if (isScrubbing) {
         sliderValueToPosition(
             sliderValue = scrubSliderValue,
@@ -267,33 +241,23 @@ private fun VideoViewerScreen(
 
             VideoPlaybackControls(
                 modifier = Modifier.fillMaxSize(),
-                title = state.currentVideoTitle.orEmpty().ifBlank { activeVideo.name },
+                title = currentVideo.name,
                 isVisible = showControls,
                 isPlaying = isPlaying,
                 currentPositionMs = displayedPositionMs,
                 durationMs = durationMs,
                 sliderValue = sliderValue,
-                onBackClick = {
-                    onAction(VideoViewerAction.StopPlayback)
-                    navigateBack()
-                },
+                onBackClick = navigateBack,
                 onPlayPauseClick = {
-                    onAction(VideoViewerAction.TogglePlayPause)
+                    shouldPlay = !shouldPlay
                     showControls = true
                 },
                 onSeekBackClick = {
-                    val targetPosition = seekBackwardPosition(currentPositionMs)
-                    onAction(VideoViewerAction.SeekTo(targetPosition))
-                    currentPositionMs = targetPosition
+                    player.seekBack()
                     showControls = true
                 },
                 onSeekForwardClick = {
-                    val targetPosition = seekForwardPosition(
-                        currentPositionMs = currentPositionMs,
-                        durationMs = durationMs,
-                    )
-                    onAction(VideoViewerAction.SeekTo(targetPosition))
-                    currentPositionMs = targetPosition
+                    player.seekForward()
                     showControls = true
                 },
                 onSliderValueChange = { nextValue ->
@@ -306,8 +270,9 @@ private fun VideoViewerScreen(
                         sliderValue = scrubSliderValue,
                         durationMs = durationMs,
                     )
-                    onAction(VideoViewerAction.SeekTo(targetPosition))
-                    currentPositionMs = targetPosition
+
+                    player.seekTo(targetPosition)
+
                     isScrubbing = false
                     showControls = true
                 },
@@ -319,9 +284,6 @@ private fun VideoViewerScreen(
 @Preview
 @Composable
 private fun VideoViewerScreenPreview() {
-    val context = androidx.compose.ui.platform.LocalContext.current
-    val player = remember { androidx.media3.exoplayer.ExoPlayer.Builder(context).build() }
-
     GalleryExplorerTheme {
         Surface {
             VideoViewerScreen(
@@ -329,19 +291,9 @@ private fun VideoViewerScreenPreview() {
                     VolumeFile.Video(file = File("/storage/emulated/0/Movies/clip-1.mp4")),
                     VolumeFile.Video(file = File("/storage/emulated/0/Movies/clip-2.mp4")),
                 ),
-                state = VideoViewerState(
-                    videoPaths = listOf(
-                        "/storage/emulated/0/Movies/clip-1.mp4",
-                        "/storage/emulated/0/Movies/clip-2.mp4",
-                    ),
-                    selectedIndex = 0,
-                    currentVideoTitle = "clip-1.mp4",
-                ),
-                player = player,
+                selectedIndex = 0,
                 removableVolumeRootPath = null,
                 removableVolumeName = null,
-                externalMediaRedirectCoordinator = NoOpExternalMediaRedirectCoordinator,
-                onAction = {},
                 navigateBack = {},
             )
         }
@@ -354,4 +306,5 @@ internal fun videosFromPaths(videoPaths: List<String>): List<VolumeFile.Video> {
     }
 }
 
-private const val PLAYBACK_POSITION_POLL_INTERVAL_MS = 250L
+private const val PLAYER_SEEK_INCREMENT_MS = 10_000L
+private const val CONTROLS_AUTO_HIDE_DELAY_MS: Long = 2_500L

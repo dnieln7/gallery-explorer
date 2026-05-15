@@ -64,15 +64,14 @@ class ImageViewerScreenDestination(
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
+
         val images = remember(imagePaths) { imagesFromPaths(imagePaths) }
-        val externalMediaRedirectCoordinator = LocalExternalMediaRedirectCoordinator.current
 
         ImageViewerScreen(
             images = images,
             selectedIndex = selectedIndex,
             removableVolumeRootPath = removableVolumeRootPath,
             removableVolumeName = removableVolumeName,
-            externalMediaRedirectCoordinator = externalMediaRedirectCoordinator,
             navigateBack = { navigator.pop() },
         )
     }
@@ -84,13 +83,16 @@ private fun ImageViewerScreen(
     selectedIndex: Int,
     removableVolumeRootPath: String?,
     removableVolumeName: String?,
-    externalMediaRedirectCoordinator: ExternalMediaRedirectCoordinator,
     navigateBack: () -> Unit,
 ) {
-    val pagerState = rememberPagerState(pageCount = { images.size }, initialPage = selectedIndex)
+    val externalMediaRedirectCoordinator = LocalExternalMediaRedirectCoordinator.current
     val coroutineScope = rememberCoroutineScope()
+
+    val pagerState = rememberPagerState(pageCount = { images.size }, initialPage = selectedIndex)
+
     val currentImage by remember { derivedStateOf { images[pagerState.currentPage] } }
     val currentImagePath = currentImage.file.absolutePath
+
     val screenTarget by remember(currentImagePath, removableVolumeRootPath, removableVolumeName) {
         derivedStateOf {
             ExternalMediaScreenTarget(
@@ -100,11 +102,9 @@ private fun ImageViewerScreen(
             )
         }
     }
-
     LaunchedEffect(screenTarget) {
         externalMediaRedirectCoordinator.registerTarget(screenTarget)
     }
-
     DisposableEffect(currentImagePath) {
         onDispose {
             coroutineScope.launch {
@@ -184,7 +184,6 @@ private fun ImageViewerPreview() {
                 selectedIndex = 0,
                 removableVolumeRootPath = null,
                 removableVolumeName = null,
-                externalMediaRedirectCoordinator = NoOpExternalMediaRedirectCoordinator,
                 navigateBack = { },
             )
         }

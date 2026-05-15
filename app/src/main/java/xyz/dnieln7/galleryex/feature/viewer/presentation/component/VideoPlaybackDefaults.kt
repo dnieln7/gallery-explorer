@@ -2,18 +2,6 @@ package xyz.dnieln7.galleryex.feature.viewer.presentation.component
 
 import kotlin.math.roundToLong
 
-internal fun seekBackwardPosition(currentPositionMs: Long): Long {
-    return (currentPositionMs - SEEK_OFFSET_MS).coerceAtLeast(0L)
-}
-
-internal fun seekForwardPosition(currentPositionMs: Long, durationMs: Long): Long {
-    if (durationMs <= 0L) {
-        return currentPositionMs.coerceAtLeast(0L)
-    }
-
-    return (currentPositionMs + SEEK_OFFSET_MS).coerceAtMost(durationMs)
-}
-
 internal fun sliderValueToPosition(sliderValue: Float, durationMs: Long): Long {
     if (durationMs <= 0L) {
         return 0L
@@ -46,5 +34,4 @@ internal fun formatPlaybackTime(positionMs: Long): String {
 private const val MILLISECONDS_PER_SECOND = 1_000L
 private const val SECONDS_PER_MINUTE = 60
 private const val SECONDS_PER_HOUR = 3_600
-private const val SEEK_OFFSET_MS = 10_000L
-internal const val CONTROLS_AUTO_HIDE_DELAY_MS: Long = 2_500L
+
