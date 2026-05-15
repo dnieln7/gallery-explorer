@@ -52,7 +52,7 @@ internal fun VideoSurface(
                         resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT
                         setShutterBackgroundColor(Color.BLACK)
                         setBackgroundColor(Color.BLACK)
-                        setKeepContentOnPlayerReset(true)
+                        setKeepContentOnPlayerReset(false)
                         this.player = player
                     }
                 },

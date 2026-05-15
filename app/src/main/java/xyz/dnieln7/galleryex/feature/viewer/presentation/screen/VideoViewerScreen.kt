@@ -34,6 +34,7 @@ import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.retain.retain
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -141,8 +142,6 @@ private fun VideoViewerScreen(
     }
     // External Media Redirect Coordinator
 
-    var isScreenActive by remember { mutableStateOf(true) }
-    var shouldPlay by remember { mutableStateOf(true) }
     var isPlaying by remember { mutableStateOf(false) }
     var showControls by remember { mutableStateOf(true) }
 
@@ -174,14 +173,6 @@ private fun VideoViewerScreen(
                 )
             }
         }
-    }
-
-    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
-        isScreenActive = true
-    }
-
-    LifecycleEventEffect(Lifecycle.Event.ON_PAUSE) {
-        isScreenActive = false
     }
 
     // ExoPlayer
@@ -218,8 +209,8 @@ private fun VideoViewerScreen(
         player.setMediaItem(MediaItem.fromUri(video.file.toUri()))
         player.prepare()
         player.seekTo(0L)
+        player.play()
 
-        shouldPlay = true // Autoplay next video
         showControls = true
         isScrubbing = false
         scrubSliderValue = 0f
@@ -227,9 +218,14 @@ private fun VideoViewerScreen(
         durationTotalMs = 0L
     }
 
-    // Change playback state when the screen active state changes.
-    LaunchedEffect(isScreenActive, shouldPlay) {
-        player.playWhenReady = isScreenActive && shouldPlay
+    // Play when screen is active
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
+        player.play()
+    }
+
+    // Pause when screen is inactive
+    LifecycleEventEffect(Lifecycle.Event.ON_PAUSE) {
+        player.pause()
     }
 
     // Poll current position and update the slider value.
@@ -312,7 +308,12 @@ private fun VideoViewerScreen(
                     durationTotalMs = durationTotalMs,
                     durationSlider = durationSlider,
                     onPlayPauseClick = {
-                        shouldPlay = !shouldPlay
+//                        shouldPlay = !shouldPlay
+                        if (isPlaying) {
+                            player.pause()
+                        } else {
+                            player.play()
+                        }
                         showControls = true
                     },
                     onSeekBackClick = {
