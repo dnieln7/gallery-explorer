@@ -85,10 +85,10 @@ private fun VideoViewerScreen(
 
     // Pager
     val pagerState = rememberPagerState(pageCount = { videos.size }, initialPage = selectedIndex)
-    val activePage by remember(pagerState) {
+    val activePage by remember {
         derivedStateOf { pagerState.settledPage }
     }
-    val currentVideo by remember(videos, activePage) {
+    val currentVideo by remember {
         derivedStateOf { videos[activePage] }
     }
     // Pager
@@ -138,7 +138,7 @@ private fun VideoViewerScreen(
     }
 
     // ExoPlayer
-    val player = remember(context) {
+    val player = remember {
         ExoPlayer.Builder(context)
             .setSeekBackIncrementMs(PLAYER_SEEK_INCREMENT_MS)
             .setSeekForwardIncrementMs(PLAYER_SEEK_INCREMENT_MS)
@@ -147,11 +147,9 @@ private fun VideoViewerScreen(
     }
 
     // Listener for Exoplayer events
-    DisposableEffect(player) {
+    DisposableEffect(Unit) {
         val listener = object : Player.Listener {
             override fun onEvents(player: Player, events: Player.Events) {
-                println("onEvents: $events")
-
                 isPlaying = player.isPlaying
                 currentPositionMs = player.currentPosition.coerceAtLeast(0L)
                 durationMs = player.duration.takeIf { it > 0L } ?: 0L
@@ -170,11 +168,12 @@ private fun VideoViewerScreen(
     LaunchedEffect(activePage) {
         val video = videos[activePage]
 
+        player.stop()
         player.setMediaItem(MediaItem.fromUri(video.file.toUri()))
         player.prepare()
         player.seekTo(0L)
 
-        shouldPlay = true
+        shouldPlay = true // Autoplay next video
         showControls = true
         isScrubbing = false
         scrubSliderValue = 0f
@@ -199,22 +198,30 @@ private fun VideoViewerScreen(
         }
     }
 
-    val sliderValue = if (isScrubbing) {
-        scrubSliderValue
-    } else {
-        positionToSliderValue(
-            positionMs = currentPositionMs,
-            durationMs = durationMs,
-        )
+    val sliderValue by remember {
+        derivedStateOf {
+            if (isScrubbing) {
+                scrubSliderValue
+            } else {
+                positionToSliderValue(
+                    positionMs = currentPositionMs,
+                    durationMs = durationMs,
+                )
+            }
+        }
     }
 
-    val displayedPositionMs = if (isScrubbing) {
-        sliderValueToPosition(
-            sliderValue = scrubSliderValue,
-            durationMs = durationMs,
-        )
-    } else {
-        currentPositionMs
+    val displayedPositionMs by remember {
+        derivedStateOf {
+            if (isScrubbing) {
+                sliderValueToPosition(
+                    sliderValue = scrubSliderValue,
+                    durationMs = durationMs,
+                )
+            } else {
+                currentPositionMs
+            }
+        }
     }
 
     Surface(
