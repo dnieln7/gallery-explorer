@@ -10,8 +10,6 @@ import kotlinx.coroutines.CoroutineScope
 import xyz.dnieln7.galleryex.core.domain.media.ExternalMediaRedirectCoordinator
 import xyz.dnieln7.galleryex.core.framework.explorer.Explorer
 import xyz.dnieln7.galleryex.core.framework.media.DefaultExternalMediaRedirectCoordinator
-import xyz.dnieln7.galleryex.feature.viewer.framework.playback.DefaultVideoPlaybackController
-import xyz.dnieln7.galleryex.feature.viewer.framework.playback.VideoPlaybackController
 import javax.inject.Singleton
 
 @Module
@@ -27,22 +25,12 @@ object SingletonModule {
 
     @Provides
     @Singleton
-    fun provideVideoPlaybackController(
-        defaultVideoPlaybackController: DefaultVideoPlaybackController,
-    ): VideoPlaybackController {
-        return defaultVideoPlaybackController
-    }
-
-    @Provides
-    @Singleton
     fun provideExternalMediaRedirectCoordinator(
         explorer: Explorer,
-        videoPlaybackController: VideoPlaybackController,
         @ApplicationScope scope: CoroutineScope,
     ): ExternalMediaRedirectCoordinator {
         return DefaultExternalMediaRedirectCoordinator(
             explorer = explorer,
-            videoPlaybackController = videoPlaybackController,
             scope = scope,
         )
     }

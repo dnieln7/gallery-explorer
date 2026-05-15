@@ -1,6 +1,5 @@
 package xyz.dnieln7.galleryex.core.framework.media
 
-import androidx.media3.common.Player
 import app.cash.turbine.test
 import io.mockk.every
 import java.io.File
@@ -17,8 +16,6 @@ import xyz.dnieln7.galleryex.core.domain.model.Volume
 import xyz.dnieln7.galleryex.core.framework.explorer.Explorer
 import xyz.dnieln7.galleryex.core.framework.explorer.resolveVolumeForPath
 import xyz.dnieln7.galleryex.core.presentation.text.UIText
-import xyz.dnieln7.galleryex.feature.viewer.domain.model.VideoPlaybackSessionState
-import xyz.dnieln7.galleryex.feature.viewer.framework.playback.VideoPlaybackController
 import xyz.dnieln7.galleryex.testutil.relaxedMockk
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -43,11 +40,9 @@ class ExternalMediaRedirectCoordinatorTest {
             volumesFlow.value = refreshedVolumes
             refreshedVolumes
         }
-        val videoPlaybackController = FakeVideoPlaybackController()
 
         val coordinator = DefaultExternalMediaRedirectCoordinator(
             explorer = explorer,
-            videoPlaybackController = videoPlaybackController,
             scope = backgroundScope,
         )
         val targetPath = File(removableRoot, "Movies/clip.mp4").absolutePath
@@ -65,7 +60,6 @@ class ExternalMediaRedirectCoordinatorTest {
 
             assertEquals(R.string.external_media_removed_with_name, message.id)
             assertEquals("USB drive", message.args.first())
-            assertEquals(1, videoPlaybackController.stopPlaybackCallCount)
 
             advanceUntilIdle()
             expectNoEvents()
@@ -93,11 +87,9 @@ class ExternalMediaRedirectCoordinatorTest {
             volumesFlow.value = refreshedVolumes
             refreshedVolumes
         }
-        val videoPlaybackController = FakeVideoPlaybackController()
 
         val coordinator = DefaultExternalMediaRedirectCoordinator(
             explorer = explorer,
-            videoPlaybackController = videoPlaybackController,
             scope = backgroundScope,
         )
 
@@ -116,8 +108,6 @@ class ExternalMediaRedirectCoordinatorTest {
             expectNoEvents()
             cancelAndIgnoreRemainingEvents()
         }
-
-        assertEquals(0, videoPlaybackController.stopPlaybackCallCount)
     }
 
     @Test
@@ -144,11 +134,9 @@ class ExternalMediaRedirectCoordinatorTest {
         every { explorer.refreshVolumes() } answers {
             volumesFlow.value
         }
-        val videoPlaybackController = FakeVideoPlaybackController()
 
         val coordinator = DefaultExternalMediaRedirectCoordinator(
             explorer = explorer,
-            videoPlaybackController = videoPlaybackController,
             scope = backgroundScope,
         )
 
@@ -165,15 +153,12 @@ class ExternalMediaRedirectCoordinatorTest {
             expectNoEvents()
             cancelAndIgnoreRemainingEvents()
         }
-
-        assertEquals(0, videoPlaybackController.stopPlaybackCallCount)
     }
 
     @Test
-    fun `GIVEN a restored removable screen WHEN its volume is already missing THEN playback is cleared and redirect is emitted immediately`() = runTest {
+    fun `GIVEN a restored removable screen WHEN its volume is already missing THEN redirect is emitted immediately`() = runTest {
         val explorer = relaxedMockk<Explorer>()
         val volumesFlow = MutableStateFlow<List<Volume>>(emptyList())
-        val videoPlaybackController = FakeVideoPlaybackController()
 
         every { explorer.volumes } returns volumesFlow
         every { explorer.resolveVolumeForPath(any()) } returns null
@@ -181,7 +166,6 @@ class ExternalMediaRedirectCoordinatorTest {
 
         val coordinator = DefaultExternalMediaRedirectCoordinator(
             explorer = explorer,
-            videoPlaybackController = videoPlaybackController,
             scope = backgroundScope,
         )
 
@@ -199,7 +183,6 @@ class ExternalMediaRedirectCoordinatorTest {
 
             assertEquals(R.string.external_media_removed_with_name, message.id)
             assertEquals("USB drive", message.args.first())
-            assertEquals(1, videoPlaybackController.stopPlaybackCallCount)
 
             cancelAndIgnoreRemainingEvents()
         }
@@ -219,22 +202,5 @@ class ExternalMediaRedirectCoordinatorTest {
 
     private fun createTempDir(prefix: String): File {
         return kotlin.io.path.createTempDirectory(prefix).toFile()
-    }
-}
-
-private class FakeVideoPlaybackController : VideoPlaybackController {
-    override val player = MutableStateFlow<Player?>(null)
-    override val sessionState = MutableStateFlow(VideoPlaybackSessionState())
-    var stopPlaybackCallCount = 0
-        private set
-
-    override fun connect() = Unit
-
-    override fun openPlaylist(videoPaths: List<String>, selectedIndex: Int) = Unit
-
-    override fun selectVideo(index: Int) = Unit
-
-    override fun stopPlayback() {
-        stopPlaybackCallCount += 1
     }
 }

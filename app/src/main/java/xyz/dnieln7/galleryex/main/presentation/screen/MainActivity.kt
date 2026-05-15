@@ -25,15 +25,10 @@ import xyz.dnieln7.galleryex.core.presentation.media.NoOpExternalMediaRedirectCo
 import xyz.dnieln7.galleryex.core.presentation.util.CollectEventsWithLifeCycle
 import xyz.dnieln7.galleryex.core.presentation.theme.GalleryExplorerTheme
 import xyz.dnieln7.galleryex.feature.home.presentation.screen.HomeScreenDestination
-import xyz.dnieln7.galleryex.feature.viewer.framework.playback.DefaultVideoPlaybackController
-import xyz.dnieln7.galleryex.feature.viewer.framework.playback.LocalVideoPlaybackController
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    @Inject
-    internal lateinit var videoPlaybackController: DefaultVideoPlaybackController
-
     @Inject
     internal lateinit var externalMediaRedirectCoordinator: ExternalMediaRedirectCoordinator
 
@@ -47,7 +42,6 @@ class MainActivity : ComponentActivity() {
         setContent {
             GalleryExplorerTheme {
                 CompositionLocalProvider(
-                    LocalVideoPlaybackController provides videoPlaybackController,
                     LocalExternalMediaRedirectCoordinator provides externalMediaRedirectCoordinator,
                 ) {
                     Surface {

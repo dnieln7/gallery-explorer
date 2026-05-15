@@ -16,19 +16,18 @@ import xyz.dnieln7.galleryex.core.domain.model.Volume
 import xyz.dnieln7.galleryex.core.framework.explorer.Explorer
 import xyz.dnieln7.galleryex.core.framework.explorer.resolveVolumeForPath
 import xyz.dnieln7.galleryex.core.presentation.text.UIText
-import xyz.dnieln7.galleryex.feature.viewer.framework.playback.VideoPlaybackController
 import javax.inject.Singleton
 
 /**
  * Default coordinator implementation backed by the shared [Explorer] volume snapshot.
  *
- * It listens for volume changes, keeps the currently visible removable root in memory, stops the
- * playback session when that root disappears, and emits a redirect event exactly once.
+ * It listens for volume changes, keeps the currently visible removable root in memory, and emits a
+ * redirect event exactly once when that root disappears. ExoPlayer cleanup is handled automatically
+ * by the ViewModel's [onCleared] when navigation pops the viewer off the stack.
  */
 @Singleton
 class DefaultExternalMediaRedirectCoordinator(
     private val explorer: Explorer,
-    private val videoPlaybackController: VideoPlaybackController,
     private val scope: CoroutineScope,
 ) : ExternalMediaRedirectCoordinator {
     private val _events = Channel<ExternalMediaRedirectEvent>(Channel.BUFFERED)
@@ -116,11 +115,12 @@ class DefaultExternalMediaRedirectCoordinator(
     }
 
     /**
-     * Stops playback durably before notifying the UI that the current removable target disappeared.
+     * Notifies the UI that the current removable target disappeared.
+     *
+     * The redirect event causes navigation to Home, which pops the viewer off the Voyager stack and
+     * triggers [VideoViewerViewModel.onCleared] — releasing ExoPlayer without an explicit stop call.
      */
     private suspend fun handleMissingTarget(target: MonitoredTarget) {
-        videoPlaybackController.stopPlayback()
-
         val message = target.volumeName.takeIf { it.isNotBlank() }?.let {
             UIText.FromResourceWithArgs(
                 id = R.string.external_media_removed_with_name,

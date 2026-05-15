@@ -9,11 +9,8 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -24,13 +21,15 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.Player
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.hilt.getViewModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import xyz.dnieln7.galleryex.core.domain.media.ExternalMediaRedirectCoordinator
 import xyz.dnieln7.galleryex.core.domain.media.ExternalMediaScreenTarget
@@ -39,10 +38,8 @@ import xyz.dnieln7.galleryex.core.presentation.media.LocalExternalMediaRedirectC
 import xyz.dnieln7.galleryex.core.presentation.media.NoOpExternalMediaRedirectCoordinator
 import xyz.dnieln7.galleryex.core.presentation.theme.GalleryExplorerTheme
 import xyz.dnieln7.galleryex.feature.home.presentation.screen.HomeScreenDestination
-import xyz.dnieln7.galleryex.feature.viewer.domain.model.VideoPlaybackSessionState
-import xyz.dnieln7.galleryex.feature.viewer.domain.model.currentVideoTitleOrFileName
-import xyz.dnieln7.galleryex.feature.viewer.framework.playback.LocalVideoPlaybackController
-import xyz.dnieln7.galleryex.feature.viewer.framework.playback.VideoPlaybackController
+import xyz.dnieln7.galleryex.feature.viewer.domain.model.VideoViewerAction
+import xyz.dnieln7.galleryex.feature.viewer.domain.model.VideoViewerState
 import xyz.dnieln7.galleryex.feature.viewer.presentation.component.CONTROLS_AUTO_HIDE_DELAY_MS
 import xyz.dnieln7.galleryex.feature.viewer.presentation.component.VideoPlaybackControls
 import xyz.dnieln7.galleryex.feature.viewer.presentation.component.VideoSurface
@@ -69,24 +66,32 @@ class VideoViewerScreenDestination(
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
-        val videos = remember(videoPaths) { videosFromPaths(videoPaths) }
+
+        val viewModel = getViewModel<VideoViewerViewModel>()
+        val state by viewModel.uiState.collectAsStateWithLifecycle()
+
         val externalMediaRedirectCoordinator = LocalExternalMediaRedirectCoordinator.current
-        val videoPlaybackController = LocalVideoPlaybackController.current
+
+        LaunchedEffect(videoPaths, selectedIndex) {
+            viewModel.onAction(VideoViewerAction.OpenPlaylist(videoPaths, selectedIndex))
+        }
 
         LifecycleEventEffect(Lifecycle.Event.ON_STOP) {
-            videoPlaybackController.pauseForBackground()
+            viewModel.onAction(VideoViewerAction.PauseForBackground)
         }
 
         LifecycleEventEffect(Lifecycle.Event.ON_START) {
-            videoPlaybackController.resumeFromBackground()
+            viewModel.onAction(VideoViewerAction.ResumeFromBackground)
         }
 
         VideoViewerScreen(
-            videos = videos,
-            selectedIndex = selectedIndex,
+            videos = remember(videoPaths) { videosFromPaths(videoPaths) },
+            state = state,
+            player = viewModel.player,
             removableVolumeRootPath = removableVolumeRootPath,
             removableVolumeName = removableVolumeName,
             externalMediaRedirectCoordinator = externalMediaRedirectCoordinator,
+            onAction = viewModel::onAction,
             navigateBack = {
                 if (navigator.canPop) {
                     navigator.pop()
@@ -101,25 +106,23 @@ class VideoViewerScreenDestination(
 @Composable
 private fun VideoViewerScreen(
     videos: List<VolumeFile.Video>,
-    selectedIndex: Int,
+    state: VideoViewerState,
+    player: Player,
     removableVolumeRootPath: String?,
     removableVolumeName: String?,
     externalMediaRedirectCoordinator: ExternalMediaRedirectCoordinator,
+    onAction: (VideoViewerAction) -> Unit,
     navigateBack: () -> Unit,
 ) {
     if (videos.isEmpty()) {
         return
     }
 
-    val videoPlaybackController = LocalVideoPlaybackController.current
-
-    val initialPage = selectedIndex.coerceIn(0, videos.lastIndex)
+    val initialPage = state.selectedIndex.coerceIn(0, videos.lastIndex).takeIf { it >= 0 } ?: 0
     val pagerState = rememberPagerState(pageCount = { videos.size }, initialPage = initialPage)
-    val player by videoPlaybackController.player.collectAsStateWithLifecycle()
-    val sessionState by videoPlaybackController.sessionState.collectAsStateWithLifecycle()
-    val activePage by remember(sessionState.selectedIndex, pagerState, videos) {
+    val activePage by remember(state.selectedIndex, pagerState, videos) {
         derivedStateOf {
-            sessionState.selectedIndex.takeIf { it in videos.indices } ?: pagerState.settledPage
+            state.selectedIndex.takeIf { it in videos.indices } ?: pagerState.settledPage
         }
     }
     val coroutineScope = rememberCoroutineScope()
@@ -154,18 +157,14 @@ private fun VideoViewerScreen(
     var currentPositionMs by remember { mutableLongStateOf(0L) }
     var durationMs by remember { mutableLongStateOf(0L) }
 
-    BackHandler(
-        enabled = true,
-        onBack = {
-            videoPlaybackController.stopPlayback()
-            navigateBack()
-        },
-    )
+    BackHandler(enabled = true) {
+        onAction(VideoViewerAction.StopPlayback)
+        navigateBack()
+    }
 
-    // Keeps the local Compose state in sync with the current Player instance exposed by the
-    // controller. This effect is restarted whenever the service connection swaps in a new Player.
+    // Keeps the local Compose state in sync with the Player instance. Runs on the non-nullable
+    // player directly, removing the null-guard required by the old StateFlow<Player?> approach.
     DisposableEffect(player) {
-        val activePlayer = player ?: return@DisposableEffect onDispose { }
         val listener = object : Player.Listener {
             override fun onEvents(player: Player, events: Player.Events) {
                 isPlaying = player.isPlaying
@@ -174,71 +173,52 @@ private fun VideoViewerScreen(
             }
         }
 
-        activePlayer.addListener(listener)
+        player.addListener(listener)
 
         onDispose {
-            activePlayer.removeListener(listener)
+            player.removeListener(listener)
         }
     }
 
-    // Pushes the folder-scoped playlist into the shared playback layer when the viewer is opened or
-    // reconstructed with a different selection. This is what tells the background service which
-    // videos belong to the current swipe session.
-    LaunchedEffect(videoPlaybackController, videos, selectedIndex) {
-        videoPlaybackController.openPlaylist(
-            videoPaths = videos.map { it.file.absolutePath },
-            selectedIndex = selectedIndex,
-        )
-    }
-
-    // Applies player-driven selection changes back into the pager. This covers service-side changes
-    // such as notification re-entry or controller commands that move playback to another item.
-    LaunchedEffect(sessionState.selectedIndex) {
-        val targetPage = sessionState.selectedIndex.takeIf { it in videos.indices } ?: return@LaunchedEffect
+    // Applies player-driven selection changes back into the pager.
+    LaunchedEffect(state.selectedIndex) {
+        val targetPage = state.selectedIndex.takeIf { it in videos.indices } ?: return@LaunchedEffect
 
         if (pagerState.currentPage != targetPage) {
             pagerState.scrollToPage(targetPage)
         }
     }
 
-    // Applies pager-driven selection changes back into the playback session. Once a swipe settles on
-    // another page, the controller updates the background player so in-app UI and notification stay
-    // aligned on the same active video.
+    // Applies pager-driven selection changes back into the ViewModel.
     LaunchedEffect(pagerState.settledPage) {
         val settledPage = pagerState.settledPage
 
-        if (settledPage in videos.indices && sessionState.selectedIndex != settledPage) {
-            videoPlaybackController.selectVideo(settledPage)
+        if (settledPage in videos.indices && state.selectedIndex != settledPage) {
+            onAction(VideoViewerAction.SelectVideo(settledPage))
         }
     }
 
-    // Resets transient overlay state whenever the active page changes so each newly selected video
-    // starts with visible controls and a fresh non-scrubbing state.
+    // Resets transient overlay state whenever the active page changes.
     LaunchedEffect(activePage) {
         showControls = true
         isScrubbing = false
         scrubSliderValue = 0f
     }
 
-    // Polls playback position while the viewer is active. This is intentionally paused during manual
-    // scrubbing so the slider thumb does not fight the user's drag gesture.
+    // Polls playback position while the viewer is active.
     LaunchedEffect(player, isScrubbing) {
         while (true) {
-            val activePlayer = player
-
-            if (activePlayer != null && !isScrubbing) {
-                currentPositionMs = activePlayer.currentPosition.coerceAtLeast(0L)
-                durationMs = activePlayer.duration.takeIf { it > 0L } ?: 0L
-                isPlaying = activePlayer.isPlaying
+            if (!isScrubbing) {
+                currentPositionMs = player.currentPosition.coerceAtLeast(0L)
+                durationMs = player.duration.takeIf { it > 0L } ?: 0L
+                isPlaying = player.isPlaying
             }
 
             delay(PLAYBACK_POSITION_POLL_INTERVAL_MS)
         }
     }
 
-    // Auto-hides controls after a short delay while a video is actively playing. Any change that
-    // makes the overlay invalid for auto-hide, such as pausing or starting a scrub, cancels and
-    // restarts this effect with the new state.
+    // Auto-hides controls after a short delay while a video is actively playing.
     LaunchedEffect(showControls, isPlaying, isScrubbing, activePage) {
         if (showControls && isPlaying && !isScrubbing) {
             delay(CONTROLS_AUTO_HIDE_DELAY_MS)
@@ -287,31 +267,23 @@ private fun VideoViewerScreen(
 
             VideoPlaybackControls(
                 modifier = Modifier.fillMaxSize(),
-                title = sessionState.currentVideoTitleOrFileName().ifBlank { activeVideo.name },
+                title = state.currentVideoTitle.orEmpty().ifBlank { activeVideo.name },
                 isVisible = showControls,
                 isPlaying = isPlaying,
                 currentPositionMs = displayedPositionMs,
                 durationMs = durationMs,
                 sliderValue = sliderValue,
                 onBackClick = {
-                    videoPlaybackController.stopPlayback()
+                    onAction(VideoViewerAction.StopPlayback)
                     navigateBack()
                 },
                 onPlayPauseClick = {
-                    val activePlayer = player
-
-                    if (activePlayer?.isPlaying == true) {
-                        activePlayer.pause()
-                    } else {
-                        activePlayer?.play()
-                    }
-
+                    onAction(VideoViewerAction.TogglePlayPause)
                     showControls = true
                 },
                 onSeekBackClick = {
                     val targetPosition = seekBackwardPosition(currentPositionMs)
-
-                    player?.seekTo(targetPosition)
+                    onAction(VideoViewerAction.SeekTo(targetPosition))
                     currentPositionMs = targetPosition
                     showControls = true
                 },
@@ -320,8 +292,7 @@ private fun VideoViewerScreen(
                         currentPositionMs = currentPositionMs,
                         durationMs = durationMs,
                     )
-
-                    player?.seekTo(targetPosition)
+                    onAction(VideoViewerAction.SeekTo(targetPosition))
                     currentPositionMs = targetPosition
                     showControls = true
                 },
@@ -335,8 +306,7 @@ private fun VideoViewerScreen(
                         sliderValue = scrubSliderValue,
                         durationMs = durationMs,
                     )
-
-                    player?.seekTo(targetPosition)
+                    onAction(VideoViewerAction.SeekTo(targetPosition))
                     currentPositionMs = targetPosition
                     isScrubbing = false
                     showControls = true
@@ -349,27 +319,31 @@ private fun VideoViewerScreen(
 @Preview
 @Composable
 private fun VideoViewerScreenPreview() {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val player = remember { androidx.media3.exoplayer.ExoPlayer.Builder(context).build() }
+
     GalleryExplorerTheme {
-        CompositionLocalProvider(
-            LocalVideoPlaybackController provides PreviewVideoPlaybackController(),
-        ) {
-            Surface {
-                VideoViewerScreen(
-                    videos = listOf(
-                        VolumeFile.Video(
-                            file = File("/storage/emulated/0/Movies/clip-1.mp4"),
-                        ),
-                        VolumeFile.Video(
-                            file = File("/storage/emulated/0/Movies/clip-2.mp4"),
-                        ),
+        Surface {
+            VideoViewerScreen(
+                videos = listOf(
+                    VolumeFile.Video(file = File("/storage/emulated/0/Movies/clip-1.mp4")),
+                    VolumeFile.Video(file = File("/storage/emulated/0/Movies/clip-2.mp4")),
+                ),
+                state = VideoViewerState(
+                    videoPaths = listOf(
+                        "/storage/emulated/0/Movies/clip-1.mp4",
+                        "/storage/emulated/0/Movies/clip-2.mp4",
                     ),
                     selectedIndex = 0,
-                    removableVolumeRootPath = null,
-                    removableVolumeName = null,
-                    externalMediaRedirectCoordinator = NoOpExternalMediaRedirectCoordinator,
-                    navigateBack = {},
-                )
-            }
+                    currentVideoTitle = "clip-1.mp4",
+                ),
+                player = player,
+                removableVolumeRootPath = null,
+                removableVolumeName = null,
+                externalMediaRedirectCoordinator = NoOpExternalMediaRedirectCoordinator,
+                onAction = {},
+                navigateBack = {},
+            )
         }
     }
 }
@@ -378,33 +352,6 @@ internal fun videosFromPaths(videoPaths: List<String>): List<VolumeFile.Video> {
     return videoPaths.map { path ->
         VolumeFile.Video(file = File(path))
     }
-}
-
-private class PreviewVideoPlaybackController : VideoPlaybackController {
-    override val player = MutableStateFlow<Player?>(null)
-    override val sessionState = MutableStateFlow(
-        VideoPlaybackSessionState(
-            videoPaths = listOf(
-                "/storage/emulated/0/Movies/clip-1.mp4",
-                "/storage/emulated/0/Movies/clip-2.mp4",
-            ),
-            selectedIndex = 0,
-            currentVideoPath = "/storage/emulated/0/Movies/clip-1.mp4",
-            currentVideoTitle = "clip-1.mp4",
-        ),
-    )
-
-    override fun connect() = Unit
-
-    override fun openPlaylist(videoPaths: List<String>, selectedIndex: Int) = Unit
-
-    override fun selectVideo(index: Int) = Unit
-
-    override fun stopPlayback() = Unit
-
-    override fun pauseForBackground() = Unit
-
-    override fun resumeFromBackground() = Unit
 }
 
 private const val PLAYBACK_POSITION_POLL_INTERVAL_MS = 250L
