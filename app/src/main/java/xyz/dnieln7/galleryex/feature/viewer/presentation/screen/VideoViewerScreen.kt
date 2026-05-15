@@ -151,7 +151,6 @@ private fun VideoViewerScreen(
         val listener = object : Player.Listener {
             override fun onEvents(player: Player, events: Player.Events) {
                 isPlaying = player.isPlaying
-                currentPositionMs = player.currentPosition.coerceAtLeast(0L)
                 durationMs = player.duration.takeIf { it > 0L } ?: 0L
             }
         }
@@ -183,10 +182,14 @@ private fun VideoViewerScreen(
 
     // Change playback state when the screen active state changes.
     LaunchedEffect(isScreenActive, shouldPlay) {
-        if (isScreenActive && shouldPlay) {
-            player.play()
-        } else {
-            player.pause()
+        player.playWhenReady = isScreenActive && shouldPlay
+    }
+
+    // Poll current position and update the slider value.
+    LaunchedEffect(isPlaying) {
+        while (isPlaying) {
+            currentPositionMs = player.currentPosition.coerceAtLeast(0L)
+            delay(POSITION_POLLING_INTERVAL_MS)
         }
     }
 
@@ -315,3 +318,4 @@ internal fun videosFromPaths(videoPaths: List<String>): List<VolumeFile.Video> {
 
 private const val PLAYER_SEEK_INCREMENT_MS = 10_000L
 private const val CONTROLS_AUTO_HIDE_DELAY_MS: Long = 2_500L
+private const val POSITION_POLLING_INTERVAL_MS: Long = 500L
