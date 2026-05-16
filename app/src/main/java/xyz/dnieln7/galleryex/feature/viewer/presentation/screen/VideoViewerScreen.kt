@@ -201,9 +201,9 @@ private fun VideoViewerScreen(
             ) { index ->
                 VideoSurface(
                     modifier = Modifier.fillMaxSize(),
-                    video = videos[index],
                     player = player,
                     isActive = activePage == index,
+                    isVideoReady = uiState.isVideoReady,
                     onTap = { onAction(VideoViewerAction.OnTap) },
                 )
             }

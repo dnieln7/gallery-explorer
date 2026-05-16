@@ -52,10 +52,17 @@ class VideoViewerViewModel @Inject constructor(
         override fun onEvents(player: Player, events: Player.Events) {
             _uiState.update { state ->
                 state.copy(
-                    isPlaying = player.isPlaying,
                     durationTotalMs = player.duration.takeIf { it > 0L } ?: 0L,
                 )
             }
+        }
+
+        override fun onIsPlayingChanged(isPlaying: Boolean) {
+            _uiState.update { it.copy(isPlaying = isPlaying) }
+        }
+
+        override fun onRenderedFirstFrame() {
+            _uiState.update { it.copy(isVideoReady = true) }
         }
     }
 
@@ -150,9 +157,12 @@ class VideoViewerViewModel @Inject constructor(
     }
 
     private fun loadVideo(index: Int) {
-        val video = videos.getOrNull(index) ?: return
+        _uiState.update { it.copy(isVideoReady = false) }
 
         player.stop()
+
+        val video = videos.getOrNull(index) ?: return
+
         player.setMediaItem(MediaItem.fromUri(video.file.toUri()))
         player.prepare()
         player.seekTo(0L)
@@ -211,6 +221,7 @@ class VideoViewerViewModel @Inject constructor(
 
     override fun onCleared() {
         super.onCleared()
+
         player.removeListener(playerListener)
         player.release()
     }

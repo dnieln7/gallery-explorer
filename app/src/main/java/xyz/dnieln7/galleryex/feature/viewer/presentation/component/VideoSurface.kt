@@ -6,40 +6,34 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.net.toUri
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.AspectRatioFrameLayout
 import androidx.media3.ui.PlayerView
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
-import coil.request.videoFrameMillis
-import xyz.dnieln7.galleryex.core.domain.model.VolumeFile
-import xyz.dnieln7.galleryex.core.presentation.theme.GalleryExplorerTheme
-import java.io.File
 
 @OptIn(UnstableApi::class)
 @Composable
 internal fun VideoSurface(
     modifier: Modifier = Modifier,
-    video: VolumeFile.Video,
     player: ExoPlayer,
     isActive: Boolean,
+    isVideoReady: Boolean,
     onTap: () -> Unit,
 ) {
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(color = MaterialTheme.colorScheme.scrim),
+            .background(color = MaterialTheme.colorScheme.scrim)
+            .pointerInput(onTap) {
+                detectTapGestures(onTap = { onTap() })
+            },
     ) {
         if (isActive) {
             AndroidView(
@@ -48,63 +42,37 @@ internal fun VideoSurface(
                     PlayerView(context).apply {
                         useController = false
                         controllerAutoShow = false
-                        setShowBuffering(PlayerView.SHOW_BUFFERING_WHEN_PLAYING)
                         resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT
+
+                        setShowBuffering(PlayerView.SHOW_BUFFERING_NEVER)
+                        setKeepContentOnPlayerReset(false)
                         setShutterBackgroundColor(Color.BLACK)
                         setBackgroundColor(Color.BLACK)
-                        setKeepContentOnPlayerReset(false)
+
                         this.player = player
                     }
                 },
-                update = { playerView ->
-                    playerView.player = player
-                },
             )
+
+            if (!isVideoReady) {
+                // Cover the PlayerView with the incoming video's thumbnail until the first
+                // decoded frame is on the surface, preventing a flash of the previous video.
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(androidx.compose.ui.graphics.Color.Black),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    CircularProgressIndicator()
+                }
+            }
         } else {
-            VideoPoster(
+            Box(
                 modifier = Modifier.fillMaxSize(),
-                video = video,
-            )
-        }
-
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .pointerInput(onTap) {
-                    detectTapGestures(onTap = { onTap() })
-                },
-        )
-    }
-}
-
-@Composable
-private fun VideoPoster(modifier: Modifier = Modifier, video: VolumeFile.Video) {
-    val context = LocalContext.current
-    val request = ImageRequest.Builder(context)
-        .data(video.file.toUri())
-        .crossfade(true)
-        .videoFrameMillis(0)
-        .build()
-
-    AsyncImage(
-        modifier = modifier,
-        model = request,
-        contentDescription = null,
-        contentScale = ContentScale.Fit,
-    )
-}
-
-@Preview
-@Composable
-private fun VideoPosterPreview() {
-    GalleryExplorerTheme {
-        Surface {
-            VideoPoster(
-                modifier = Modifier.fillMaxSize(),
-                video = VolumeFile.Video(
-                    file = File("/storage/emulated/0/Movies/clip.mp4"),
-                ),
-            )
+                contentAlignment = Alignment.Center,
+            ) {
+                CircularProgressIndicator()
+            }
         }
     }
 }

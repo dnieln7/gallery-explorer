@@ -1,5 +1,7 @@
 package xyz.dnieln7.galleryex.feature.viewer.domain.model
 
+import androidx.media3.common.Player
+
 /**
  * Immutable state for the video viewer screen.
  *
@@ -11,6 +13,9 @@ package xyz.dnieln7.galleryex.feature.viewer.domain.model
  * @property durationTotalMs Total duration of the current video in milliseconds.
  * @property durationCurrentMs Playback position in milliseconds, scrub-aware.
  * @property durationSlider Normalised slider position in [0, 1], scrub-aware.
+ * @property isVideoReady Whether the player has rendered the first frame of the current video.
+ *   False immediately after a video transition; true once [Player.Listener.onRenderedFirstFrame]
+ *   fires. Used by the UI to overlay a thumbnail until the new video surface is ready.
  */
 data class VideoViewerState(
     val activePage: Int = 0,
@@ -21,4 +26,5 @@ data class VideoViewerState(
     val durationTotalMs: Long = 0L,
     val durationCurrentMs: Long = 0L,
     val durationSlider: Float = 0f,
+    val isVideoReady: Boolean = false,
 )
