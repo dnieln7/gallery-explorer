@@ -83,10 +83,14 @@ data class ExplorerScreenDestination(
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
+        val coroutineScope = rememberCoroutineScope()
+
         val viewModel = getViewModel<ExplorerViewModel>()
         val state by viewModel.uiState.collectAsStateWithLifecycle()
+
+        // External Media Redirect Coordinator
         val externalMediaRedirectCoordinator = LocalExternalMediaRedirectCoordinator.current
-        val coroutineScope = rememberCoroutineScope()
+
         val screenTarget = remember(directoryPath, removableVolumeRootPath, removableVolumeName) {
             ExternalMediaScreenTarget(
                 path = directoryPath,
@@ -106,6 +110,7 @@ data class ExplorerScreenDestination(
                 }
             }
         }
+        // External Media Redirect Coordinator
 
         LaunchedEffect(directoryPath) {
             viewModel.onAction(ExplorerAction.LoadFiles(directoryPath))

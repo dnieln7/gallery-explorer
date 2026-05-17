@@ -85,14 +85,16 @@ private fun ImageViewerScreen(
     removableVolumeName: String?,
     navigateBack: () -> Unit,
 ) {
-    val externalMediaRedirectCoordinator = LocalExternalMediaRedirectCoordinator.current
     val coroutineScope = rememberCoroutineScope()
 
     val pagerState = rememberPagerState(pageCount = { images.size }, initialPage = selectedIndex)
 
     val currentImage by remember { derivedStateOf { images[pagerState.currentPage] } }
-    val currentImagePath = currentImage.file.absolutePath
 
+    // External Media Redirect Coordinator
+    val externalMediaRedirectCoordinator = LocalExternalMediaRedirectCoordinator.current
+
+    val currentImagePath = currentImage.file.absolutePath
     val screenTarget by remember(currentImagePath, removableVolumeRootPath, removableVolumeName) {
         derivedStateOf {
             ExternalMediaScreenTarget(
@@ -102,9 +104,11 @@ private fun ImageViewerScreen(
             )
         }
     }
+
     LaunchedEffect(screenTarget) {
         externalMediaRedirectCoordinator.registerTarget(screenTarget)
     }
+
     DisposableEffect(currentImagePath) {
         onDispose {
             coroutineScope.launch {
@@ -112,6 +116,7 @@ private fun ImageViewerScreen(
             }
         }
     }
+    // External Media Redirect Coordinator
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.surface,
