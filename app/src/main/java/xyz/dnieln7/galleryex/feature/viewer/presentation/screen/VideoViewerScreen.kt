@@ -204,6 +204,7 @@ private fun VideoViewerScreen(
                     player = player,
                     isActive = activePage == index,
                     isVideoReady = uiState.isVideoReady,
+                    videoFile = videos[index].file,
                     onTap = { onAction(VideoViewerAction.OnTap) },
                 )
             }

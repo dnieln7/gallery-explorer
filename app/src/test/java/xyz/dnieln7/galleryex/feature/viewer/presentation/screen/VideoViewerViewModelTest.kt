@@ -2,9 +2,11 @@
 
 package xyz.dnieln7.galleryex.feature.viewer.presentation.screen
 
+import android.content.Context
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import app.cash.turbine.test
+import coil.ImageLoader
 import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.just
@@ -33,6 +35,8 @@ class VideoViewerViewModelTest {
     val mainDispatcherRule = MainDispatcherRule()
 
     private val player = relaxedMockk<ExoPlayer>()
+    private val imageLoader = relaxedMockk<ImageLoader>()
+    private val context = relaxedMockk<Context>()
 
     private lateinit var viewModel: VideoViewerViewModel
 
@@ -45,7 +49,7 @@ class VideoViewerViewModelTest {
     @Test
     fun `GIVEN videos and a selected index WHEN Initialize is called THEN player loads the selected video and state reflects the active page`() =
         runTest {
-            viewModel = VideoViewerViewModel(player)
+            viewModel = VideoViewerViewModel(player, imageLoader, context)
 
             viewModel.uiState.test {
                 awaitItem() // Initial default state
@@ -71,7 +75,7 @@ class VideoViewerViewModelTest {
 
     @Test
     fun `GIVEN already initialized viewmodel WHEN Initialize is called again THEN player is not reset`() = runTest {
-        viewModel = VideoViewerViewModel(player)
+        viewModel = VideoViewerViewModel(player, imageLoader, context)
         viewModel.onAction(VideoViewerAction.Initialize(videos, selectedIndex = 1))
 
         viewModel.uiState.test {
@@ -91,7 +95,7 @@ class VideoViewerViewModelTest {
     @Test
     fun `GIVEN initialized viewmodel WHEN OnPageChange is called with a new page THEN player loads the new video and state resets`() =
         runTest {
-            viewModel = VideoViewerViewModel(player)
+            viewModel = VideoViewerViewModel(player, imageLoader, context)
             viewModel.onAction(VideoViewerAction.Initialize(videos, selectedIndex = 1))
             clearMocks(player, answers = false)
 
@@ -118,7 +122,7 @@ class VideoViewerViewModelTest {
     @Test
     fun `GIVEN initialized viewmodel WHEN OnPageChange is called with the same page THEN player is not reset`() =
         runTest {
-            viewModel = VideoViewerViewModel(player)
+            viewModel = VideoViewerViewModel(player, imageLoader, context)
             viewModel.onAction(VideoViewerAction.Initialize(videos, selectedIndex = 1))
             clearMocks(player, answers = false)
 
@@ -131,7 +135,7 @@ class VideoViewerViewModelTest {
     fun `GIVEN playing video WHEN OnPlayPauseClick is called THEN player pauses`() = runTest {
         every { player.isPlaying } returns true
 
-        viewModel = VideoViewerViewModel(player)
+        viewModel = VideoViewerViewModel(player, imageLoader, context)
         viewModel.onAction(VideoViewerAction.Initialize(videos, selectedIndex = 1))
 
         viewModel.onAction(VideoViewerAction.OnPlayPauseClick)
@@ -143,7 +147,7 @@ class VideoViewerViewModelTest {
     fun `GIVEN paused video WHEN OnPlayPauseClick is called THEN player plays`() = runTest {
         every { player.isPlaying } returns false
 
-        viewModel = VideoViewerViewModel(player)
+        viewModel = VideoViewerViewModel(player, imageLoader, context)
         viewModel.onAction(VideoViewerAction.Initialize(videos, selectedIndex = 1))
         clearMocks(player, answers = false)
 
@@ -154,7 +158,7 @@ class VideoViewerViewModelTest {
 
     @Test
     fun `GIVEN active video WHEN OnSeekBack is called THEN player seeks back and controls are shown`() = runTest {
-        viewModel = VideoViewerViewModel(player)
+        viewModel = VideoViewerViewModel(player, imageLoader, context)
         viewModel.onAction(VideoViewerAction.Initialize(videos, selectedIndex = 1))
         viewModel.onAction(VideoViewerAction.OnTap) // Hide controls so the next showControls = true is a real state change
 
@@ -172,7 +176,7 @@ class VideoViewerViewModelTest {
 
     @Test
     fun `GIVEN active video WHEN OnSeekForward is called THEN player seeks forward and controls are shown`() = runTest {
-        viewModel = VideoViewerViewModel(player)
+        viewModel = VideoViewerViewModel(player, imageLoader, context)
         viewModel.onAction(VideoViewerAction.Initialize(videos, selectedIndex = 1))
         viewModel.onAction(VideoViewerAction.OnTap) // Hide controls so the next showControls = true is a real state change
 
@@ -190,7 +194,7 @@ class VideoViewerViewModelTest {
 
     @Test
     fun `GIVEN active video WHEN OnSliderValueChange is called THEN state reflects scrubbing`() = runTest {
-        viewModel = VideoViewerViewModel(player)
+        viewModel = VideoViewerViewModel(player, imageLoader, context)
         viewModel.onAction(VideoViewerAction.Initialize(videos, selectedIndex = 1))
 
         viewModel.uiState.test {
@@ -217,7 +221,7 @@ class VideoViewerViewModelTest {
             // Simulate a non-zero playback position that polling would otherwise write to state
             every { player.currentPosition } returns 60_000L
 
-            viewModel = VideoViewerViewModel(player)
+            viewModel = VideoViewerViewModel(player, imageLoader, context)
             viewModel.onAction(VideoViewerAction.Initialize(videos, selectedIndex = 1))
 
             viewModel.uiState.test {
@@ -241,7 +245,7 @@ class VideoViewerViewModelTest {
     @Test
     fun `GIVEN scrubbing state WHEN OnSliderValueChangeFinished is called THEN player seeks to the target position and scrubbing ends`() =
         runTest {
-            viewModel = VideoViewerViewModel(player)
+            viewModel = VideoViewerViewModel(player, imageLoader, context)
             viewModel.onAction(VideoViewerAction.Initialize(videos, selectedIndex = 1))
             viewModel.onAction(VideoViewerAction.OnSliderValueChange(0.25f))
             clearMocks(player, answers = false)
@@ -264,7 +268,7 @@ class VideoViewerViewModelTest {
 
     @Test
     fun `GIVEN controls visible WHEN OnTap is called THEN controls are hidden`() = runTest {
-        viewModel = VideoViewerViewModel(player)
+        viewModel = VideoViewerViewModel(player, imageLoader, context)
         viewModel.onAction(VideoViewerAction.Initialize(videos, selectedIndex = 1))
 
         viewModel.uiState.test {
@@ -279,7 +283,7 @@ class VideoViewerViewModelTest {
 
     @Test
     fun `GIVEN controls hidden WHEN OnTap is called THEN controls are shown`() = runTest {
-        viewModel = VideoViewerViewModel(player)
+        viewModel = VideoViewerViewModel(player, imageLoader, context)
         viewModel.onAction(VideoViewerAction.Initialize(videos, selectedIndex = 1))
         viewModel.onAction(VideoViewerAction.OnTap) // Hide controls
 
@@ -295,7 +299,7 @@ class VideoViewerViewModelTest {
 
     @Test
     fun `GIVEN screen resuming WHEN OnResume is called THEN player plays`() = runTest {
-        viewModel = VideoViewerViewModel(player)
+        viewModel = VideoViewerViewModel(player, imageLoader, context)
         viewModel.onAction(VideoViewerAction.Initialize(videos, selectedIndex = 1))
         clearMocks(player, answers = false)
 
@@ -306,7 +310,7 @@ class VideoViewerViewModelTest {
 
     @Test
     fun `GIVEN screen going to background WHEN OnPause is called THEN player pauses`() = runTest {
-        viewModel = VideoViewerViewModel(player)
+        viewModel = VideoViewerViewModel(player, imageLoader, context)
         viewModel.onAction(VideoViewerAction.Initialize(videos, selectedIndex = 1))
 
         viewModel.onAction(VideoViewerAction.OnPause)
@@ -319,7 +323,7 @@ class VideoViewerViewModelTest {
         val listenerSlot = slot<Player.Listener>()
         every { player.addListener(capture(listenerSlot)) } just runs
 
-        viewModel = VideoViewerViewModel(player)
+        viewModel = VideoViewerViewModel(player, imageLoader, context)
         viewModel.onAction(VideoViewerAction.Initialize(videos, selectedIndex = 1))
 
         viewModel.uiState.test {
@@ -331,4 +335,46 @@ class VideoViewerViewModelTest {
             cancelAndIgnoreRemainingEvents()
         }
     }
+
+    @Test
+    fun `GIVEN videos and a selected index WHEN Initialize is called THEN imageLoader enqueues thumbnails for the previous and next videos`() =
+        runTest {
+            viewModel = VideoViewerViewModel(player, imageLoader, context)
+
+            viewModel.onAction(VideoViewerAction.Initialize(videos, selectedIndex = 1))
+
+            verify(exactly = 2) { imageLoader.enqueue(any()) }
+        }
+
+    @Test
+    fun `GIVEN initialized viewmodel WHEN OnPageChange is called with a new page THEN imageLoader enqueues thumbnails for the adjacent videos of the new page`() =
+        runTest {
+            viewModel = VideoViewerViewModel(player, imageLoader, context)
+            viewModel.onAction(VideoViewerAction.Initialize(videos, selectedIndex = 1))
+            clearMocks(imageLoader, answers = false)
+
+            viewModel.onAction(VideoViewerAction.OnPageChange(2))
+
+            verify(exactly = 1) { imageLoader.enqueue(any()) }
+        }
+
+    @Test
+    fun `GIVEN the first video is selected WHEN Initialize is called THEN imageLoader enqueues only the next thumbnail`() =
+        runTest {
+            viewModel = VideoViewerViewModel(player, imageLoader, context)
+
+            viewModel.onAction(VideoViewerAction.Initialize(videos, selectedIndex = 0))
+
+            verify(exactly = 1) { imageLoader.enqueue(any()) }
+        }
+
+    @Test
+    fun `GIVEN the last video is selected WHEN Initialize is called THEN imageLoader enqueues only the previous thumbnail`() =
+        runTest {
+            viewModel = VideoViewerViewModel(player, imageLoader, context)
+
+            viewModel.onAction(VideoViewerAction.Initialize(videos, selectedIndex = 2))
+
+            verify(exactly = 1) { imageLoader.enqueue(any()) }
+        }
 }

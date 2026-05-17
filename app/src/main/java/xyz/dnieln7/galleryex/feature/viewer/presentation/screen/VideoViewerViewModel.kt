@@ -1,12 +1,16 @@
 package xyz.dnieln7.galleryex.feature.viewer.presentation.screen
 
+import android.content.Context
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
+import coil.ImageLoader
+import coil.request.ImageRequest
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -32,12 +36,22 @@ import javax.inject.Inject
  * All playback commands and state mutations flow through [onAction], keeping the UI fully
  * stateless and testable.
  *
+ * When the active page changes, [preloadAdjacentThumbnails] enqueues first-frame thumbnail
+ * requests via [imageLoader] for the immediately adjacent videos, warming Coil's memory cache
+ * before the user initiates a scroll gesture.
+ *
  * @property player The ExoPlayer instance used for video playback. Exposed so that the
  *   stateless screen can bind a [androidx.media3.ui.PlayerView] to it directly.
+ * @property imageLoader Coil [ImageLoader] used to proactively warm the thumbnail cache for
+ *   adjacent videos.
+ * @property context Application context used to build [ImageRequest] instances for thumbnail
+ *   preloading.
  */
 @HiltViewModel
 class VideoViewerViewModel @Inject constructor(
     val player: ExoPlayer,
+    private val imageLoader: ImageLoader,
+    @ApplicationContext private val context: Context,
 ) : ViewModel() {
     private val _events = Channel<VideoViewerEvent>()
     val events = _events.receiveAsFlow()
@@ -178,6 +192,27 @@ class VideoViewerViewModel @Inject constructor(
                 durationSlider = 0f,
                 durationTotalMs = 0L,
             )
+        }
+
+        preloadAdjacentThumbnails(index)
+    }
+
+    /**
+     * Enqueues Coil [ImageRequest]s for the videos immediately before and after [index],
+     * warming the memory cache with their first-frame thumbnails before the user begins
+     * scrolling. Out-of-bounds indices are safely ignored via [List.getOrNull].
+     *
+     * @param index The index of the currently active video.
+     */
+    private fun preloadAdjacentThumbnails(index: Int) {
+        listOfNotNull(
+            videos.getOrNull(index - 1),
+            videos.getOrNull(index + 1),
+        ).forEach { video ->
+            val request = ImageRequest.Builder(context)
+                .data(video.file.toUri())
+                .build()
+            imageLoader.enqueue(request)
         }
     }
 
