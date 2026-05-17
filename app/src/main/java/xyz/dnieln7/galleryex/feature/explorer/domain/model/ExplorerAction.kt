@@ -11,8 +11,12 @@ sealed interface ExplorerAction {
      * Intended to be triggered when the screen requires the directory contents to be loaded.
      *
      * @property directoryPath Absolute path to load files from.
+     * @property refresh When true, bypasses the one-time initialization guard to allow a forced reload (e.g. pull-to-refresh).
      */
-    data class LoadFiles(val directoryPath: String) : ExplorerAction
+    data class LoadFiles(
+        val directoryPath: String,
+        val refresh: Boolean = false,
+    ) : ExplorerAction
 
     /**
      * Intended to be triggered when the user taps on the sort type button.

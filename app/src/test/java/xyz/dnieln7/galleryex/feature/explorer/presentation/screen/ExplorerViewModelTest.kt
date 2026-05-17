@@ -156,6 +156,74 @@ class ExplorerViewModelTest {
         }
     }
 
+    @Test
+    fun `GIVEN directory path WHEN LoadFiles action is dispatched for the first time THEN state transitions to loading and files are loaded`() = runTest {
+        val root = temporaryFolder.newFolder("first_load_dir")
+        createDummyFile(root, "a.jpg", 1000L)
+
+        viewModel.uiState.test {
+            val initialState = awaitItem()
+            initialState.isLoading.shouldBeFalse()
+            initialState.files.size.shouldBeEqualTo(0)
+
+            viewModel.onAction(ExplorerAction.LoadFiles(root.absolutePath))
+
+            val loadingState = awaitItem()
+            loadingState.isLoading.shouldBeTrue()
+
+            val loadedState = awaitItem()
+            loadedState.isLoading.shouldBeFalse()
+            loadedState.files.size.shouldBeEqualTo(1)
+
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
+    fun `GIVEN files already loaded WHEN LoadFiles action is dispatched again without refresh THEN state does not change`() = runTest {
+        val root = temporaryFolder.newFolder("second_load_skip_dir")
+        createDummyFile(root, "a.jpg", 1000L)
+
+        viewModel.onAction(ExplorerAction.LoadFiles(root.absolutePath))
+
+        viewModel.uiState.test {
+            var state = awaitItem()
+            while (state.files.isEmpty()) {
+                state = awaitItem()
+            }
+
+            viewModel.onAction(ExplorerAction.LoadFiles(root.absolutePath))
+
+            expectNoEvents()
+        }
+    }
+
+    @Test
+    fun `GIVEN files already loaded WHEN LoadFiles action is dispatched with refresh true THEN state transitions to loading and files are reloaded`() = runTest {
+        val root = temporaryFolder.newFolder("refresh_load_dir")
+        createDummyFile(root, "a.jpg", 1000L)
+
+        viewModel.onAction(ExplorerAction.LoadFiles(root.absolutePath))
+
+        viewModel.uiState.test {
+            var state = awaitItem()
+            while (state.files.isEmpty()) {
+                state = awaitItem()
+            }
+
+            viewModel.onAction(ExplorerAction.LoadFiles(root.absolutePath, refresh = true))
+
+            val loadingState = awaitItem()
+            loadingState.isLoading.shouldBeTrue()
+
+            val loadedState = awaitItem()
+            loadedState.isLoading.shouldBeFalse()
+            loadedState.files.size.shouldBeEqualTo(1)
+
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
     private fun createDummyFile(dir: File, name: String, lastModified: Long): File {
         return File(dir, name).apply {
             createNewFile()

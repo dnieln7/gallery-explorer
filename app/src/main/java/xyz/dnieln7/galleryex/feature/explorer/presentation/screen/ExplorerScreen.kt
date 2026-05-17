@@ -40,6 +40,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.core.screen.ScreenKey
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import xyz.dnieln7.galleryex.R
@@ -80,6 +81,8 @@ data class ExplorerScreenDestination(
     val removableVolumeRootPath: String? = null,
     val removableVolumeName: String? = null,
 ) : Screen {
+    override val key: ScreenKey = directoryPath
+
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
@@ -254,7 +257,7 @@ private fun ExplorerScreen(
                 } else {
                     PullToRefresh(
                         modifier = Modifier.fillMaxSize(),
-                        onRefresh = { onAction(ExplorerAction.LoadFiles(directoryPath)) },
+                        onRefresh = { onAction(ExplorerAction.LoadFiles(directoryPath, refresh = true)) },
                     ) {
                         if (files.isNotEmpty()) {
                             LazyVerticalGrid(

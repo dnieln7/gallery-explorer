@@ -33,6 +33,8 @@ class ExplorerViewModel @Inject constructor(
     private val _events = Channel<ExplorerEvent>()
     val events = _events.receiveAsFlow()
 
+    private var isInitialized = false
+
     init {
         viewModelScope.launch {
             appPreferences.sortTypeFlow.collect { type ->
@@ -54,13 +56,16 @@ class ExplorerViewModel @Inject constructor(
 
     fun onAction(action: ExplorerAction) {
         when (action) {
-            is ExplorerAction.LoadFiles -> loadFiles(action.directoryPath)
+            is ExplorerAction.LoadFiles -> loadFiles(action.directoryPath, action.refresh)
             is ExplorerAction.ChangeSortOrder -> changeSortOrder(action.order)
             is ExplorerAction.ChangeSortType -> changeSortType(action.type)
         }
     }
 
-    private fun loadFiles(directoryPath: String) {
+    private fun loadFiles(directoryPath: String, refresh: Boolean = false) {
+        if (isInitialized && !refresh) return
+        isInitialized = true
+
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
 
