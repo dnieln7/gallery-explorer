@@ -1,6 +1,8 @@
 package xyz.dnieln7.galleryex.di
 
 import android.content.Context
+import coil.ImageLoader
+import coil.imageLoader
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -21,6 +23,22 @@ object SingletonModule {
         @ApplicationContext context: Context,
     ): Explorer {
         return Explorer(context)
+    }
+
+    /**
+     * Provides Coil's singleton [ImageLoader], which includes the [coil.decode.VideoFrameDecoder]
+     * registered automatically by the `coil-video` artifact. Used by [xyz.dnieln7.galleryex.feature.viewer.presentation.screen.VideoViewerViewModel]
+     * to proactively warm the memory cache with first-frame thumbnails for adjacent videos.
+     *
+     * @param context Application context used to retrieve Coil's singleton.
+     * @return The application-scoped [ImageLoader] instance.
+     */
+    @Provides
+    @Singleton
+    fun provideImageLoader(
+        @ApplicationContext context: Context,
+    ): ImageLoader {
+        return context.imageLoader
     }
 
     @Provides
