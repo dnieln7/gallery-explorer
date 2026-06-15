@@ -248,7 +248,7 @@ translations for these go in `/core/presentation/error`.
 * **Visibility**: Composables that are exclusively used in the file they are declared must be private otherwise leave
   them as public (no visibility modifier).
 
-### UI & Architecture (MVI + Voyager)
+### UI & Architecture (Voyager + MVI)
 
 **The Destination Contract**
 
@@ -257,9 +257,10 @@ The [Feature]ScreenDestination : Screen is the Orchestrator. It is strictly resp
 * **Dependency Injection**: Obtaining the ViewModel via `getViewModel<T>()`.
 * **State Collection**: Transforming `uiState` into a Compose State via
   `collectAsStateWithLifecycle()`.
+* **Action Mapping**: Mapping the `[Feature]Screen` user interactions to the ViewModel's `onAction` call.
 * **Event Handling**: Observing the `events` Flow and executing side-effects (Toasts, Dialogs).
-* **Lifecycle Mapping**: Using `LifecycleEventEffect` to bridge platform events (e.g., `ON_RESUME`)
-  to `onAction` calls.
+* **Lifecycle Mapping**: Using `LifecycleEventEffect` to bridge platform events (e.g., `ON_RESUME`) to the ViewModel's
+  `onAction` calls.
 * **Navigation Logic**: Defining the lambdas that call `navigator.push/replace`. UI Composables must
   never see the Navigator.
 
