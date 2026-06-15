@@ -37,7 +37,7 @@ class ExampleViewModel @Inject constructor(
         when (action) {
             ExampleAction.OnRefresh -> onRefresh()
             is ExampleAction.OnInputChanged -> onInputChanged(action.input)
-            is ExampleAction.OnSubmitClick -> onSubmit()
+            ExampleAction.OnSubmitClick -> onSubmit()
         }
     }
 

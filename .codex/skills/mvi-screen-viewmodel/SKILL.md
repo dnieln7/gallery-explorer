@@ -1,6 +1,6 @@
 ---
 name: mvi-screen-viewmodel
-description: Create or update a ViewModel-backed MVI screen for this Android repository. Use when the assistant needs to add or modify a feature screen that must follow the Gallery Explorer MVI + Voyager contract, including [Feature]ScreenDestination orchestration, stateless [Feature]Screen rendering, preview, [Feature]ViewModel, required [Feature]State/[Feature]Action/[Feature]Event files in domain/model, and JVM ViewModel tests with Turbine, coroutines test, MockK, and Kluent. Do not use for light screens that do not have a ViewModel.
+description: Create or update a ViewModel-backed MVI screen that follows the Voyager Navigation + MVI contract. Use when adding or modifying a feature screen that needs a ScreenDestination orchestrator, stateless Screen render, ViewModel, State/Action/Event/Navigation domain models, and JVM ViewModel tests with Turbine, coroutines test, MockK, and Kluent. Do not use for light screens that do not have a ViewModel.
 ---
 
 # MVI Screen ViewModel
@@ -12,7 +12,18 @@ Read these bundled references before writing code:
 - `references/example/` for screen, ViewModel, and model shape
 - `references/example-test/` for ViewModel test style and assertion order
 
-Treat `AGENTS.md` as the source of truth when it conflicts with the examples.
+Always read `AGENTS.md` before writing any code. It is the source of truth when it conflicts with these examples.
+
+## Pre-Generation Questions
+
+Ask the developer these four questions **before** writing any code. Do not guess.
+
+1. **Initial load trigger** — Choose one:
+    - `ViewModel init` block
+    - `LifecycleEventEffect(Lifecycle.Event.ON_RESUME)` in ScreenRoot
+    - `LaunchedEffect(key)` in ScreenRoot
+    - No automatic load
+2. **Events** — Does this screen emit one-time side effect events such as toasts, dialogs, or logout? (determines whether to scaffold the events channel)
 
 ## Generation Checklist
 
@@ -20,7 +31,8 @@ Before finishing, confirm all of these are true:
 
 - create or update `[Feature]Screen.kt` with destination, stateless screen, and preview in one file
 - create or update `[Feature]ViewModel.kt`
-- create or update `[Feature]State.kt`, `[Feature]Action.kt`, and `[Feature]Event.kt`
+- create or update `[Feature]State.kt` and `[Feature]Action.kt`
+- create or update `[Feature]Event.kt` (always — empty sealed interface at minimum)
 - keep navigation and side effects in the destination, never in the stateless screen
 - keep business orchestration in the ViewModel, never in the stateless screen
 - expose `uiState` from `MutableStateFlow(...).asStateFlow()`
@@ -28,7 +40,7 @@ Before finishing, confirm all of these are true:
 - collect events in the destination only when there are real events to handle
 - move large or reusable UI blocks into `presentation/component/`
 - add KDoc to public classes and public functions
-- add a stateless screen preview with `GalleryExplorerTheme`
+- add a stateless screen preview with `GalleryExplorerTheme` and `@Preview`
 - add or update `[Feature]ViewModelTest.kt`
 - verify success paths, error paths, collaborator calls, and ordered state or event emissions
 
@@ -36,12 +48,12 @@ Before finishing, confirm all of these are true:
 
 Create or update these files for the feature:
 
-- `feature/<feature>/presentation/screen/[Feature]Screen.kt`
-- `feature/<feature>/presentation/screen/[Feature]ViewModel.kt`
-- `feature/<feature>/domain/model/[Feature]State.kt`
-- `feature/<feature>/domain/model/[Feature]Action.kt`
-- `feature/<feature>/domain/model/[Feature]Event.kt`
-- `app/src/test/.../[Feature]ViewModelTest.kt`
+- `feature/[feature]/presentation/screen/[Feature]Screen.kt`
+- `feature/[feature]/presentation/screen/[Feature]ViewModel.kt`
+- `feature/[feature]/domain/model/[Feature]State.kt`
+- `feature/[feature]/domain/model/[Feature]Action.kt`
+- `feature/[feature]/domain/model/[Feature]Event.kt`
+- `app/src/test/.../feature/[feature]/presentation/screen[Feature]ViewModelTest.kt`
 
 Do not create feature error files from this skill. Error modeling already belongs to the repository rules in
 `AGENTS.md`.
@@ -69,10 +81,10 @@ Use the stateless `[Feature]Screen` as the renderer. It must:
 - send user interactions back through `onAction`
 
 `[Feature]Screen` and other root-like composables may omit `modifier: Modifier = Modifier` as the
-first parameter. Follow the standard AGENTS modifier rule for non-root composables.
+first parameter. Follow the standard `AGENTS.md` modifier rule for non-root composables.
 
 When the screen file starts carrying large state-specific UI blocks or reusable pieces, move those
-pieces to `feature/<feature>/presentation/component/`.
+pieces to `feature/[feature]/presentation/component/`.
 
 ## Model Contract
 
@@ -113,18 +125,14 @@ to scan.
 
 ## Initial Load Trigger
 
-Do not guess the initial load trigger when the correct choice is unclear.
+Never guess the trigger. Before generating, ask the developer which applies:
 
-When the feature requirements do not clearly imply the trigger, stop and ask the user to choose one
-before generating code. Offer a short flat list with concrete options such as:
+- **`ViewModel init`** — call `onAction(...)` or launch inside `init { ... }`
+- **`LifecycleEventEffect`** — place `LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { ... }` inside ScreenRoot
+- **`LaunchedEffect(key)`** — place `LaunchedEffect(key) { ... }` inside ScreenRoot
+- **No automatic load** — the screen only reacts to explicit user actions
 
-- ViewModel `init`
-- `LifecycleEventEffect(...)`
-- `LaunchedEffect(...)`
-- no automatic load
-
-Use the simplest option that matches the requirement when the trigger is obvious, and mirror the chosen trigger in the
-tests.
+Mirror the chosen trigger exactly in the generated code.
 
 ## Tests
 
@@ -159,18 +167,6 @@ behavior.
 
 When the feature currently has an empty event contract, skip event collection assertions but still verify state flow
 behavior and collaborator calls.
-
-## Repository Rules To Enforce
-
-Apply these repository-specific rules every time:
-
-- add KDoc to public classes and public functions
-- keep file-local declarations private
-- use trailing commas
-- avoid expression bodies
-- keep constants at the end of the file
-- use Material 3 plus repository UI components where appropriate
-- add a preview for the stateless screen with `GalleryExplorerTheme`
 
 ## Non-Goals
 
