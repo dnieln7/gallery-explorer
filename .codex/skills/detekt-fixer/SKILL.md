@@ -1,6 +1,6 @@
 ---
 name: detekt-fixer
-description: Detekt workflow for this Android repository. Use when the assistant needs to run Detekt, inspect app/build/reports/detekt.md or app/build/reports/detekt.html, fix Detekt issues, triage Detekt findings, or clean up static analysis warnings. Classify findings into Level 1, Level 2, Level 3, or Unclassified, fix Level 1 and Level 2 issues when safe, and ask the user before any Level 3, Unclassified, suppression, or baseline decision.
+description: Detekt workflow for this Android repository. Use when the assistant needs to run Detekt, inspect [module]/build/reports/detekt.md or [module]/build/reports/detekt.html, fix Detekt issues, triage Detekt findings, or clean up static analysis warnings. Classify findings into Level 1, Level 2, Level 3, or Unclassified, fix Level 1 and Level 2 issues when safe, and ask the user before any Level 3, Unclassified, suppression, or baseline decision.
 
 ---
 
@@ -8,20 +8,16 @@ description: Detekt workflow for this Android repository. Use when the assistant
 
 ## Overview
 
-Run Detekt for the `app` module, classify findings with this project policy, fix the issues that are safe to
-address directly, and escalate anything that requires a structural refactor or a baseline decision.
-
-Use the bundled script for execution and read the bundled reference when a finding is ambiguous:
-
-- `scripts/run_detekt.sh`
-- `references/detekt-levels.md`
+Run Detekt for the chosen module, if the user did not specify one, ask for the module name. Classify findings with this
+project policy, fix the issues that are safe to address directly, and escalate anything that requires a structural
+refactor or a baseline decision.
 
 ## Workflow
 
-1. Confirm the current workspace is `/Users/dniel/Documents/projects-android/GalleryExplorer`.
-2. Run `scripts/run_detekt.sh` from the repository root.
-3. Read `app/build/reports/detekt.md` first. Use `app/build/reports/detekt.html` only if the markdown report is missing
-   or unclear.
+1. Confirm detekt is installed and configured in the repository.
+2. Run `./gradlew :[module]:detekt` from the repository root.
+3. Read `[module]/build/reports/detekt.md` first. Use `[module]/build/reports/detekt.html` only if the Markdown report
+   is missing or unclear.
 4. Inspect the reported files and classify every finding into Level 1, Level 2, Level 3, or Unclassified using
    `references/detekt-levels.md`.
 5. Fix Level 1 findings directly.
@@ -69,9 +65,8 @@ Do not fix or baseline Unclassified findings unilaterally. List them and ask the
 
 ## Repository Constraints
 
-- Run `:app:detekt`; do not substitute a different module unless the user asks.
 - Prefer code fixes over suppression or baseline changes.
-- Never modify `app/detekt/baseline.xml` unless the user explicitly approves that specific baseline action.
+- Never modify `[module]/detekt/baseline.xml` unless the user explicitly approves that specific baseline action.
 - Never add `@Suppress`, detekt config exclusions, or rule disables unless the user explicitly approves them.
 - Respect the repository coding rules in `AGENTS.md` while fixing issues, especially KDoc, visibility, Compose
   structure, and trailing comma expectations.
