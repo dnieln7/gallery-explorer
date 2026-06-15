@@ -1,13 +1,13 @@
 ---
 name: voyager-screen
-description: Create or update a simple non-ViewModel Voyager screen for this Android repository. Use when the assistant needs to add or modify a lightweight screen that should follow the Gallery Explorer screen structure with [Feature]ScreenDestination, a private stateless [Feature]Screen, and a preview in the same file. Do not use when the screen needs a ViewModel, MVI state models, event handling, or broader state orchestration.
+description: Create or update a simple non-ViewModel Voyager screen. Use when adding or modifying a lightweight screen that needs a ScreenDestination, stateless Screen render and a preview in the same file. Do not use when the screen needs a ViewModel, MVI state models, event handling, or broader state orchestration.
 ---
 
 # Voyager Screen
 
-Create the simple Voyager screen structure for this repository and keep it aligned with `AGENTS.md`.
+Create the simple Voyager screen structure for this repository and keep it aligned with `CLAUDE.md`.
 
-Treat `AGENTS.md` as the source of truth when it conflicts with the examples.
+Treat `CLAUDE.md` as the source of truth when it conflicts with the examples.
 
 ## Generation Checklist
 
@@ -56,7 +56,7 @@ Use the stateless `[Feature]Screen` as the renderer. It must:
 - delegate user interactions through callbacks
 
 `[Feature]Screen` and other root-like composables may omit `modifier: Modifier = Modifier` as the
-first parameter. Follow the standard AGENTS modifier rule for non-root composables.
+first parameter. Follow the standard `CLAUDE.md` modifier rule for non-root composables.
 
 File-local helper functions are allowed when they reduce boilerplate and are only used by the
 screen file.
@@ -75,18 +75,6 @@ Keep the screen file focused on:
 - screen layout
 - preview
 - small file-local helpers
-
-## Repository Rules To Enforce
-
-Apply these repository-specific rules every time:
-
-- add KDoc to public classes and public functions
-- keep file-local declarations private
-- use trailing commas
-- avoid expression bodies
-- keep constants at the end of the file
-- use Material 3 plus repository UI components where appropriate
-- add a preview for the stateless screen with `GalleryExplorerTheme`
 
 ## Escalation Rule
 
