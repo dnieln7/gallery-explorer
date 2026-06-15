@@ -5,7 +5,7 @@
 **Gallery Explorer**: Media-only Android file explorer (Images/Video).
 **Exclusions**: No audio-only files.
 **Key UX**: Viewers must support vertical swiping between files of the same type without exiting to the folder view, to
-create a tiktok like experience.
+create a TikTok like experience.
 
 ## Project Tech Stack
 
@@ -36,7 +36,7 @@ create a tiktok like experience.
 * **Mocking**: Mockk
     * **Rule**: Use relaxed mocks.
 * **Flows**: Turbine
-* **Asynchrony**: Jetbrains's Coroutines test
+* **Asynchrony**: JetBrains's Coroutines test
 * **Architecture**: Konsist
 * **Coverage**: Kover
 
@@ -71,14 +71,14 @@ Contains the code of the application, the sources are in `app/src/main/java/xyz/
     * `/core/domain/`: Interfaces, use cases, models, and utilities globally used by `app`.
     * `/core/framework/`: Global Android platform specific utilities like WorkManager, Timber,
       Context, etc.
-    * `/core/data/`: Room, Retrofit and Preferences code, along with it's mappers to Domain layer classes. All
+    * `/core/data/`: Room, Retrofit and Preferences code, along with its mappers to Domain layer classes. All
       repositories that are data sources must be in this package.
     * `/core/presentation/`: Global UI components, Themes, UI Utils.
     * **Rule**: Shared contracts, models, events, and errors used by more than one feature must be placed under
       `core/`, not under a specific feature.
-    * **Rule**: Interfaces and pure/shared models belong in `core/domain/<area>/`, Android/framework implementations
-      belong in `core/framework/<area>/`, and Compose/UI-specific helpers such as `CompositionLocal`, preview no-op
-      implementations, or UI adapters belong in `core/presentation/<area>/`.
+    * **Rule**: Interfaces and pure/shared models belong in `core/domain/[area]/`, Android/framework implementations
+      belong in `core/framework/[area]/`, and Compose/UI-specific helpers such as `CompositionLocal`, preview no-op
+      implementations, or UI adapters belong in `core/presentation/[area]/`.
     * **Rule**: Do not colocate domain contracts, domain models, framework implementations, and presentation helpers
       in the same file.
     * **Rule**: Shared models, events, and errors must be separated into their own files unless they are private to a
@@ -90,7 +90,7 @@ Contains the code of the application, the sources are in `app/src/main/java/xyz/
     * **Rule**: Every presentation package must split into:
         * `.../presentation/screen/`: Screens and ViewModels.
         * `.../presentation/component/`: Reusable UI components.
-    * Features can have it's own `.../domain/` and `.../framework/` packages that are not used by
+    * Features can have its own `.../domain/` and `.../framework/` packages that are not used by
       other features.
 * `main/`: Entry point components; MainActivity.
 * `GalleryExplorerApplication.kt`: Global app initialization.
@@ -244,7 +244,7 @@ translations for these go in `/core/presentation/error`.
 * **Components**: Use project-specific atoms (e.g., `GalleryButtonPrimary`, `VerticalSpacer`).
 * **Previews**:
     * Mandatory for all stateless `[Feature]Screen` composables using `GalleryExplorerTheme`.
-    * Every component that has it's own file (e.g., `GalleryButtonPrimary`) must have a preview.
+    * Every component that has its own file (e.g., `GalleryButtonPrimary`) must have a preview.
 * **Visibility**: Composables that are exclusively used in the file they are declared must be private otherwise leave
   them as public (no visibility modifier).
 
@@ -252,13 +252,12 @@ translations for these go in `/core/presentation/error`.
 
 **The Destination Contract**
 
-The [Feature]ScreenDestination : Screen is the Orchestrator. It is strictly responsible for:
+The `[Feature]ScreenDestination : Screen` is the Orchestrator. It is strictly responsible for:
 
 * **Dependency Injection**: Obtaining the ViewModel via `getViewModel<T>()`.
-* **State Collection**: Transforming `uiState` into a Compose State via
-  `collectAsStateWithLifecycle()`.
+* **State Collection**: Transforming `uiState` into a Compose State via `collectAsStateWithLifecycle()`.
 * **Action Mapping**: Mapping the `[Feature]Screen` user interactions to the ViewModel's `onAction` call.
-* **Event Handling**: Observing the `events` Flow and executing side-effects (Toasts, Dialogs).
+* **Event Handling**: Observing the `events` Flow and executing side effects (Toasts, Dialogs).
 * **Lifecycle Mapping**: Using `LifecycleEventEffect` to bridge platform events (e.g., `ON_RESUME`) to the ViewModel's
   `onAction` calls.
 * **Navigation Logic**: Defining the lambdas that call `navigator.push/replace`. UI Composables must
@@ -283,16 +282,16 @@ The `[Feature]Screen` (Stateless) is the Renderer. It is strictly responsible fo
 **ViewModel Contract**
 
 * **Entry Point**: A single entry point `fun onAction(action: [Feature]Action)`.
-* **State Output**: `private val _uiState = MutableStateFlow([Feature]State())` expose as a
-  `StateFlow` via `asStateFlow()`. Update via `_uiState.update { ... }`.
-* **Event Output**: `private val _events = Channel<[Feature]Event>()` expose as a `Flow` via
-  `receiveAsFlow()`. Update via `_events.send(...)`.
+* **State Output**: `private val _uiState = MutableStateFlow([Feature]State())` expose as a `StateFlow` via
+  `asStateFlow()`. Update via `_uiState.update { ... }`.
+* **Event Output**: `private val _events = Channel<[Feature]Event>()` expose as a `Flow` via `receiveAsFlow()`. Update
+  via `_events.send(...)`.
 
 ## Project Rules
 
 1. Never deviate from the Material 3 guidelines.
-2. Composables that represent an specific functionality or state must be separated into their own files like
+2. Composables that represent a specific functionality or state must be separated into their own files like
    `GalleryButtonPrimary.kt`
 3. Shapes must be created in `core/presentation/theme/Shape.kt`
-4. Composables that are only needed in an specific feature must be in `[feature]/presentation/component` otherwise they
+4. Composables that are only needed in a specific feature must be in `[feature]/presentation/component` otherwise they
    must be in `core/presentation/component` 
