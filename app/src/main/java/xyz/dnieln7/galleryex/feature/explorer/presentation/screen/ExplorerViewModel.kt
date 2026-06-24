@@ -7,14 +7,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.coroutines.flow.first
-import xyz.dnieln7.galleryex.core.domain.model.VolumeFile
 import xyz.dnieln7.galleryex.core.domain.enums.SortOrder
 import xyz.dnieln7.galleryex.core.domain.enums.SortType
+import xyz.dnieln7.galleryex.core.domain.model.VolumeFile
 import xyz.dnieln7.galleryex.core.domain.preferences.AppPreferences
 import xyz.dnieln7.galleryex.feature.explorer.domain.model.ExplorerAction
 import xyz.dnieln7.galleryex.feature.explorer.domain.model.ExplorerEvent
@@ -26,7 +26,6 @@ import javax.inject.Inject
 class ExplorerViewModel @Inject constructor(
     private val appPreferences: AppPreferences,
 ) : ViewModel() {
-
     private val _uiState = MutableStateFlow(ExplorerState())
     val uiState = _uiState.asStateFlow()
 

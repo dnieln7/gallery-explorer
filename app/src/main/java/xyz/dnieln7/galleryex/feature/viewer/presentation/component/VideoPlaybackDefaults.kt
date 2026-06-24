@@ -34,4 +34,3 @@ internal fun formatPlaybackTime(positionMs: Long): String {
 private const val MILLISECONDS_PER_SECOND = 1_000L
 private const val SECONDS_PER_MINUTE = 60
 private const val SECONDS_PER_HOUR = 3_600
-

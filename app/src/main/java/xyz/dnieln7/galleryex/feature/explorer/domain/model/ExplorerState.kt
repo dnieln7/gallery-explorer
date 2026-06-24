@@ -1,8 +1,8 @@
 package xyz.dnieln7.galleryex.feature.explorer.domain.model
 
-import xyz.dnieln7.galleryex.core.domain.model.VolumeFile
 import xyz.dnieln7.galleryex.core.domain.enums.SortOrder
 import xyz.dnieln7.galleryex.core.domain.enums.SortType
+import xyz.dnieln7.galleryex.core.domain.model.VolumeFile
 
 /**
  * State of the [xyz.dnieln7.galleryex.feature.explorer.presentation.screen.ExplorerScreen].

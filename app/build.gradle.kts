@@ -85,6 +85,7 @@ android {
             html.outputLocation.set(file("${projectDir}/build/reports/detekt.html"))
             md.required.set(true)
             md.outputLocation.set(file("${projectDir}/build/reports/detekt.md"))
+            autoCorrect = true
         }
     }
 }

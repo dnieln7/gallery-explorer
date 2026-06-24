@@ -13,7 +13,6 @@ import xyz.dnieln7.galleryex.core.domain.preferences.AppPreferences
 private val Context.dataStore by preferencesDataStore(name = "gallery_explorer_preferences")
 
 class DefaultAppPreferences(private val context: Context) : AppPreferences {
-
     private val sortTypeKey = stringPreferencesKey("sort_type")
     private val sortOrderKey = stringPreferencesKey("sort_order")
 

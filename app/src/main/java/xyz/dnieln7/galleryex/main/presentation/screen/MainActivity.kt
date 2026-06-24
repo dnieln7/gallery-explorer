@@ -4,15 +4,15 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.material3.Surface
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
-import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import cafe.adriel.voyager.navigator.CurrentScreen
 import cafe.adriel.voyager.navigator.Navigator
 import dagger.hilt.android.AndroidEntryPoint
@@ -22,8 +22,8 @@ import xyz.dnieln7.galleryex.core.domain.media.ExternalMediaRedirectEvent
 import xyz.dnieln7.galleryex.core.framework.extension.toastLong
 import xyz.dnieln7.galleryex.core.presentation.media.LocalExternalMediaRedirectCoordinator
 import xyz.dnieln7.galleryex.core.presentation.media.NoOpExternalMediaRedirectCoordinator
-import xyz.dnieln7.galleryex.core.presentation.util.CollectEventsWithLifeCycle
 import xyz.dnieln7.galleryex.core.presentation.theme.GalleryExplorerTheme
+import xyz.dnieln7.galleryex.core.presentation.util.CollectEventsWithLifeCycle
 import xyz.dnieln7.galleryex.feature.home.presentation.screen.HomeScreenDestination
 import javax.inject.Inject
 

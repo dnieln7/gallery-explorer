@@ -5,8 +5,10 @@ package xyz.dnieln7.galleryex.feature.explorer.presentation.screen
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -14,7 +16,11 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.automirrored.rounded.Sort
+import androidx.compose.material.icons.rounded.ArrowDownward
+import androidx.compose.material.icons.rounded.ArrowUpward
 import androidx.compose.material.icons.rounded.FolderOff
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -23,15 +29,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -39,33 +45,27 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.core.screen.ScreenKey
+import cafe.adriel.voyager.hilt.getViewModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import kotlinx.coroutines.launch
 import xyz.dnieln7.galleryex.R
+import xyz.dnieln7.galleryex.core.domain.enums.SortOrder
+import xyz.dnieln7.galleryex.core.domain.enums.SortType
 import xyz.dnieln7.galleryex.core.domain.media.ExternalMediaScreenTarget
 import xyz.dnieln7.galleryex.core.domain.model.VolumeFile
 import xyz.dnieln7.galleryex.core.presentation.component.EmptyState
 import xyz.dnieln7.galleryex.core.presentation.component.PullToRefresh
 import xyz.dnieln7.galleryex.core.presentation.media.LocalExternalMediaRedirectCoordinator
 import xyz.dnieln7.galleryex.core.presentation.theme.GalleryExplorerTheme
+import xyz.dnieln7.galleryex.feature.explorer.domain.model.ExplorerAction
+import xyz.dnieln7.galleryex.feature.explorer.domain.model.ExplorerState
 import xyz.dnieln7.galleryex.feature.explorer.presentation.component.VolumeFileTile
 import xyz.dnieln7.galleryex.feature.viewer.presentation.screen.ImageViewerScreenDestination
 import xyz.dnieln7.galleryex.feature.viewer.presentation.screen.VideoViewerScreenDestination
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import cafe.adriel.voyager.hilt.getViewModel
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.automirrored.rounded.Sort
-import androidx.compose.material.icons.rounded.ArrowDownward
-import androidx.compose.material.icons.rounded.ArrowUpward
-import androidx.compose.material3.TextButton
-import kotlinx.coroutines.launch
-import xyz.dnieln7.galleryex.core.domain.enums.SortOrder
-import xyz.dnieln7.galleryex.core.domain.enums.SortType
-import xyz.dnieln7.galleryex.feature.explorer.domain.model.ExplorerAction
-import xyz.dnieln7.galleryex.feature.explorer.domain.model.ExplorerState
 
 /**
  * Voyager destination that shows the contents of a directory identified by its absolute path.
@@ -212,25 +212,25 @@ private fun ExplorerScreen(
                         onClick = {
                             val nextType = if (state.sortType == SortType.NAME) SortType.DATE else SortType.NAME
                             onAction(ExplorerAction.ChangeSortType(nextType))
-                        }
+                        },
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Rounded.Sort,
-                            contentDescription = stringResource(R.string.sort_type)
+                            contentDescription = stringResource(R.string.sort_type),
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
                             text = when (state.sortType) {
                                 SortType.NAME -> stringResource(R.string.name)
                                 SortType.DATE -> stringResource(R.string.date)
-                            }
+                            },
                         )
                     }
                     IconButton(
                         onClick = {
                             val nextOrder = if (state.sortOrder == SortOrder.ASCENDING) SortOrder.DESCENDING else SortOrder.ASCENDING
                             onAction(ExplorerAction.ChangeSortOrder(nextOrder))
-                        }
+                        },
                     ) {
                         Icon(
                             imageVector = if (state.sortOrder == SortOrder.ASCENDING) {

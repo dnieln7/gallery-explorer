@@ -11,7 +11,6 @@ sealed interface UIText {
     data class FromResource(@StringRes val id: Int) : UIText
 
     data class FromResourceWithArgs(@StringRes val id: Int, val args: Array<Any>) : UIText {
-
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (javaClass != other?.javaClass) return false

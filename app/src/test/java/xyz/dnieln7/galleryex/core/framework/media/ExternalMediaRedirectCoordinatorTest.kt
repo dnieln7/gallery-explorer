@@ -2,7 +2,6 @@ package xyz.dnieln7.galleryex.core.framework.media
 
 import app.cash.turbine.test
 import io.mockk.every
-import java.io.File
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -17,6 +16,7 @@ import xyz.dnieln7.galleryex.core.framework.explorer.Explorer
 import xyz.dnieln7.galleryex.core.framework.explorer.resolveVolumeForPath
 import xyz.dnieln7.galleryex.core.presentation.text.UIText
 import xyz.dnieln7.galleryex.testutil.relaxedMockk
+import java.io.File
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class ExternalMediaRedirectCoordinatorTest {

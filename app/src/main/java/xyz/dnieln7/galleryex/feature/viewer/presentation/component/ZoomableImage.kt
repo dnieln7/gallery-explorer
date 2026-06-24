@@ -102,7 +102,7 @@ fun ZoomableImage(
                                 val zoomChange = event.calculateZoom()
                                 val panChange = event.calculatePan()
 
-                                // Enforce a touch slop threshold to prevent accidental panning or zooming 
+                                // Enforce a touch slop threshold to prevent accidental panning or zooming
                                 // from tiny, unintentional finger movements.
                                 if (!pastTouchSlop) {
                                     zoom *= zoomChange
@@ -122,7 +122,7 @@ fun ZoomableImage(
 
                                 if (pastTouchSlop) {
                                     // Once the user exceeds the touch slop threshold, we lock into pan/zoom mode.
-                                    // If not yet locked, effectivePan and effectiveZoom stay neutral to discard the 
+                                    // If not yet locked, effectivePan and effectiveZoom stay neutral to discard the
                                     // initial jitter or unintentional micro-movements during a tap.
                                     val effectivePan =
                                         if (lockedToPanZoom) panChange else Offset.Zero
@@ -161,14 +161,14 @@ fun ZoomableImage(
                                             overscrollY = 0f
                                         }
 
-                                        // Only pass the drag event to the parent once the user has dragged continuously 
+                                        // Only pass the drag event to the parent once the user has dragged continuously
                                         // past the edge more than 2x the normal touch slop threshold.
                                         val exceedsThreshold = abs(overscrollY) >
                                             (touchSlop * PAGER_HANDOFF_TOUCH_SLOP_MULTIPLIER)
                                         val pushingPastEdgeThreshold =
                                             (pushingPastTopEdge || pushingPastBottomEdge) && exceedsThreshold
 
-                                        // Intercept and consume the touch event if we are actively pinching/zooming, OR if we are 
+                                        // Intercept and consume the touch event if we are actively pinching/zooming, OR if we are
                                         // zoomed in but haven't broken the pager-swipe overscroll threshold yet.
                                         val consume = isZooming || (scale > 1f && !pushingPastEdgeThreshold)
 

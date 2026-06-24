@@ -13,7 +13,6 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object PreferencesModule {
-
     @Provides
     @Singleton
     fun provideAppPreferences(@ApplicationContext context: Context): AppPreferences {

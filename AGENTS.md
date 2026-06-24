@@ -115,6 +115,7 @@ Contains the code of the application, the sources are in `app/src/main/java/xyz/
 
 * **Engine**: Detekt + KTLint.
     * **Ruleset**: Configured in `config/detekt/config.yml`.
+    * **AutoCorrect**: Enabled on some rules, check `config/detekt/config.yml`.
     * **Baselines**: Each module has a `baseline.xml` located in `**/detekt/baseline.xml`.
     * **Constraint**: NEVER modify a `baseline.xml` file or suppress a Detekt warning without explicit permission.
 * **Indentation**: Follow the `.editorconfig` file strictly.

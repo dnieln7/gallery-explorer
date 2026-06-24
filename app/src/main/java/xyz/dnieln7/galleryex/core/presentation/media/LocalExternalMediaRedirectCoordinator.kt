@@ -13,11 +13,17 @@ import xyz.dnieln7.galleryex.core.domain.media.ExternalMediaScreenTarget
 internal data object NoOpExternalMediaRedirectCoordinator : ExternalMediaRedirectCoordinator {
     override val events: Flow<ExternalMediaRedirectEvent> = emptyFlow()
 
-    override suspend fun registerTarget(target: ExternalMediaScreenTarget) {}
+    override suspend fun registerTarget(target: ExternalMediaScreenTarget) {
+        // No-op.
+    }
 
-    override suspend fun clearPath(path: String?) {}
+    override suspend fun clearPath(path: String?) {
+        // No-op.
+    }
 
-    override suspend fun refreshAndVerify() {}
+    override suspend fun refreshAndVerify() {
+        // No-op.
+    }
 }
 
 /**
