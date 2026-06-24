@@ -1,8 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(./gradlew :app:compileDebugKotlin)",
-      "Bash(./gradlew :app:testDebugUnitTest --tests \"xyz.dnieln7.galleryex.feature.explorer.presentation.screen.ExplorerViewModelTest\")"
-    ]
-  }
-}

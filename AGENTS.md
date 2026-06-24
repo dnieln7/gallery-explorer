@@ -130,6 +130,7 @@ Contains the code of the application, the sources are in `app/src/main/java/xyz/
     * Functions/Constants/Classes that are exclusively used in the file they are declared must be private.
     * Avoid magic numbers, always create a const with an easy-to-understand name:
       `const val CONTROLS_AUTO_HIDE_DELAY_MS: Long = 2_500L`.
+      * If the constant is only used in one file put it at the end of the file with a `private` modifier.
 
 ### Error handling
 
@@ -295,3 +296,8 @@ The `[Feature]Screen` (Stateless) is the Renderer. It is strictly responsible fo
 3. Shapes must be created in `core/presentation/theme/Shape.kt`
 4. Composables that are only needed in a specific feature must be in `[feature]/presentation/component` otherwise they
    must be in `core/presentation/component` 
+
+<!-- SPECKIT START -->
+For additional context about technologies to be used, project structure,
+shell commands, and other important information, read the current plan
+<!-- SPECKIT END -->
