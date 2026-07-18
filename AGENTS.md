@@ -238,6 +238,10 @@ CollectEventsWithLifeCycle(viewModel.events) {
 **Rule**: Shared errors (e.g., `NetworkError`, `DatabaseError`) must reside in `/core/domain/error`. Common UI
 translations for these go in `/core/presentation/error`.
 
+**Rule**: If a shared error Throwable translations rely on custom exceptions from dependencies that are only used
+in a package like `core/data` create them in `core/data/error` instead of adding unwanted/unreleated relations to
+`core/presentation`.
+
 ### Compose
 
 * **Modifiers**: First parameter of any Composable must be a Modifier: `Modifier = Modifier` (`[Feature]Screen`
